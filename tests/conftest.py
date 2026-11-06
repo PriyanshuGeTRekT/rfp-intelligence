@@ -15,6 +15,8 @@ from rfp_intel.ingestion.models import (
     PageStatus,
     ParsedDocument,
 )
+from rfp_intel.search.embed import HashingDense, HashingSparse, OverlapReranker
+from rfp_intel.search.runtime import Runtime, open_runtime
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 BIDS_DIR = REPO_ROOT / "data" / "bids"
@@ -37,6 +39,17 @@ def settings(tmp_path: Path, data_dir: Path) -> Settings:
         traces_dir=tmp_path / "traces",
         config_dir=REPO_ROOT / "config",
         api_key=None,
+    )
+
+
+def fake_runtime(settings: Settings) -> Runtime:
+    """The search stack with hashing embedders and an in-memory Qdrant: no downloads."""
+    return open_runtime(
+        settings,
+        dense=HashingDense(),
+        sparse=HashingSparse(),
+        reranker=OverlapReranker(),
+        qdrant_location=":memory:",
     )
 
 

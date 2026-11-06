@@ -39,6 +39,11 @@ class Settings(BaseSettings):
     embed_model: str = "BAAI/bge-small-en-v1.5"
     sparse_model: str = "Qdrant/bm25"
     rerank_model: str = "Xenova/ms-marco-MiniLM-L-12-v2"
+    model_cache_dir: Path | None = None  # default: <state_dir>/models
+
+    # Vector store: embedded Qdrant under state_dir unless a server URL is given.
+    qdrant_url: str | None = None
+    qdrant_collection: str = "chunks"
 
     # API.
     api_key: SecretStr | None = None
@@ -60,6 +65,15 @@ class Settings(BaseSettings):
     def db_path(self) -> Path:
         """SQLite file holding the manifest, facts, change events and run metadata."""
         return self.state_dir / "rfp.sqlite"
+
+    @property
+    def docs_dir(self) -> Path:
+        """Parsed documents as JSON, written by the indexer."""
+        return self.state_dir / "docs"
+
+    @property
+    def models_dir(self) -> Path:
+        return self.model_cache_dir or self.state_dir / "models"
 
 
 @lru_cache(maxsize=1)

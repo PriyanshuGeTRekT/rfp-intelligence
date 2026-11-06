@@ -1,0 +1,23 @@
+# Procurement vocabulary. When any phrase of a group appears in a query, the other phrases are
+# added to the keyword (BM25) query only; the dense query stays as the user wrote it.
+# Keep groups about procurement language in general, never about one agency.
+
+groups:
+  - [due date, closing date, deadline, submission deadline, bid opening, proposals due, responses due]
+  - [pre-bid, pre-proposal, prebid conference, pre-bid conference, pre-submission meeting, site visit]
+  - [bid bond, bid security, bid guarantee, surety, performance bond, payment bond]
+  - [insurance, certificate of insurance, liability insurance]
+  - [warranty, guarantee, prosupport, support plan]
+  - [payment terms, net 30, invoice, invoicing, payment]
+  - [delivery, shipment, ship date, lead time, delivered]
+  - [installation, install, deployment, white glove, imaging, asset tagging]
+  - [addendum, amendment, clarification, questions and answers]
+  - [contact, buyer, procurement officer, point of contact, poc, purchasing agent]
+  - [term, contract term, contract period, renewal, extension, option year]
+  - [affidavit, certification, sworn statement, attestation]
+  - [specification, specifications, specs, configuration, requirements]
+  - [part number, sku, model number, part no]
+  - [quantity, qty, units, each]
+  - [submission, submit, submittal, how to submit, electronic submission, sealed]
+  - [cooperative, co-op, piggyback, master contract, purchasing cooperative, contract vehicle]
+  - [manufacturer, oem, mfg, brand]

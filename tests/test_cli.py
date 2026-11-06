@@ -32,5 +32,5 @@ def test_doctor_fails_when_data_dir_missing(
 
 
 def test_unbuilt_commands_say_so() -> None:
-    result = runner.invoke(app, ["index", "Bid1"])
+    result = runner.invoke(app, ["extract", "Bid1"])
     assert result.exit_code == 2

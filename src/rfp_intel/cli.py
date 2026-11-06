@@ -147,22 +147,81 @@ def _bid_folder(bid: str) -> Path:
 
 @app.command()
 def index(
-    bid: BidArg,
+    bids: Annotated[
+        list[str] | None, typer.Argument(help="Bid folders to index; all folders when omitted")
+    ] = None,
     force: Annotated[bool, typer.Option(help="Re-index even unchanged files")] = False,
 ) -> None:
-    """Parse a bid folder and add its chunks and facts to the index (incremental)."""
-    _todo("index")
+    """Parse, extract facts, chunk and embed bid folders. Unchanged files are skipped."""
+    from rfp_intel.search.runtime import open_runtime
+    from rfp_intel.telemetry import setup_tracing
+
+    s = get_settings()
+    setup_tracing(s)
+    names = bids or sorted(p.name for p in s.data_dir.iterdir() if p.is_dir())
+    folders = [_bid_folder(name) for name in names]
+    with open_runtime(s, load_reranker=False) as rt:
+        indexer = rt.indexer()
+        for folder in folders:
+            r = indexer.index_folder(folder, force=force)
+            typer.echo(
+                f"{r.bid_id}: {len(r.added)} added, {len(r.changed)} changed, "
+                f"{len(r.unchanged)} unchanged, {len(r.removed)} removed, {len(r.failed)} failed; "
+                f"{r.chunks_written} chunks and {r.facts_written} facts written"
+            )
+            for issue in r.issues:
+                where = f" p{issue.page}" if issue.page else ""
+                typer.echo(f"  {issue.severity:<7} {issue.file_name}{where}: {issue.message}")
 
 
 @app.command()
 def search(
     query: str,
     bid: Annotated[str | None, typer.Option(help="Restrict to one bid")] = None,
-    doc_type: Annotated[str | None, typer.Option(help="rfp, addendum, specs, ...")] = None,
+    doc_type: Annotated[
+        list[str] | None, typer.Option(help="rfp, addendum, specs, affidavit, bid_page, form")
+    ] = None,
+    addendum: Annotated[int | None, typer.Option(help="Only this addendum number")] = None,
     k: int = 5,
+    config: Annotated[
+        str, typer.Option(help="dense, sparse, hybrid, hybrid_facts, hybrid_facts_rerank")
+    ] = "hybrid_facts_rerank",
+    as_json: Annotated[bool, typer.Option("--json", help="Print the full result as JSON")] = False,
 ) -> None:
     """Hybrid search; prints file, page, score and chunk text for each hit."""
-    _todo("search")
+    from rfp_intel.search.models import NAMED_CONFIGS
+    from rfp_intel.search.runtime import open_runtime
+    from rfp_intel.telemetry import setup_tracing
+
+    if config not in NAMED_CONFIGS:
+        typer.echo(f"unknown config; choose from {', '.join(NAMED_CONFIGS)}", err=True)
+        raise typer.Exit(code=1)
+    s = get_settings()
+    setup_tracing(s)
+    with open_runtime(s, load_reranker=NAMED_CONFIGS[config].rerank) as rt:
+        if rt.backend.count() == 0:
+            typer.echo("the index is empty; run `rfp index` first", err=True)
+            raise typer.Exit(code=1)
+        result = rt.engine().search(
+            query, bid_id=bid, doc_types=doc_type, addendum_number=addendum, k=k, config=config
+        )
+    if as_json:
+        typer.echo(result.model_dump_json(indent=2))
+        return
+    a = result.query
+    typer.echo(
+        f"config {result.config} | ids {a.identifiers or '-'} | routed to {a.fact_types or '-'} "
+        f"| {result.timings_ms.get('total', 0):.0f} ms"
+    )
+    for h in result.hits:
+        where = f"{h.file_name} p{h.pages}"
+        ranks = ", ".join(f"{name} {r}" for name, r in h.signals.get("ranks", {}).items())
+        typer.echo(
+            f"\n#{h.rank}  {h.score:.3f}  {where}  [{h.doc_type}, {h.chunk_type}]  ({ranks})"
+        )
+        if h.section_path:
+            typer.echo(f"    {' > '.join(h.section_path)}")
+        typer.echo("    " + h.text[:400].replace("\n", "\n    "))
 
 
 @app.command()

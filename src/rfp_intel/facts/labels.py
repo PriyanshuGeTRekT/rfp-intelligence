@@ -50,6 +50,21 @@ def _match(rules: dict[str, TypeRule], kind: FactKind, text: str, scope: str) ->
     return found
 
 
+def route(config: FactTypeConfig, query: str) -> list[str]:
+    """Topic labels a question is about, using the same cues as the facts themselves.
+
+    "When are proposals due?" routes to deadline; "When are questions due?" routes to
+    questions only, because the deadline label excludes question contexts.
+    """
+    return [
+        name
+        for name, rule in config.types.items()
+        if not rule.always
+        and any(rx.search(query) for rx in rule.cue_res)
+        and not any(rx.search(query) for rx in rule.exclude_res)
+    ]
+
+
 def label(
     config: FactTypeConfig,
     kind: FactKind,

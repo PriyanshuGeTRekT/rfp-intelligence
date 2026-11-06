@@ -83,7 +83,7 @@ types:
   pricing:
     kinds: [money, percent, duration]
     cues:
-      - '\bprice|pricing|\bcost|discount|catalog|\bquote'
+      - '\bprice|pricing|\bcost|discount|catalog'  # not "quote": quotes are also bids
 
   contact:
     kinds: [email, phone, url]

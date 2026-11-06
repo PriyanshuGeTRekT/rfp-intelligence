@@ -5,9 +5,8 @@ Hybrid search and multi-agent field extraction over public bid documents. Given 
 20 fields and answers free-form questions with citations, or says the answer is not in the
 documents.
 
-> Status: phases 1 and 2 done. Ingestion (PDF, HTML and text parsing, tables, sections,
-> content-based classification, failure report) and the fact layer (typed, labelled values
-> with exact provenance, stored in SQLite). Search and agents are next.
+> Status: phases 1 to 3 done: ingestion, the fact layer, and hybrid search with incremental
+> indexing, CLI and REST API. The retrieval evaluation and the agents are next.
 
 ## Quick start
 
@@ -19,6 +18,9 @@ uv sync
 cp .env.example .env        # then set ANTHROPIC_API_KEY
 uv run rfp doctor           # shows config and the bid folders it can see
 uv run pytest               # unit tests: no API key, no model downloads
+uv run rfp index            # index every bid folder (first run downloads ~200 MB of models)
+uv run rfp search "When is the proposal due after the addendums?" --bid Bid1
+uv run pytest -m slow       # end-to-end retrieval tests with the real models
 ```
 
 | Command | What it does | Status |
@@ -26,12 +28,12 @@ uv run pytest               # unit tests: no API key, no model downloads
 | `rfp doctor` | Show configuration, check data directory and keys | done |
 | `rfp parse <bid> [--out f.json]` | Parse a bid folder; print type, title, date and issues per file | done |
 | `rfp facts <bid> [--type deadline] [--kind datetime]` | Extract and store typed facts; print the matching ones | done |
-| `rfp index <bid>` | Parse a bid folder and index it incrementally | phase 3 |
-| `rfp search "<query>"` | Hybrid search with file, page and chunk text per hit | phase 3 |
+| `rfp index [bid ...] [--force]` | Index bid folders incrementally; unchanged files are skipped | done |
+| `rfp search "<query>" [--bid] [--doc-type] [--addendum] [--config] [--json]` | Hybrid search; file, pages, chunk text and per-list ranks per hit | done |
 | `rfp extract <bid>` | Multi-agent extraction to one cited JSON | phase 5 |
 | `rfp ask "<question>"` | Cited answer or "not found in documents" | phase 6 |
 | `rfp eval retrieval` | Recall@k and MRR per retrieval configuration | phase 4 |
-| `rfp serve` | REST API: `POST /index`, `GET /search`, `POST /ask` | routes stubbed |
+| `rfp serve` | REST API: `POST /index`, `GET /search` live; `POST /ask` in phase 6 | done |
 
 ## Layout
 
@@ -130,7 +132,65 @@ with no candidate facts can be reported as not found with evidence.
 - **Storage** is one SQLite table, replaced per document in a single transaction, so
   re-indexing a changed file never leaves stale facts behind.
 
+### Chunking
+
+Chunks follow the document's structure rather than a fixed window (targets: about 380
+tokens, at most 480, about 60 tokens of overlap; bge-small reads 512 word pieces).
+
+| Chunk type | What it holds | Why |
+|---|---|---|
+| `section` | Prose of one section, its heading first; small sibling sections are merged under their shared parent | A chunk never mixes unrelated sections, and short bold-headed sections are not slivers |
+| `table` / `table_rows` | A whole table, or slices of rows with the header repeated | A SKU stays next to the column that names it |
+| `qa_pair` | One addendum question with its answer | The unit an addendum question needs |
+| `kv` | Consecutive portal fields under their heading | Portal pages are field lists |
+
+Each chunk carries the exact block spans it covers, so the facts inside it become metadata:
+`identifiers` (each id in written and compact form) and `fact_types` (deadline,
+bond_insurance, ...). The embedded text starts with a short header (document title, type,
+addendum number and date, section path), a cheap form of contextual retrieval. Form
+scaffolding ("Type / Provide your answer below", signature blanks) is flagged
+`is_boilerplate` and down-weighted, except in affidavits and forms, where the form is the
+requirement.
+
+### Retrieval
+
+One Qdrant collection holds a dense vector (`BAAI/bge-small-en-v1.5`), a BM25 sparse vector
+(`Qdrant/bm25`, with Qdrant's IDF modifier) and the chunk payload per point. It runs embedded
+(a folder under `var/`, no server) or against a server via `RFP_QDRANT_URL`. Keeping dense,
+sparse and metadata on one point makes adding, changing and deleting a document one
+operation on one store.
+
+A query builds up to five ranked lists, all under the same metadata filters (bid, document
+type, addendum number):
+
+1. `dense`: embedding similarity;
+2. `bm25`: keywords, with procurement synonyms from `config/synonyms.yaml` added
+   ("bid bond" also searches "bid security", "surety");
+3. `identifiers`: chunks whose identifier list contains an id from the query, matched
+   exactly (so "wd22tb4" finds "WD22TB4" without relying on how BM25 splits hyphens);
+4. and 5. `facts_dense` and `facts_bm25`: the same searches restricted to chunks holding
+   facts with the labels the question routes to, using the same cues as the facts ("When is
+   it due?" routes to deadline, "When are questions due?" to questions only).
+
+The lists are fused with reciprocal rank fusion (k = 60; identifier matches weigh double),
+then the top 30 are reranked with a cross-encoder (`Xenova/ms-marco-MiniLM-L-12-v2`, about
+1.5 s for 30 chunks on CPU; the larger bge-reranker-v2-m3 took 8 s and is an evaluation row,
+not the default). Fusion runs in Python so k, weights and each hit's rank in every list are
+visible; each hit reports them in `signals`. Named configurations (`dense`, `sparse`,
+`hybrid`, `hybrid_facts`, `hybrid_facts_rerank`) switch parts on and off for the evaluation.
+
+### Incremental indexing
+
+A manifest table (in the same SQLite file as the facts) records each file's content hash,
+document id, pipeline version and embedding model. `rfp index` re-processes a file only when
+one of those changes, deletes the index entries of files that disappeared, and leaves other
+bids untouched. A file that fails to parse keeps its previous entry and is reported.
+
 ## Assumptions and limitations
+
+- The embedded Qdrant store allows one process at a time; run the API or the CLI against
+  it, not both, or point both at a Qdrant server with `RFP_QDRANT_URL`.
+- Token counts are estimated at four characters per token, not with the model's tokenizer.
 
 - US month-first numeric dates are assumed ("06/10/2024" is June 10). Time-zone handling
   covers US zones and UTC.

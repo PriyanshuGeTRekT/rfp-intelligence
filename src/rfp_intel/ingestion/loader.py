@@ -46,48 +46,66 @@ def _page_issues(doc: ParsedDocument) -> list[Issue]:
     return issues
 
 
+def list_files(folder: Path) -> tuple[list[tuple[Path, str]], list[str]]:
+    """Supported files as (path, path relative to the folder), and unsupported ones."""
+    supported: list[tuple[Path, str]] = []
+    unsupported: list[str] = []
+    for path in sorted(p for p in folder.rglob("*") if p.is_file()):
+        if path.name.startswith((".", "~$")):
+            continue
+        rel = path.relative_to(folder).as_posix()
+        if path.suffix.lower() in PARSERS:
+            supported.append((path, rel))
+        else:
+            unsupported.append(rel)
+    return supported, unsupported
+
+
+def unsupported_issue(rel: str) -> Issue:
+    suffix = Path(rel).suffix or "none"
+    return Issue(
+        file_name=rel, severity="warning", message=f"unsupported file type '{suffix}'; skipped"
+    )
+
+
+def parse_file(path: Path, bid_id: str, rel: str, cues: CueConfig) -> ParsedDocument:
+    """Parse and enrich one file. Raises on unreadable input; callers decide what to do."""
+    with tracer.start_as_current_span("ingest.file") as span:
+        span.set_attribute("rfp.file", rel)
+        doc = enrich(PARSERS[path.suffix.lower()](path, bid_id, rel), cues)
+        span.set_attribute("rfp.doc_type", doc.doc_type.value)
+        span.set_attribute("rfp.pages", doc.page_count)
+        span.set_attribute("rfp.blocks", len(doc.blocks))
+        span.set_attribute("rfp.tables", len(doc.tables))
+        return doc
+
+
+def page_issues(doc: ParsedDocument) -> list[Issue]:
+    return _page_issues(doc)
+
+
 def load_bid_folder(folder: Path, cues: CueConfig | Path) -> BidFolder:
     """Parse every file under `folder`. One bad file never stops the others."""
     cue_config = load_cues(cues) if isinstance(cues, Path) else cues
     bid_id = folder.name
     documents: list[ParsedDocument] = []
     issues: list[Issue] = []
-    skipped: list[str] = []
 
     with tracer.start_as_current_span("ingest.folder") as span:
         span.set_attribute("rfp.bid_id", bid_id)
-        for path in sorted(p for p in folder.rglob("*") if p.is_file()):
-            rel = path.relative_to(folder).as_posix()
-            if path.name.startswith((".", "~$")):
-                continue
-            parser = PARSERS.get(path.suffix.lower())
-            if parser is None:
-                skipped.append(rel)
+        files, skipped = list_files(folder)
+        issues.extend(unsupported_issue(rel) for rel in skipped)
+        for path, rel in files:
+            try:
+                doc = parse_file(path, bid_id, rel, cue_config)
+            except Exception as exc:  # one unreadable file must not stop the bid
+                log.warning("ingest_file_failed", file=rel, error=str(exc))
                 issues.append(
-                    Issue(
-                        file_name=rel,
-                        severity="warning",
-                        message=f"unsupported file type '{path.suffix or 'none'}'; skipped",
-                    )
+                    Issue(file_name=rel, severity="error", message=f"could not parse: {exc}")
                 )
                 continue
-            with tracer.start_as_current_span("ingest.file") as file_span:
-                file_span.set_attribute("rfp.file", rel)
-                try:
-                    doc = enrich(parser(path, bid_id, rel), cue_config)
-                except Exception as exc:  # one unreadable file must not stop the bid
-                    log.warning("ingest_file_failed", file=rel, error=str(exc))
-                    file_span.record_exception(exc)
-                    issues.append(
-                        Issue(file_name=rel, severity="error", message=f"could not parse: {exc}")
-                    )
-                    continue
-                file_span.set_attribute("rfp.doc_type", doc.doc_type.value)
-                file_span.set_attribute("rfp.pages", doc.page_count)
-                file_span.set_attribute("rfp.blocks", len(doc.blocks))
-                file_span.set_attribute("rfp.tables", len(doc.tables))
-                documents.append(doc)
-                issues.extend(_page_issues(doc))
+            documents.append(doc)
+            issues.extend(_page_issues(doc))
         span.set_attribute("rfp.documents", len(documents))
         span.set_attribute("rfp.issues", len(issues))
 
