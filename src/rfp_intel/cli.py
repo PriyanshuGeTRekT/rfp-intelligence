@@ -63,19 +63,9 @@ def parse(
 ) -> None:
     """Parse a bid folder and print what was found in each file (no indexing)."""
     from rfp_intel.ingestion.loader import load_bid_folder
-    from rfp_intel.security import PathNotAllowedError, resolve_within
 
     s = get_settings()
-    try:
-        folder = resolve_within(s.data_dir, bid)
-    except PathNotAllowedError as exc:
-        typer.echo(str(exc), err=True)
-        raise typer.Exit(code=1) from exc
-    if not folder.is_dir():
-        typer.echo(f"bid folder not found: {folder}", err=True)
-        raise typer.Exit(code=1)
-
-    result = load_bid_folder(folder, s.config_dir / "doc_types.yaml")
+    result = load_bid_folder(_bid_folder(bid), s.config_dir / "doc_types.yaml")
     for doc in result.documents:
         extra = f" addendum {doc.addendum_number}" if doc.addendum_number else ""
         when = f"{doc.doc_date} ({doc.doc_date_source})" if doc.doc_date else "no date"
@@ -96,6 +86,63 @@ def parse(
         out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(result.model_dump_json(indent=2), encoding="utf-8")
         typer.echo(f"wrote {out}")
+
+
+@app.command()
+def facts(
+    bid: BidArg,
+    fact_type: Annotated[
+        list[str] | None, typer.Option("--type", help="Only these labels, e.g. deadline")
+    ] = None,
+    kind: Annotated[list[str] | None, typer.Option(help="Only these kinds, e.g. datetime")] = None,
+    limit: int = 50,
+) -> None:
+    """Extract typed facts from a bid, store them, and print the matching ones."""
+    from rfp_intel.facts.extract import extract_facts
+    from rfp_intel.facts.labels import load_fact_types
+    from rfp_intel.facts.models import FactKind
+    from rfp_intel.facts.store import FactStore
+    from rfp_intel.ingestion.loader import load_bid_folder
+
+    s = get_settings()
+    folder = load_bid_folder(_bid_folder(bid), s.config_dir / "doc_types.yaml")
+    config = load_fact_types(s.config_dir / "fact_types.yaml")
+    try:
+        kinds = [FactKind(k) for k in kind or []]
+    except ValueError as exc:
+        typer.echo(f"unknown kind; choose from {', '.join(k.value for k in FactKind)}", err=True)
+        raise typer.Exit(code=1) from exc
+    with FactStore(s.db_path) as store:
+        total = sum(
+            store.replace_document(d.doc_id, extract_facts(d, config)) for d in folder.documents
+        )
+        found = store.query(folder.bid_id, kinds=kinds or None, fact_types=fact_type or None)
+        counts = store.count_by_type(folder.bid_id)
+    typer.echo(f"{total} facts stored for {folder.bid_id} in {s.db_path}")
+    typer.echo("by label: " + ", ".join(f"{k} {v}" for k, v in counts.items()))
+    for f in found[:limit]:
+        v = f.value
+        shown = v.get("utc") or v.get("local") or v.get("date") or v.get("time") or v
+        typer.echo(
+            f"- {f.file_name} p{f.page} [{', '.join(f.fact_types) or '-'}] {f.kind.value} "
+            f"{f.raw!r} -> {shown}\n    {f.context[:160]}"
+        )
+    if len(found) > limit:
+        typer.echo(f"... {len(found) - limit} more (use --limit)")
+
+
+def _bid_folder(bid: str) -> Path:
+    from rfp_intel.security import PathNotAllowedError, resolve_within
+
+    try:
+        folder = resolve_within(get_settings().data_dir, bid)
+    except PathNotAllowedError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    if not folder.is_dir():
+        typer.echo(f"bid folder not found: {folder}", err=True)
+        raise typer.Exit(code=1)
+    return folder
 
 
 @app.command()

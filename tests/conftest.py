@@ -5,8 +5,16 @@ import pymupdf
 import pytest
 
 from rfp_intel.config import Settings, get_settings
+from rfp_intel.ingestion.loader import load_bid_folder
 from rfp_intel.ingestion.meta import CueConfig, load_cues
-from rfp_intel.ingestion.models import Block, BlockKind, PageInfo, PageStatus, ParsedDocument
+from rfp_intel.ingestion.models import (
+    BidFolder,
+    Block,
+    BlockKind,
+    PageInfo,
+    PageStatus,
+    ParsedDocument,
+)
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 BIDS_DIR = REPO_ROOT / "data" / "bids"
@@ -40,6 +48,17 @@ def _fresh_settings_cache() -> None:
 @pytest.fixture(scope="session")
 def cues() -> CueConfig:
     return load_cues(CUES_PATH)
+
+
+@pytest.fixture(scope="session")
+def bid1_folder() -> BidFolder:
+    """Bid1 parsed once per test session (about 10 s); treat as read-only."""
+    return load_bid_folder(BIDS_DIR / "Bid1", CUES_PATH)
+
+
+@pytest.fixture(scope="session")
+def bid2_folder() -> BidFolder:
+    return load_bid_folder(BIDS_DIR / "Bid2", CUES_PATH)
 
 
 # ---------------------------------------------------------------------------------------------

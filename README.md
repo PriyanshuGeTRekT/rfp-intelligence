@@ -5,9 +5,9 @@ Hybrid search and multi-agent field extraction over public bid documents. Given 
 20 fields and answers free-form questions with citations, or says the answer is not in the
 documents.
 
-> Status: phase 1 (ingestion) done. PDF, HTML and text parsing, cleaning, tables, sections,
-> content-based document classification, addendum numbers, document dates and a per-page
-> failure report. The fact layer, search and agents are next.
+> Status: phases 1 and 2 done. Ingestion (PDF, HTML and text parsing, tables, sections,
+> content-based classification, failure report) and the fact layer (typed, labelled values
+> with exact provenance, stored in SQLite). Search and agents are next.
 
 ## Quick start
 
@@ -25,7 +25,8 @@ uv run pytest               # unit tests: no API key, no model downloads
 |---|---|---|
 | `rfp doctor` | Show configuration, check data directory and keys | done |
 | `rfp parse <bid> [--out f.json]` | Parse a bid folder; print type, title, date and issues per file | done |
-| `rfp index <bid>` | Parse a bid folder and index it incrementally | phase 2 to 3 |
+| `rfp facts <bid> [--type deadline] [--kind datetime]` | Extract and store typed facts; print the matching ones | done |
+| `rfp index <bid>` | Parse a bid folder and index it incrementally | phase 3 |
 | `rfp search "<query>"` | Hybrid search with file, page and chunk text per hit | phase 3 |
 | `rfp extract <bid>` | Multi-agent extraction to one cited JSON | phase 5 |
 | `rfp ask "<question>"` | Cited answer or "not found in documents" | phase 6 |
@@ -98,7 +99,41 @@ order, each with its page and section path, plus tables, page status and documen
   files are logged as errors, and pages without a text layer (scans, or text drawn as vector
   outlines like the W-9 in Bid1) are flagged as needing OCR.
 
+### Fact layer
+
+Dates, durations, money, percentages, identifiers, emails, phones, URLs and quantities are
+parsed once per document, with no LLM, into typed facts with exact provenance. The extraction
+agents will then choose among normalized candidates instead of reading raw text, and a field
+with no candidate facts can be reported as not found with evidence.
+
+- **Every fact is verbatim.** `raw` is the exact substring of its block at `[start, end)`, so
+  any value shown can be checked against the source text.
+- **Context decides meaning.** A value's context is the label to its left in a row ("PROPOSAL
+  DUE | 06/10/2024"), its column header in a table, or its sentence. A row holding both an
+  issue date and a due date gives each its own label.
+- **Topic labels come from `config/fact_types.yaml`.** Each label has cues and exclusions:
+  "deadline" excludes questions, pre-bid meetings, awards and line-item tables, so "Questions
+  Deadline" and a product table's "Due Date" column are not deadline candidates. Generic
+  portal labels ("Event date") borrow the field above; the section heading is the last resort.
+- **Time zones are read as local time in the named zone.** "2:00 PM CST" on July 9 is Central
+  Daylight Time, so it equals the portal's "3:00 PM EDT" (both 19:00 UTC) instead of looking
+  an hour apart. The fact keeps a `tz_note` and the literal reading (`utc_literal`) so the
+  interpretation is visible. Zone data comes from the `tzdata` package, which Windows needs.
+- **Times pair with dates** right after them ("27-JUN-2024 14:00:00") or, failing that, with
+  the nearest date in the same sentence ("at 2:00 PM CST via TEAMS ... on June 10, 2024").
+  Dates without a year take the document's year and are flagged `year_inferred`.
+- **Durations keep their anchor and count**: "within 45 days of Award", "two (2) successive one
+  (1) year extensions" (one year, count two), "3 years following the date of delivery".
+- **Identifiers** are uppercase letter-digit tokens of five or more characters, SKU-shaped
+  tokens such as "379-BFNZ", and bare numbers only after a cue word ("Proposal 168884").
+  Spans already taken by dates, phones, amounts and addresses are skipped.
+- **Storage** is one SQLite table, replaced per document in a single transaction, so
+  re-indexing a changed file never leaves stale facts behind.
+
 ## Assumptions and limitations
+
+- US month-first numeric dates are assumed ("06/10/2024" is June 10). Time-zone handling
+  covers US zones and UTC.
 
 - Two-column prose layouts are not detected; side-by-side columns would be merged into rows.
   None of the bids seen so far use them.

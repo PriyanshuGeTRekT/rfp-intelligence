@@ -63,6 +63,21 @@ def test_parse_command(
     assert out.exists()
 
 
+def test_facts_command_stores_and_filters(
+    bid_folder: Path, data_dir: Path, tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("RFP_DATA_DIR", str(data_dir))
+    monkeypatch.setenv("RFP_CONFIG_DIR", str(REPO_ROOT / "config"))
+    monkeypatch.setenv("RFP_STATE_DIR", str(tmp_path / "state"))
+    result = CliRunner().invoke(app, ["facts", "BidA", "--type", "deadline"])
+    assert result.exit_code == 0, result.output
+    assert "facts stored for BidA" in result.output
+    assert "'July 9, 2024 2:00 PM CDT' -> 2024-07-09T19:00:00Z" in result.output
+    assert (tmp_path / "state" / "rfp.sqlite").exists()
+    bad = CliRunner().invoke(app, ["facts", "BidA", "--kind", "nonsense"])
+    assert bad.exit_code == 1
+
+
 def test_parse_command_refuses_paths_outside_data_dir(
     data_dir: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:

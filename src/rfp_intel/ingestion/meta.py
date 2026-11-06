@@ -12,6 +12,7 @@ from pathlib import Path
 import yaml
 from pydantic import BaseModel, Field
 
+from rfp_intel.facts.datetimes import find_dates
 from rfp_intel.ingestion.models import BlockKind, DocType, ParsedDocument
 from rfp_intel.ingestion.pdf import pdf_metadata_date
 
@@ -141,31 +142,6 @@ def find_addendum_number(doc: ParsedDocument) -> int | None:
 # ---------------------------------------------------------------------------------------------
 # Dates
 
-_MONTHS = {
-    m: i + 1
-    for i, names in enumerate(
-        [
-            ("jan", "january"), ("feb", "february"), ("mar", "march"), ("apr", "april"),
-            ("may",), ("jun", "june"), ("jul", "july"), ("aug", "august"),
-            ("sep", "sept", "september"), ("oct", "october"), ("nov", "november"),
-            ("dec", "december"),
-        ]
-    )
-    for m in names
-}  # fmt: skip
-_MONTH_ALT = "|".join(sorted(_MONTHS, key=len, reverse=True))
-_DATE_PATTERNS = [
-    # July 9, 2024 / Jul. 9 2024 / June 13th, 2024
-    re.compile(
-        rf"\b(?P<mon>{_MONTH_ALT})\.?\s+(?P<d>\d{{1,2}})(?:st|nd|rd|th)?,?\s+(?P<y>\d{{4}})\b", re.I
-    ),
-    # 9 July 2024 / 27-JUN-2024
-    re.compile(rf"\b(?P<d>\d{{1,2}})[\s-](?P<mon>{_MONTH_ALT})\.?[\s,-]+(?P<y>\d{{4}})\b", re.I),
-    # 06/13/2024 (US order)
-    re.compile(r"\b(?P<m>\d{1,2})/(?P<d>\d{1,2})/(?P<y>\d{4})\b"),
-    # 2024-06-13
-    re.compile(r"\b(?P<y>\d{4})-(?P<m>\d{2})-(?P<d>\d{2})\b"),
-]
 # Words that say a date is the document's own date. "Due date" is deliberately absent:
 # an addendum that moves the deadline must not take the new deadline as its own date.
 _DOC_DATE_CUE_RE = re.compile(
@@ -176,21 +152,6 @@ _DOC_DATE_CUE_RE = re.compile(
 )
 
 
-def find_dates(text: str) -> list[tuple[date, int, int]]:
-    """Every calendar date in `text` as (date, start, end), in order of appearance."""
-    found: list[tuple[date, int, int]] = []
-    for rx in _DATE_PATTERNS:
-        for m in rx.finditer(text):
-            parts = m.groupdict()
-            month = _MONTHS[parts["mon"].lower()] if parts.get("mon") else int(parts["m"])
-            try:
-                found.append((date(int(parts["y"]), month, int(parts["d"])), m.start(), m.end()))
-            except ValueError:
-                continue
-    found.sort(key=lambda t: t[1])
-    return found
-
-
 def find_doc_date(doc: ParsedDocument) -> tuple[date | None, str | None]:
     """The document's own date: a cue-labelled date near the top, else PDF metadata."""
     first_pages = "\n".join(b.text for b in doc.blocks if b.page <= 2)
@@ -198,7 +159,7 @@ def find_doc_date(doc: ParsedDocument) -> tuple[date | None, str | None]:
         window = first_pages[cue.end() : cue.end() + 80]
         dates = find_dates(window)
         if dates:
-            return dates[0][0], "text"
+            return dates[0].value, "text"
     meta_date = pdf_metadata_date(doc.metadata)
     if meta_date is not None:
         return meta_date, "pdf_metadata"

@@ -1,0 +1,105 @@
+# Topic labels for facts.
+#
+# A fact gets a label when one of the label's cues matches the fact's context (the label to its
+# left, its column header, or its sentence) and no `exclude` pattern matches the wider scope
+# (the context plus the table header row). If no label matches the context, the section
+# heading is tried. `kinds` limits which fact kinds can carry the label; `always` labels every
+# fact of those kinds. Patterns are case-insensitive regular expressions.
+#
+# Keep cues about procurement language in general, never about one agency's wording.
+
+types:
+  deadline:
+    kinds: [datetime]
+    cues:
+      - '\bdue\b'
+      - '\bclosing\b|\bcloses\b'
+      - '\bdeadline\b'
+      - '\b(?:bid|proposal|quote|response|submission)s?\s+opening\b'
+      - '\bsubmission\s+(?:date|time)\b'
+      - '\b(?:proposals?|bids?|quotes?|quotations?|responses?|offers?|submittals?)\s+(?:are\s+|is\s+|will\s+be\s+|must\s+be\s+|shall\s+be\s+)?(?:due|received|accepted|submitted)\b'
+      - '\bno\s+later\s+than\b'
+    exclude:
+      - 'question|inquir|clarification'
+      - 'pre-?\s?(?:bid|proposal|submission|quote)'
+      - '\bconference\b|\bmeeting\b|\bsite visit\b|walk-?through'
+      - '\baward'
+      - '\bevaluation\b|\bselection\b'
+      - 'advertise|publication|\bposted\b'
+      - '\bqty\b|\bquantit'
+      - 'deliver|invoice'
+
+  questions:
+    kinds: [datetime]
+    cues:
+      - 'question|inquir|clarification request|\brfi\b'
+
+  pre_bid:
+    kinds: [datetime]
+    cues:
+      - 'pre-?\s?(?:bid|proposal|submission|quote)'
+      - '\bsite visit\b|walk-?through|(?:bidders?|vendors?|offerors?)\s+conference'
+
+  issue_date:
+    kinds: [datetime]
+    cues:
+      - '\bissue(?:d)?\s+date\b|\bdate\s+issued\b|\bissued\b'
+      - 'advertise|publication|\bposted\b|\breleased?\b'
+
+  award:
+    kinds: [datetime]
+    cues:
+      - '\baward'
+
+  delivery:
+    kinds: [datetime, duration]
+    cues:
+      - 'deliver|\bship(?:ped|ment|ping)?\b|lead\s*time|\binstall'
+
+  warranty:
+    kinds: [duration, datetime]
+    cues:
+      - 'warrant|prosupport|support\s+plan|\brepair'
+
+  term_renewal:
+    kinds: [duration, datetime]
+    cues:
+      - '\bterm\b|renew|extension|\bextend|contract\s+period|option\s+years?|\bagreement\b'
+    exclude:
+      - 'warrant'
+
+  bond_insurance:
+    cues:
+      - '\bbonds?\b|\bsurety\b|insurance|bid\s+security|bid\s+guarant|certified\s+check|cashier.?s\s+check'
+    exclude:
+      - 'bond[\s-]+(?:funded|funds|program|election|proceeds|issue)'  # public bond financing
+
+  payment_invoice:
+    cues:
+      - '\bnet\s*\d|payment|invoic|\bremit|\bpaid\b'
+    exclude:
+      - 'minimum payment due|credit|finance charge'
+
+  pricing:
+    kinds: [money, percent, duration]
+    cues:
+      - '\bprice|pricing|\bcost|discount|catalog|\bquote'
+
+  contact:
+    kinds: [email, phone, url]
+    cues:
+      - '\bbuyer\b|\bcontact|\bpoc\b|procurement\s+(?:officer|services|specialist)|purchasing|e-?mail|\bphone\b|\bfax\b'
+      - 'questions?\s+(?:should|must|shall|may)\s+be\s+(?:directed|submitted|sent|addressed)'
+
+  submission_method:
+    kinds: [email, url, datetime]
+    cues:
+      - '\bsubmit|\bsubmission|\bsealed\b|electronic|\bupload|hard\s+cop|e-?procurement|portal'
+
+  identifier:
+    kinds: [identifier]
+    always: true
+
+  quantity:
+    kinds: [quantity]
+    always: true

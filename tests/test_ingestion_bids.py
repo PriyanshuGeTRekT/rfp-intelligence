@@ -4,20 +4,17 @@ from datetime import date
 
 import pytest
 
-from rfp_intel.ingestion.loader import load_bid_folder
 from rfp_intel.ingestion.models import BidFolder, BlockKind, DocType, PageStatus, ParsedDocument
 
-from .conftest import BIDS_DIR, CUES_PATH
+
+@pytest.fixture
+def bid1(bid1_folder: BidFolder) -> BidFolder:
+    return bid1_folder
 
 
-@pytest.fixture(scope="module")
-def bid1() -> BidFolder:
-    return load_bid_folder(BIDS_DIR / "Bid1", CUES_PATH)
-
-
-@pytest.fixture(scope="module")
-def bid2() -> BidFolder:
-    return load_bid_folder(BIDS_DIR / "Bid2", CUES_PATH)
+@pytest.fixture
+def bid2(bid2_folder: BidFolder) -> BidFolder:
+    return bid2_folder
 
 
 def _doc(folder: BidFolder, startswith: str) -> ParsedDocument:

@@ -7,7 +7,6 @@ from rfp_intel.ingestion.meta import (
     CueConfig,
     classify,
     find_addendum_number,
-    find_dates,
     find_doc_date,
 )
 from rfp_intel.ingestion.models import DocType, ParsedDocument
@@ -96,16 +95,6 @@ def test_addendum_number(
     make_doc: MakeDoc, head: str, file_name: str, expected: int | None
 ) -> None:
     assert find_addendum_number(make_doc("Body text.", title=head, file_name=file_name)) == expected
-
-
-def test_find_dates_formats() -> None:
-    text = "Due July 9, 2024; meeting 10-JUN-2024 14:00; posted 05/29/2024; iso 2024-06-13; bad 13/45/2024"
-    assert [d for d, _, _ in find_dates(text)] == [
-        date(2024, 7, 9),
-        date(2024, 6, 10),
-        date(2024, 5, 29),
-        date(2024, 6, 13),
-    ]
 
 
 def test_doc_date_from_labelled_text(make_doc: MakeDoc) -> None:
