@@ -1,6 +1,6 @@
 """End-to-end retrieval on the two real bids with the real models.
 
-Marked slow: the first run downloads about 200 MB of models into var/models. Run with
+Marked slow: the first run downloads about 750 MB of models into ~/.cache/rfp-intel. Run with
 `uv run pytest -m slow`.
 """
 
@@ -28,7 +28,7 @@ def runtime(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Runtime]:
         data_dir=data,
         state_dir=tmp / "var",
         config_dir=REPO_ROOT / "config",
-        model_cache_dir=REPO_ROOT / "var" / "models",  # reuse downloaded models
+        # models come from the default per-user cache, so they download once
     )
     with open_runtime(settings) as rt:
         for bid in ("Bid1", "Bid2"):

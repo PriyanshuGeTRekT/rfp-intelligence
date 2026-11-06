@@ -26,7 +26,7 @@ from rfp_intel.facts.labels import FactTypeConfig
 from rfp_intel.search.backend import Filters, SearchBackend
 from rfp_intel.search.embed import DenseEmbedder, Reranker, SparseEmbedder
 from rfp_intel.search.fusion import RankedList, rrf
-from rfp_intel.search.models import NAMED_CONFIGS, Hit, SearchConfig, SearchResult
+from rfp_intel.search.models import DEFAULT_CONFIG, NAMED_CONFIGS, Hit, SearchConfig, SearchResult
 from rfp_intel.search.query import Synonyms, analyze
 
 tracer = trace.get_tracer(__name__)
@@ -61,7 +61,7 @@ class SearchEngine:
         doc_types: Sequence[str] | None = None,
         addendum_number: int | None = None,
         k: int = 5,
-        config: SearchConfig | str = "hybrid_facts_rerank",
+        config: SearchConfig | str = DEFAULT_CONFIG,
     ) -> SearchResult:
         cfg = NAMED_CONFIGS[config] if isinstance(config, str) else config
         with tracer.start_as_current_span("search") as span:

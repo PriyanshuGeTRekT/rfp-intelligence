@@ -23,7 +23,7 @@ from rfp_intel.api.schemas import AskRequest, Health, IndexRequest
 from rfp_intel.config import Settings, get_settings
 from rfp_intel.logs import get_logger
 from rfp_intel.search.indexer import IndexReport
-from rfp_intel.search.models import NAMED_CONFIGS, SearchResult
+from rfp_intel.search.models import DEFAULT_CONFIG, NAMED_CONFIGS, SearchResult
 from rfp_intel.search.runtime import Runtime, open_runtime
 from rfp_intel.security import PathNotAllowedError, resolve_within
 
@@ -99,7 +99,7 @@ def search(
     doc_type: Annotated[list[str] | None, Query()] = None,
     addendum_number: int | None = None,
     k: Annotated[int, Query(ge=1, le=50)] = 5,
-    config: str = "hybrid_facts_rerank",
+    config: str = DEFAULT_CONFIG,
 ) -> SearchResult:
     """Hybrid search. Every hit carries file, pages, chunk text and per-list ranks."""
     if config not in NAMED_CONFIGS:

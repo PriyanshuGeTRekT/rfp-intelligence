@@ -38,8 +38,11 @@ class Settings(BaseSettings):
     # Retrieval models (all run locally on CPU through fastembed).
     embed_model: str = "BAAI/bge-small-en-v1.5"
     sparse_model: str = "Qdrant/bm25"
-    rerank_model: str = "Xenova/ms-marco-MiniLM-L-12-v2"
-    model_cache_dir: Path | None = None  # default: <state_dir>/models
+    # Used by the hybrid_facts_rerank config; see docs/eval/retrieval.md for why this one.
+    rerank_model: str = "BAAI/bge-reranker-v2-m3-int8"
+    # Default ~/.cache/rfp-intel/models: shared across checkouts, and short, because the Hugging
+    # Face cache nests deep folders and a long repo path on Windows exceeds the 260-char limit.
+    model_cache_dir: Path | None = None
 
     # Vector store: embedded Qdrant under state_dir unless a server URL is given.
     qdrant_url: str | None = None
@@ -73,7 +76,7 @@ class Settings(BaseSettings):
 
     @property
     def models_dir(self) -> Path:
-        return self.model_cache_dir or self.state_dir / "models"
+        return self.model_cache_dir or Path.home() / ".cache" / "rfp-intel" / "models"
 
 
 @lru_cache(maxsize=1)

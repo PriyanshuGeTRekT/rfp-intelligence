@@ -63,6 +63,9 @@ class SearchConfig(BaseModel):
     boilerplate_penalty: float = 0.5  # multiplier on the fused score of form-scaffold chunks
 
 
+# The configuration used when none is named; chosen from the retrieval evaluation.
+DEFAULT_CONFIG = "hybrid_facts"
+
 NAMED_CONFIGS: dict[str, SearchConfig] = {
     "dense": SearchConfig(
         name="dense", sparse=False, identifiers=False, fact_types=False, expand=False, rerank=False

@@ -5,8 +5,8 @@ Hybrid search and multi-agent field extraction over public bid documents. Given 
 20 fields and answers free-form questions with citations, or says the answer is not in the
 documents.
 
-> Status: phases 1 to 3 done: ingestion, the fact layer, and hybrid search with incremental
-> indexing, CLI and REST API. The retrieval evaluation and the agents are next.
+> Status: phases 1 to 4 done: ingestion, the fact layer, hybrid search with incremental
+> indexing, CLI and REST API, and the retrieval evaluation. The agents are next.
 
 ## Quick start
 
@@ -18,7 +18,7 @@ uv sync
 cp .env.example .env        # then set ANTHROPIC_API_KEY
 uv run rfp doctor           # shows config and the bid folders it can see
 uv run pytest               # unit tests: no API key, no model downloads
-uv run rfp index            # index every bid folder (first run downloads ~200 MB of models)
+uv run rfp index            # index every bid folder (first run downloads ~100 MB of models)
 uv run rfp search "When is the proposal due after the addendums?" --bid Bid1
 uv run pytest -m slow       # end-to-end retrieval tests with the real models
 ```
@@ -32,7 +32,7 @@ uv run pytest -m slow       # end-to-end retrieval tests with the real models
 | `rfp search "<query>" [--bid] [--doc-type] [--addendum] [--config] [--json]` | Hybrid search; file, pages, chunk text and per-list ranks per hit | done |
 | `rfp extract <bid>` | Multi-agent extraction to one cited JSON | phase 5 |
 | `rfp ask "<question>"` | Cited answer or "not found in documents" | phase 6 |
-| `rfp eval retrieval` | Recall@k and MRR per retrieval configuration | phase 4 |
+| `rfp eval retrieval [--config] [--check] [--update-baseline]` | Recall@k, MRR and latency per configuration; writes docs/eval/retrieval.md | done |
 | `rfp serve` | REST API: `POST /index`, `GET /search` live; `POST /ask` in phase 6 | done |
 
 ## Layout
@@ -172,12 +172,57 @@ type, addendum number):
    facts with the labels the question routes to, using the same cues as the facts ("When is
    it due?" routes to deadline, "When are questions due?" to questions only).
 
-The lists are fused with reciprocal rank fusion (k = 60; identifier matches weigh double),
-then the top 30 are reranked with a cross-encoder (`Xenova/ms-marco-MiniLM-L-12-v2`, about
-1.5 s for 30 chunks on CPU; the larger bge-reranker-v2-m3 took 8 s and is an evaluation row,
-not the default). Fusion runs in Python so k, weights and each hit's rank in every list are
-visible; each hit reports them in `signals`. Named configurations (`dense`, `sparse`,
-`hybrid`, `hybrid_facts`, `hybrid_facts_rerank`) switch parts on and off for the evaluation.
+The lists are fused with reciprocal rank fusion (k = 60; identifier matches weigh double).
+Fusion runs in Python so k, weights and each hit's rank in every list are visible; each hit
+reports them in `signals`. Named configurations (`dense`, `sparse`, `hybrid`, `hybrid_facts`,
+`hybrid_facts_rerank`) switch parts on and off. The default is `hybrid_facts`; reranking the
+top 30 with `BAAI/bge-reranker-v2-m3-int8` is opt-in (`--config hybrid_facts_rerank`), for
+the reasons measured below.
+
+### Retrieval evaluation
+
+`eval/retrieval_gold.yaml` holds 32 questions over both bids, 26 dev and 6 held out (written
+after the system and never used for tuning). Each expected passage is a locator (file,
+phrase it must contain, optional pages) rather than a chunk id, so labels survive
+re-chunking, and a unit test fails if any locator matches no chunk. Each question is searched
+within its own bid. `uv run rfp eval retrieval` writes [docs/eval/retrieval.md](docs/eval/retrieval.md)
+with per-question ranks and misses.
+
+| Config | Recall@1 | Recall@5 | Recall@10 | MRR@10 | Median latency |
+|---|---|---|---|---|---|
+| `dense` | 0.438 | 0.760 | 0.854 | 0.578 | 8 ms |
+| `sparse` (BM25) | 0.438 | 0.729 | 0.875 | 0.563 | 7 ms |
+| `hybrid` (dense + BM25 + identifiers, RRF) | 0.469 | 0.792 | 0.906 | 0.638 | 17 ms |
+| `hybrid_facts` (default) | 0.635 | 0.854 | 0.896 | 0.755 | 26 ms |
+| `hybrid_facts_rerank`, bge-reranker-v2-m3-int8 | 0.698 | 0.927 | 0.958 | 0.823 | 6.3 s |
+| `hybrid_facts_rerank`, ms-marco-MiniLM-L-12-v2 | 0.542 | 0.802 | 0.906 | 0.690 | 1.4 s |
+
+What the rows show:
+
+- **Fusion beats either retriever alone**, and dense and BM25 fail on different questions:
+  BM25 misses paraphrases ("more time to respond"), dense misses exact strings (the
+  solicitation number).
+- **Fact routing is the largest single gain**: MRR 0.638 to 0.755. Restricting extra lists to
+  chunks holding deadline, bond or warranty facts lifts the right chunk above the boilerplate
+  that mentions the same words. Bid2's warranty table goes from rank 8 to 1.
+- **The small reranker hurts.** MiniLM, trained on short web passages, drops below no reranking
+  on every metric; it buried the Bid2 warranty table again (rank 9). It was the planned
+  default and was replaced because of this table.
+- **The large reranker is the best on quality and on the held-out questions** (MRR 0.750 vs
+  0.617), but costs about 6 s per query on CPU. Interactive search uses `hybrid_facts`; the
+  extraction agents can pay for the reranker where a field's evidence matters most.
+- **Known misses.** "Minority and women-owned business participation goal" is missed by every
+  configuration: the goal sentence sits in a long chunk among a dozen other M/WBE form
+  chunks. An M/WBE synonym group added after this analysis did not fix it and is kept as
+  correct vocabulary. "Did the district agree to give vendors more time?" is found by dense
+  alone (rank 2) but outvoted in fusion by chunks that appear lower in several lists.
+- **Caveats.** 32 questions over two bids is small; one question moves Recall@5 by about
+  0.03. The dev questions were written by the system's author, so they favour the
+  vocabulary the system knows; the held-out rows are the more honest numbers.
+
+`eval/baseline.json` stores the default configuration's Recall@5 and MRR. Before merging a
+retrieval change, `uv run rfp eval retrieval --config hybrid_facts --check` fails if either
+fell by more than 0.05. CI does not run it, because it needs the models and an index.
 
 ### Incremental indexing
 
@@ -191,6 +236,9 @@ bids untouched. A file that fails to parse keeps its previous entry and is repor
 - The embedded Qdrant store allows one process at a time; run the API or the CLI against
   it, not both, or point both at a Qdrant server with `RFP_QDRANT_URL`.
 - Token counts are estimated at four characters per token, not with the model's tokenizer.
+- Models are cached in `~/.cache/rfp-intel/models` (override with `RFP_MODEL_CACHE_DIR`). A
+  cache inside a deeply nested repo on Windows breaks the 260-character path limit for the
+  reranker's files, which is why the cache is not under `var/`.
 
 - US month-first numeric dates are assumed ("06/10/2024" is June 10). Time-zone handling
   covers US zones and UTC.

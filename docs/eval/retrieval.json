@@ -1,0 +1,3496 @@
+{
+  "created_at": "2026-11-06T17:23:06+00:00",
+  "git_commit": "0bf3839",
+  "gold_file": "eval/retrieval_gold.yaml",
+  "question_count": 32,
+  "configs": [
+    {
+      "config": "dense",
+      "questions": [
+        {
+          "id": "b1-due-final",
+          "split": "dev",
+          "question": "When is the proposal due now that the addenda have been issued?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 9.1,
+          "top": [
+            "Addendum 2 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p5",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1"
+          ]
+        },
+        {
+          "id": "b1-due-original",
+          "split": "dev",
+          "question": "What was the original submission deadline in the RFP?",
+          "first_relevant_rank": 7,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 1.0
+          },
+          "latency_ms": 9.3,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "Addendum 2 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p41"
+          ]
+        },
+        {
+          "id": "b1-prebid",
+          "split": "dev",
+          "question": "When is the pre-bid meeting and how do vendors attend?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 10.1,
+          "top": [
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b1-number",
+          "split": "dev",
+          "question": "What is the solicitation number for this bid?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 8.4,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p41",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p31",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p9"
+          ]
+        },
+        {
+          "id": "b1-term",
+          "split": "dev",
+          "question": "How long is the contract and can it be renewed?",
+          "first_relevant_rank": 6,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 1.0
+          },
+          "latency_ms": 8.1,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p17",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p5"
+          ]
+        },
+        {
+          "id": "b1-bond",
+          "split": "dev",
+          "question": "Does the bidder need to provide a bid bond?",
+          "first_relevant_rank": 5,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 7.4,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p9",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p14-15",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p18-19"
+          ]
+        },
+        {
+          "id": "b1-install",
+          "split": "dev",
+          "question": "What deployment or installation services must the vendor provide?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 9.6,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3-4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4"
+          ]
+        },
+        {
+          "id": "b1-etching",
+          "split": "dev",
+          "question": "Do monitors need to be laser etched?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 10.5,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1"
+          ]
+        },
+        {
+          "id": "b1-extension",
+          "split": "dev",
+          "question": "Did the district agree to give vendors more time to respond?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 7.7,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p22-23",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2-3"
+          ]
+        },
+        {
+          "id": "b1-buyer",
+          "split": "dev",
+          "question": "Who is the buyer for this solicitation and what is their email?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 7.0,
+          "top": [
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p14-15",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p61"
+          ]
+        },
+        {
+          "id": "b1-warranty-staff",
+          "split": "dev",
+          "question": "What minimum warranty is required on staff laptops?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 9.4,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p5",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p6",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p4"
+          ]
+        },
+        {
+          "id": "b1-qty-chromebook",
+          "split": "dev",
+          "question": "How many small touch Chromebooks does the district expect to buy?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 7.0,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p34-35",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p34",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p4"
+          ]
+        },
+        {
+          "id": "b1-form-1295",
+          "split": "dev",
+          "question": "Is the certificate of interested parties form required with the response?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 8.3,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p14-15",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p18-19"
+          ]
+        },
+        {
+          "id": "b1-mwbe-goal",
+          "split": "dev",
+          "question": "What is the minority and women-owned business participation goal?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 8.1,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p45",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p26",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p53-60"
+          ]
+        },
+        {
+          "id": "b1-price-change",
+          "split": "dev",
+          "question": "How far in advance must a vendor request a price increase?",
+          "first_relevant_rank": 3,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 9.1,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p20",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p21",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p21"
+          ]
+        },
+        {
+          "id": "b1-autopilot",
+          "split": "dev",
+          "question": "Must Windows devices be enrolled in a management service before delivery?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 7.2,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p5",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p35"
+          ]
+        },
+        {
+          "id": "b1-repair-time",
+          "split": "heldout",
+          "question": "How quickly must warranty repairs be completed?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 9.3,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3-4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p3",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2"
+          ]
+        },
+        {
+          "id": "b1-punchout",
+          "split": "heldout",
+          "question": "Does the vendor have to set up an online catalog connection with the district?",
+          "first_relevant_rank": 5,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 7.6,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p19-20",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p16",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p14-15"
+          ]
+        },
+        {
+          "id": "b1-references",
+          "split": "heldout",
+          "question": "How many customer references are needed?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 9.7,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p42",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p46"
+          ]
+        },
+        {
+          "id": "b2-due",
+          "split": "dev",
+          "question": "What is the closing date and time for the Dell laptop bid?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 9.8,
+          "top": [
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b2-affidavits",
+          "split": "dev",
+          "question": "Which affidavits must the vendor submit?",
+          "first_relevant_rank": 4,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.3333333333333333,
+            "10": 0.3333333333333333
+          },
+          "latency_ms": 7.5,
+          "top": [
+            "Contract_Affidavit.pdf p1",
+            "Contract_Affidavit.pdf p2",
+            "Contract_Affidavit.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-delivery",
+          "split": "dev",
+          "question": "How soon after award must the laptops be delivered?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 5.8,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-warranty",
+          "split": "dev",
+          "question": "What warranty coverage is required for the laptops?",
+          "first_relevant_rank": 8,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 1.0
+          },
+          "latency_ms": 6.6,
+          "top": [
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b2-invoice",
+          "split": "dev",
+          "question": "Where and when should invoices be sent?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6.6,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "Contract_Affidavit.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-sku-cpu",
+          "split": "dev",
+          "question": "What is the SKU for the Intel Core Ultra 5 processor?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 7.3,
+          "top": [
+            "Dell_Laptop_Specs.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "Dell_Laptop_Specs.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-dock",
+          "split": "dev",
+          "question": "WD22TB4",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 9.1,
+          "top": [
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-qty",
+          "split": "dev",
+          "question": "How many laptops and docks are being purchased?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 8.0,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-eligibility",
+          "split": "dev",
+          "question": "Which vendors are allowed to bid on this purchase order?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6.8,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-questions",
+          "split": "dev",
+          "question": "What is the deadline for submitting questions about the Dell laptop solicitation?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 9.9,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b2-poc",
+          "split": "heldout",
+          "question": "Who is the agency point of contact and what is their phone number?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 9.4,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "Contract_Affidavit.pdf p1"
+          ]
+        },
+        {
+          "id": "b2-submission",
+          "split": "heldout",
+          "question": "How must proposals be submitted, and are emailed bids accepted?",
+          "first_relevant_rank": 4,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6.6,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p3-4",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-memory",
+          "split": "heldout",
+          "question": "How much RAM does the quoted laptop configuration have?",
+          "first_relevant_rank": 3,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6.0,
+          "top": [
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "Dell_Laptop_Specs.pdf p1"
+          ]
+        }
+      ]
+    },
+    {
+      "config": "sparse",
+      "questions": [
+        {
+          "id": "b1-due-final",
+          "split": "dev",
+          "question": "When is the proposal due now that the addenda have been issued?",
+          "first_relevant_rank": 3,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 9.1,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p31-32",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "Addendum 2 RFP JA-207652 Student and Staff Computing Devices.pdf p1"
+          ]
+        },
+        {
+          "id": "b1-due-original",
+          "split": "dev",
+          "question": "What was the original submission deadline in the RFP?",
+          "first_relevant_rank": 7,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 1.0
+          },
+          "latency_ms": 8.7,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p9",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p49",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2-3"
+          ]
+        },
+        {
+          "id": "b1-prebid",
+          "split": "dev",
+          "question": "When is the pre-bid meeting and how do vendors attend?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 8.7,
+          "top": [
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b1-number",
+          "split": "dev",
+          "question": "What is the solicitation number for this bid?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 5.3,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p14",
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p41"
+          ]
+        },
+        {
+          "id": "b1-term",
+          "split": "dev",
+          "question": "How long is the contract and can it be renewed?",
+          "first_relevant_rank": 4,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 7.0,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p29",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p31"
+          ]
+        },
+        {
+          "id": "b1-bond",
+          "split": "dev",
+          "question": "Does the bidder need to provide a bid bond?",
+          "first_relevant_rank": 9,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 1.0
+          },
+          "latency_ms": 9.1,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p52",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p53",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p50-51"
+          ]
+        },
+        {
+          "id": "b1-install",
+          "split": "dev",
+          "question": "What deployment or installation services must the vendor provide?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 5.6,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3-4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3"
+          ]
+        },
+        {
+          "id": "b1-etching",
+          "split": "dev",
+          "question": "Do monitors need to be laser etched?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 5.9,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p3",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p34"
+          ]
+        },
+        {
+          "id": "b1-extension",
+          "split": "dev",
+          "question": "Did the district agree to give vendors more time to respond?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 7.1,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p31-32",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p21",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p24"
+          ]
+        },
+        {
+          "id": "b1-buyer",
+          "split": "dev",
+          "question": "Who is the buyer for this solicitation and what is their email?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 6.8,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p61",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2-3",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p31"
+          ]
+        },
+        {
+          "id": "b1-warranty-staff",
+          "split": "dev",
+          "question": "What minimum warranty is required on staff laptops?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6.9,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p6",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p3"
+          ]
+        },
+        {
+          "id": "b1-qty-chromebook",
+          "split": "dev",
+          "question": "How many small touch Chromebooks does the district expect to buy?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 7.6,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p34-35",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p34",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p38-39"
+          ]
+        },
+        {
+          "id": "b1-form-1295",
+          "split": "dev",
+          "question": "Is the certificate of interested parties form required with the response?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6.8,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p14",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p19-20"
+          ]
+        },
+        {
+          "id": "b1-mwbe-goal",
+          "split": "dev",
+          "question": "What is the minority and women-owned business participation goal?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 6.9,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p50",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p26",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p52"
+          ]
+        },
+        {
+          "id": "b1-price-change",
+          "split": "dev",
+          "question": "How far in advance must a vendor request a price increase?",
+          "first_relevant_rank": 5,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 8.3,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p20",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p16"
+          ]
+        },
+        {
+          "id": "b1-autopilot",
+          "split": "dev",
+          "question": "Must Windows devices be enrolled in a management service before delivery?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 8.7,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p5",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p4"
+          ]
+        },
+        {
+          "id": "b1-repair-time",
+          "split": "heldout",
+          "question": "How quickly must warranty repairs be completed?",
+          "first_relevant_rank": 3,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 8.0,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3-4"
+          ]
+        },
+        {
+          "id": "b1-punchout",
+          "split": "heldout",
+          "question": "Does the vendor have to set up an online catalog connection with the district?",
+          "first_relevant_rank": 7,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 1.0
+          },
+          "latency_ms": 7.9,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p21",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p60",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p22"
+          ]
+        },
+        {
+          "id": "b1-references",
+          "split": "heldout",
+          "question": "How many customer references are needed?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 7.0,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-due",
+          "split": "dev",
+          "question": "What is the closing date and time for the Dell laptop bid?",
+          "first_relevant_rank": 3,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 8.9,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p1"
+          ]
+        },
+        {
+          "id": "b2-affidavits",
+          "split": "dev",
+          "question": "Which affidavits must the vendor submit?",
+          "first_relevant_rank": 3,
+          "recall": {
+            "1": 0.0,
+            "3": 0.3333333333333333,
+            "5": 0.3333333333333333,
+            "10": 1.0
+          },
+          "latency_ms": 7.5,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p1",
+            "Mercury_Affidavit.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-delivery",
+          "split": "dev",
+          "question": "How soon after award must the laptops be delivered?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 8.8,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p1"
+          ]
+        },
+        {
+          "id": "b2-warranty",
+          "split": "dev",
+          "question": "What warranty coverage is required for the laptops?",
+          "first_relevant_rank": 8,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 1.0
+          },
+          "latency_ms": 5.6,
+          "top": [
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b2-invoice",
+          "split": "dev",
+          "question": "Where and when should invoices be sent?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6.7,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "Dell_Laptop_Specs.pdf p3",
+            "Dell_Laptop_Specs.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-sku-cpu",
+          "split": "dev",
+          "question": "What is the SKU for the Intel Core Ultra 5 processor?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6.7,
+          "top": [
+            "Dell_Laptop_Specs.pdf p1",
+            "Dell_Laptop_Specs.pdf p2",
+            "Contract_Affidavit.pdf p1"
+          ]
+        },
+        {
+          "id": "b2-dock",
+          "split": "dev",
+          "question": "WD22TB4",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 3.8,
+          "top": [
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-qty",
+          "split": "dev",
+          "question": "How many laptops and docks are being purchased?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6.5,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b2-eligibility",
+          "split": "dev",
+          "question": "Which vendors are allowed to bid on this purchase order?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6.7,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p3-4",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-questions",
+          "split": "dev",
+          "question": "What is the deadline for submitting questions about the Dell laptop solicitation?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 7.9,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p1"
+          ]
+        },
+        {
+          "id": "b2-poc",
+          "split": "heldout",
+          "question": "Who is the agency point of contact and what is their phone number?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 8.0,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "PORFP_-_Dell_Laptop_Final.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-submission",
+          "split": "heldout",
+          "question": "How must proposals be submitted, and are emailed bids accepted?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6.0,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-memory",
+          "split": "heldout",
+          "question": "How much RAM does the quoted laptop configuration have?",
+          "first_relevant_rank": 5,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 7.6,
+          "top": [
+            "Dell_Laptop_Specs.pdf p3",
+            "Dell_Laptop_Specs.pdf p3",
+            "Dell_Laptop_Specs.pdf p3"
+          ]
+        }
+      ]
+    },
+    {
+      "config": "hybrid",
+      "questions": [
+        {
+          "id": "b1-due-final",
+          "split": "dev",
+          "question": "When is the proposal due now that the addenda have been issued?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 17.6,
+          "top": [
+            "Addendum 2 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2"
+          ]
+        },
+        {
+          "id": "b1-due-original",
+          "split": "dev",
+          "question": "What was the original submission deadline in the RFP?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 19.3,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p49",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4"
+          ]
+        },
+        {
+          "id": "b1-prebid",
+          "split": "dev",
+          "question": "When is the pre-bid meeting and how do vendors attend?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 16.3,
+          "top": [
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b1-number",
+          "split": "dev",
+          "question": "What is the solicitation number for this bid?",
+          "first_relevant_rank": 9,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 1.0
+          },
+          "latency_ms": 14.7,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p41",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p9",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p31"
+          ]
+        },
+        {
+          "id": "b1-term",
+          "split": "dev",
+          "question": "How long is the contract and can it be renewed?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 15.9,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2-3",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p17"
+          ]
+        },
+        {
+          "id": "b1-bond",
+          "split": "dev",
+          "question": "Does the bidder need to provide a bid bond?",
+          "first_relevant_rank": 3,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 16.8,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p9",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p52",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p17"
+          ]
+        },
+        {
+          "id": "b1-install",
+          "split": "dev",
+          "question": "What deployment or installation services must the vendor provide?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 16.1,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3-4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1"
+          ]
+        },
+        {
+          "id": "b1-etching",
+          "split": "dev",
+          "question": "Do monitors need to be laser etched?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 14.8,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p3",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1"
+          ]
+        },
+        {
+          "id": "b1-extension",
+          "split": "dev",
+          "question": "Did the district agree to give vendors more time to respond?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 17.4,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p22-23",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p28",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p21"
+          ]
+        },
+        {
+          "id": "b1-buyer",
+          "split": "dev",
+          "question": "Who is the buyer for this solicitation and what is their email?",
+          "first_relevant_rank": 6,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 1.0
+          },
+          "latency_ms": 19.6,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p61",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p31",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p20"
+          ]
+        },
+        {
+          "id": "b1-warranty-staff",
+          "split": "dev",
+          "question": "What minimum warranty is required on staff laptops?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 17.8,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p6",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1"
+          ]
+        },
+        {
+          "id": "b1-qty-chromebook",
+          "split": "dev",
+          "question": "How many small touch Chromebooks does the district expect to buy?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 17.2,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p34-35",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p34",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p4"
+          ]
+        },
+        {
+          "id": "b1-form-1295",
+          "split": "dev",
+          "question": "Is the certificate of interested parties form required with the response?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 15.6,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p14",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p14-15"
+          ]
+        },
+        {
+          "id": "b1-mwbe-goal",
+          "split": "dev",
+          "question": "What is the minority and women-owned business participation goal?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 18.0,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p26",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p53-60",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p41"
+          ]
+        },
+        {
+          "id": "b1-price-change",
+          "split": "dev",
+          "question": "How far in advance must a vendor request a price increase?",
+          "first_relevant_rank": 3,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 19.2,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p20",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p21",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p21"
+          ]
+        },
+        {
+          "id": "b1-autopilot",
+          "split": "dev",
+          "question": "Must Windows devices be enrolled in a management service before delivery?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 19.4,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p5",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3-4"
+          ]
+        },
+        {
+          "id": "b1-repair-time",
+          "split": "heldout",
+          "question": "How quickly must warranty repairs be completed?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 19.6,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3-4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p3"
+          ]
+        },
+        {
+          "id": "b1-punchout",
+          "split": "heldout",
+          "question": "Does the vendor have to set up an online catalog connection with the district?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 17.9,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p21",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p61-62",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p19-20"
+          ]
+        },
+        {
+          "id": "b1-references",
+          "split": "heldout",
+          "question": "How many customer references are needed?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 17.3,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p42",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-due",
+          "split": "dev",
+          "question": "What is the closing date and time for the Dell laptop bid?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 17.0,
+          "top": [
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b2-affidavits",
+          "split": "dev",
+          "question": "Which affidavits must the vendor submit?",
+          "first_relevant_rank": 3,
+          "recall": {
+            "1": 0.0,
+            "3": 0.3333333333333333,
+            "5": 0.3333333333333333,
+            "10": 1.0
+          },
+          "latency_ms": 18.4,
+          "top": [
+            "Contract_Affidavit.pdf p2",
+            "Mercury_Affidavit.pdf p1",
+            "Contract_Affidavit.pdf p1"
+          ]
+        },
+        {
+          "id": "b2-delivery",
+          "split": "dev",
+          "question": "How soon after award must the laptops be delivered?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 18.3,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-warranty",
+          "split": "dev",
+          "question": "What warranty coverage is required for the laptops?",
+          "first_relevant_rank": 8,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 1.0
+          },
+          "latency_ms": 19.3,
+          "top": [
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b2-invoice",
+          "split": "dev",
+          "question": "Where and when should invoices be sent?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 16.0,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "Dell_Laptop_Specs.pdf p3",
+            "Dell_Laptop_Specs.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-sku-cpu",
+          "split": "dev",
+          "question": "What is the SKU for the Intel Core Ultra 5 processor?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 18.5,
+          "top": [
+            "Dell_Laptop_Specs.pdf p1",
+            "Dell_Laptop_Specs.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-dock",
+          "split": "dev",
+          "question": "WD22TB4",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 18.5,
+          "top": [
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b2-qty",
+          "split": "dev",
+          "question": "How many laptops and docks are being purchased?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 15.0,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-eligibility",
+          "split": "dev",
+          "question": "Which vendors are allowed to bid on this purchase order?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 15.6,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "Dell_Laptop_Specs.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-questions",
+          "split": "dev",
+          "question": "What is the deadline for submitting questions about the Dell laptop solicitation?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 17.5,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b2-poc",
+          "split": "heldout",
+          "question": "Who is the agency point of contact and what is their phone number?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 17.7,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-submission",
+          "split": "heldout",
+          "question": "How must proposals be submitted, and are emailed bids accepted?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 16.5,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-memory",
+          "split": "heldout",
+          "question": "How much RAM does the quoted laptop configuration have?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 15.1,
+          "top": [
+            "Dell_Laptop_Specs.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        }
+      ]
+    },
+    {
+      "config": "hybrid_facts",
+      "questions": [
+        {
+          "id": "b1-due-final",
+          "split": "dev",
+          "question": "When is the proposal due now that the addenda have been issued?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 28.3,
+          "top": [
+            "Addendum 2 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b1-due-original",
+          "split": "dev",
+          "question": "What was the original submission deadline in the RFP?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 31.5,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "Addendum 2 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b1-prebid",
+          "split": "dev",
+          "question": "When is the pre-bid meeting and how do vendors attend?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 30.5,
+          "top": [
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b1-number",
+          "split": "dev",
+          "question": "What is the solicitation number for this bid?",
+          "first_relevant_rank": 9,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 1.0
+          },
+          "latency_ms": 16.7,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p41",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p9",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p31"
+          ]
+        },
+        {
+          "id": "b1-term",
+          "split": "dev",
+          "question": "How long is the contract and can it be renewed?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 25.5,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2-3",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p17"
+          ]
+        },
+        {
+          "id": "b1-bond",
+          "split": "dev",
+          "question": "Does the bidder need to provide a bid bond?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 27.7,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p17",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p9",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p52"
+          ]
+        },
+        {
+          "id": "b1-install",
+          "split": "dev",
+          "question": "What deployment or installation services must the vendor provide?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 27.6,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p17",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3-4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4"
+          ]
+        },
+        {
+          "id": "b1-etching",
+          "split": "dev",
+          "question": "Do monitors need to be laser etched?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 14.7,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p3",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1"
+          ]
+        },
+        {
+          "id": "b1-extension",
+          "split": "dev",
+          "question": "Did the district agree to give vendors more time to respond?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 16.0,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p22-23",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p28",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p21"
+          ]
+        },
+        {
+          "id": "b1-buyer",
+          "split": "dev",
+          "question": "Who is the buyer for this solicitation and what is their email?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 28.2,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p1-2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p60-61",
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b1-warranty-staff",
+          "split": "dev",
+          "question": "What minimum warranty is required on staff laptops?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 25.5,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p6",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1"
+          ]
+        },
+        {
+          "id": "b1-qty-chromebook",
+          "split": "dev",
+          "question": "How many small touch Chromebooks does the district expect to buy?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 15.4,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p34-35",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p34",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p4"
+          ]
+        },
+        {
+          "id": "b1-form-1295",
+          "split": "dev",
+          "question": "Is the certificate of interested parties form required with the response?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 15.9,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p14",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p14-15"
+          ]
+        },
+        {
+          "id": "b1-mwbe-goal",
+          "split": "dev",
+          "question": "What is the minority and women-owned business participation goal?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 16.1,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p26",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p53-60",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p41"
+          ]
+        },
+        {
+          "id": "b1-price-change",
+          "split": "dev",
+          "question": "How far in advance must a vendor request a price increase?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 29.0,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p21",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3-4",
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b1-autopilot",
+          "split": "dev",
+          "question": "Must Windows devices be enrolled in a management service before delivery?",
+          "first_relevant_rank": 3,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 28.6,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p17",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p5",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4"
+          ]
+        },
+        {
+          "id": "b1-repair-time",
+          "split": "heldout",
+          "question": "How quickly must warranty repairs be completed?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 25.6,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3-4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p3",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1"
+          ]
+        },
+        {
+          "id": "b1-punchout",
+          "split": "heldout",
+          "question": "Does the vendor have to set up an online catalog connection with the district?",
+          "first_relevant_rank": 5,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 26.9,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p21",
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3-4"
+          ]
+        },
+        {
+          "id": "b1-references",
+          "split": "heldout",
+          "question": "How many customer references are needed?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 15.4,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p42",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-due",
+          "split": "dev",
+          "question": "What is the closing date and time for the Dell laptop bid?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 29.2,
+          "top": [
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-affidavits",
+          "split": "dev",
+          "question": "Which affidavits must the vendor submit?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 0.3333333333333333,
+            "3": 0.3333333333333333,
+            "5": 0.3333333333333333,
+            "10": 0.6666666666666666
+          },
+          "latency_ms": 27.9,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-delivery",
+          "split": "dev",
+          "question": "How soon after award must the laptops be delivered?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 31.4,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-warranty",
+          "split": "dev",
+          "question": "What warranty coverage is required for the laptops?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 26.9,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b2-invoice",
+          "split": "dev",
+          "question": "Where and when should invoices be sent?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 24.9,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "Dell_Laptop_Specs.pdf p3",
+            "Dell_Laptop_Specs.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-sku-cpu",
+          "split": "dev",
+          "question": "What is the SKU for the Intel Core Ultra 5 processor?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 18.0,
+          "top": [
+            "Dell_Laptop_Specs.pdf p1",
+            "Dell_Laptop_Specs.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-dock",
+          "split": "dev",
+          "question": "WD22TB4",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 15.5,
+          "top": [
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b2-qty",
+          "split": "dev",
+          "question": "How many laptops and docks are being purchased?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 19.3,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-eligibility",
+          "split": "dev",
+          "question": "Which vendors are allowed to bid on this purchase order?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 16.2,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "Dell_Laptop_Specs.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-questions",
+          "split": "dev",
+          "question": "What is the deadline for submitting questions about the Dell laptop solicitation?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 29.0,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p1"
+          ]
+        },
+        {
+          "id": "b2-poc",
+          "split": "heldout",
+          "question": "Who is the agency point of contact and what is their phone number?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 26.3,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-submission",
+          "split": "heldout",
+          "question": "How must proposals be submitted, and are emailed bids accepted?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 25.4,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-memory",
+          "split": "heldout",
+          "question": "How much RAM does the quoted laptop configuration have?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 15.7,
+          "top": [
+            "Dell_Laptop_Specs.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        }
+      ]
+    },
+    {
+      "config": "hybrid_facts_rerank",
+      "questions": [
+        {
+          "id": "b1-due-final",
+          "split": "dev",
+          "question": "When is the proposal due now that the addenda have been issued?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6173.5,
+          "top": [
+            "Addendum 2 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2"
+          ]
+        },
+        {
+          "id": "b1-due-original",
+          "split": "dev",
+          "question": "What was the original submission deadline in the RFP?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 5329.7,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p51",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2-3"
+          ]
+        },
+        {
+          "id": "b1-prebid",
+          "split": "dev",
+          "question": "When is the pre-bid meeting and how do vendors attend?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6810.2,
+          "top": [
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b1-number",
+          "split": "dev",
+          "question": "What is the solicitation number for this bid?",
+          "first_relevant_rank": 3,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 5071.5,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p14",
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1",
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b1-term",
+          "split": "dev",
+          "question": "How long is the contract and can it be renewed?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 5127.8,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2-3",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2"
+          ]
+        },
+        {
+          "id": "b1-bond",
+          "split": "dev",
+          "question": "Does the bidder need to provide a bid bond?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 5488.9,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p9",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p17",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p47"
+          ]
+        },
+        {
+          "id": "b1-install",
+          "split": "dev",
+          "question": "What deployment or installation services must the vendor provide?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 4758.8,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3-4",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4"
+          ]
+        },
+        {
+          "id": "b1-etching",
+          "split": "dev",
+          "question": "Do monitors need to be laser etched?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 5960.8,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p38-39",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p34"
+          ]
+        },
+        {
+          "id": "b1-extension",
+          "split": "dev",
+          "question": "Did the district agree to give vendors more time to respond?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 5098.8,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p22-23",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p16"
+          ]
+        },
+        {
+          "id": "b1-buyer",
+          "split": "dev",
+          "question": "Who is the buyer for this solicitation and what is their email?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 4940.7,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2-3",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p1-2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p20"
+          ]
+        },
+        {
+          "id": "b1-warranty-staff",
+          "split": "dev",
+          "question": "What minimum warranty is required on staff laptops?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6889.9,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p6",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p3"
+          ]
+        },
+        {
+          "id": "b1-qty-chromebook",
+          "split": "dev",
+          "question": "How many small touch Chromebooks does the district expect to buy?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6074.5,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p34",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p34-35",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p38-39"
+          ]
+        },
+        {
+          "id": "b1-form-1295",
+          "split": "dev",
+          "question": "Is the certificate of interested parties form required with the response?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 5221.0,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p14",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p14-15"
+          ]
+        },
+        {
+          "id": "b1-mwbe-goal",
+          "split": "dev",
+          "question": "What is the minority and women-owned business participation goal?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 5647.6,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p52",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p53-60",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p50"
+          ]
+        },
+        {
+          "id": "b1-price-change",
+          "split": "dev",
+          "question": "How far in advance must a vendor request a price increase?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 4625.3,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p21",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p20",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p51"
+          ]
+        },
+        {
+          "id": "b1-autopilot",
+          "split": "dev",
+          "question": "Must Windows devices be enrolled in a management service before delivery?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6052.6,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p4",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p5"
+          ]
+        },
+        {
+          "id": "b1-repair-time",
+          "split": "heldout",
+          "question": "How quickly must warranty repairs be completed?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 6477.9,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3-4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p3"
+          ]
+        },
+        {
+          "id": "b1-punchout",
+          "split": "heldout",
+          "question": "Does the vendor have to set up an online catalog connection with the district?",
+          "first_relevant_rank": 6,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 1.0
+          },
+          "latency_ms": 4705.9,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p21",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p16",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p22"
+          ]
+        },
+        {
+          "id": "b1-references",
+          "split": "heldout",
+          "question": "How many customer references are needed?",
+          "first_relevant_rank": 3,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 5172.0,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p30",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p30",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p12-13"
+          ]
+        },
+        {
+          "id": "b2-due",
+          "split": "dev",
+          "question": "What is the closing date and time for the Dell laptop bid?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 9889.5,
+          "top": [
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-affidavits",
+          "split": "dev",
+          "question": "Which affidavits must the vendor submit?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 0.3333333333333333,
+            "3": 0.3333333333333333,
+            "5": 0.6666666666666666,
+            "10": 0.6666666666666666
+          },
+          "latency_ms": 7372.8,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "Mercury_Affidavit.pdf p1"
+          ]
+        },
+        {
+          "id": "b2-delivery",
+          "split": "dev",
+          "question": "How soon after award must the laptops be delivered?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 8619.6,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-warranty",
+          "split": "dev",
+          "question": "What warranty coverage is required for the laptops?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 9173.1,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b2-invoice",
+          "split": "dev",
+          "question": "Where and when should invoices be sent?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 7452.4,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "Dell_Laptop_Specs.pdf p3",
+            "Dell_Laptop_Specs.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-sku-cpu",
+          "split": "dev",
+          "question": "What is the SKU for the Intel Core Ultra 5 processor?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 8548.7,
+          "top": [
+            "Dell_Laptop_Specs.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "Dell_Laptop_Specs.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-dock",
+          "split": "dev",
+          "question": "WD22TB4",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 8325.5,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p1"
+          ]
+        },
+        {
+          "id": "b2-qty",
+          "split": "dev",
+          "question": "How many laptops and docks are being purchased?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 8513.8,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "PORFP_-_Dell_Laptop_Final.pdf p1",
+            "Dell_Laptop_Specs.pdf p1"
+          ]
+        },
+        {
+          "id": "b2-eligibility",
+          "split": "dev",
+          "question": "Which vendors are allowed to bid on this purchase order?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 7522.7,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "PORFP_-_Dell_Laptop_Final.pdf p3-4"
+          ]
+        },
+        {
+          "id": "b2-questions",
+          "split": "dev",
+          "question": "What is the deadline for submitting questions about the Dell laptop solicitation?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 8597.9,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p1"
+          ]
+        },
+        {
+          "id": "b2-poc",
+          "split": "heldout",
+          "question": "Who is the agency point of contact and what is their phone number?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 7761.3,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-submission",
+          "split": "heldout",
+          "question": "How must proposals be submitted, and are emailed bids accepted?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 7654.1,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-memory",
+          "split": "heldout",
+          "question": "How much RAM does the quoted laptop configuration have?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 8979.5,
+          "top": [
+            "Dell_Laptop_Specs.pdf p1",
+            "Dell_Laptop_Specs.pdf p3",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        }
+      ]
+    },
+    {
+      "config": "hybrid_facts_rerank[ms-marco-MiniLM-L-12-v2]",
+      "questions": [
+        {
+          "id": "b1-due-final",
+          "split": "dev",
+          "question": "When is the proposal due now that the addenda have been issued?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1411.5,
+          "top": [
+            "Addendum 2 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p5"
+          ]
+        },
+        {
+          "id": "b1-due-original",
+          "split": "dev",
+          "question": "What was the original submission deadline in the RFP?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1209.2,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p51",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2-3"
+          ]
+        },
+        {
+          "id": "b1-prebid",
+          "split": "dev",
+          "question": "When is the pre-bid meeting and how do vendors attend?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1340.9,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2",
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b1-number",
+          "split": "dev",
+          "question": "What is the solicitation number for this bid?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1004.2,
+          "top": [
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1",
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p31"
+          ]
+        },
+        {
+          "id": "b1-term",
+          "split": "dev",
+          "question": "How long is the contract and can it be renewed?",
+          "first_relevant_rank": 3,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1248.2,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2-3"
+          ]
+        },
+        {
+          "id": "b1-bond",
+          "split": "dev",
+          "question": "Does the bidder need to provide a bid bond?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1326.2,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p9",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p17",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p52"
+          ]
+        },
+        {
+          "id": "b1-install",
+          "split": "dev",
+          "question": "What deployment or installation services must the vendor provide?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1055.5,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3-4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1"
+          ]
+        },
+        {
+          "id": "b1-etching",
+          "split": "dev",
+          "question": "Do monitors need to be laser etched?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1531.2,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p1"
+          ]
+        },
+        {
+          "id": "b1-extension",
+          "split": "dev",
+          "question": "Did the district agree to give vendors more time to respond?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 1302.1,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p29",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p22-23",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p27"
+          ]
+        },
+        {
+          "id": "b1-buyer",
+          "split": "dev",
+          "question": "Who is the buyer for this solicitation and what is their email?",
+          "first_relevant_rank": 6,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 1.0
+          },
+          "latency_ms": 1109.8,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p2-3",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p20",
+            "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b1-warranty-staff",
+          "split": "dev",
+          "question": "What minimum warranty is required on staff laptops?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1454.0,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p6",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p4",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p5"
+          ]
+        },
+        {
+          "id": "b1-qty-chromebook",
+          "split": "dev",
+          "question": "How many small touch Chromebooks does the district expect to buy?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1489.0,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p34",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p34-35",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p38-39"
+          ]
+        },
+        {
+          "id": "b1-form-1295",
+          "split": "dev",
+          "question": "Is the certificate of interested parties form required with the response?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1140.3,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p14",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p14-15"
+          ]
+        },
+        {
+          "id": "b1-mwbe-goal",
+          "split": "dev",
+          "question": "What is the minority and women-owned business participation goal?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 1369.4,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p52",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p26",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p53-60"
+          ]
+        },
+        {
+          "id": "b1-price-change",
+          "split": "dev",
+          "question": "How far in advance must a vendor request a price increase?",
+          "first_relevant_rank": 3,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1096.6,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p20",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p21",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p21"
+          ]
+        },
+        {
+          "id": "b1-autopilot",
+          "split": "dev",
+          "question": "Must Windows devices be enrolled in a management service before delivery?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1443.1,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p5"
+          ]
+        },
+        {
+          "id": "b1-repair-time",
+          "split": "heldout",
+          "question": "How quickly must warranty repairs be completed?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1404.0,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p3-4",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p3"
+          ]
+        },
+        {
+          "id": "b1-punchout",
+          "split": "heldout",
+          "question": "Does the vendor have to set up an online catalog connection with the district?",
+          "first_relevant_rank": null,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 0.0
+          },
+          "latency_ms": 982.3,
+          "top": [
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p16",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p28",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p14-15"
+          ]
+        },
+        {
+          "id": "b1-references",
+          "split": "heldout",
+          "question": "How many customer references are needed?",
+          "first_relevant_rank": 7,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 1.0
+          },
+          "latency_ms": 1166.2,
+          "top": [
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2",
+            "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf p2",
+            "JA-207652 Student and Staff Computing Devices FINAL.pdf p42"
+          ]
+        },
+        {
+          "id": "b2-due",
+          "split": "dev",
+          "question": "What is the closing date and time for the Dell laptop bid?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1609.9,
+          "top": [
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-affidavits",
+          "split": "dev",
+          "question": "Which affidavits must the vendor submit?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 0.3333333333333333,
+            "3": 0.3333333333333333,
+            "5": 0.6666666666666666,
+            "10": 1.0
+          },
+          "latency_ms": 1447.6,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "Contract_Affidavit.pdf p2",
+            "Mercury_Affidavit.pdf p1"
+          ]
+        },
+        {
+          "id": "b2-delivery",
+          "split": "dev",
+          "question": "How soon after award must the laptops be delivered?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1749.2,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-warranty",
+          "split": "dev",
+          "question": "What warranty coverage is required for the laptops?",
+          "first_relevant_rank": 9,
+          "recall": {
+            "1": 0.0,
+            "3": 0.0,
+            "5": 0.0,
+            "10": 1.0
+          },
+          "latency_ms": 1655.6,
+          "top": [
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b2-invoice",
+          "split": "dev",
+          "question": "Where and when should invoices be sent?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1643.2,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "Dell_Laptop_Specs.pdf p3",
+            "Dell_Laptop_Specs.pdf p3"
+          ]
+        },
+        {
+          "id": "b2-sku-cpu",
+          "split": "dev",
+          "question": "What is the SKU for the Intel Core Ultra 5 processor?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 2116.0,
+          "top": [
+            "Dell_Laptop_Specs.pdf p1",
+            "Dell_Laptop_Specs.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p1"
+          ]
+        },
+        {
+          "id": "b2-dock",
+          "split": "dev",
+          "question": "WD22TB4",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1677.5,
+          "top": [
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b2-qty",
+          "split": "dev",
+          "question": "How many laptops and docks are being purchased?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1699.3,
+          "top": [
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-eligibility",
+          "split": "dev",
+          "question": "Which vendors are allowed to bid on this purchase order?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1487.0,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p3-4",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-questions",
+          "split": "dev",
+          "question": "What is the deadline for submitting questions about the Dell laptop solicitation?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1678.3,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        },
+        {
+          "id": "b2-poc",
+          "split": "heldout",
+          "question": "Who is the agency point of contact and what is their phone number?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1540.3,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "PORFP_-_Dell_Laptop_Final.pdf p3",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-submission",
+          "split": "heldout",
+          "question": "How must proposals be submitted, and are emailed bids accepted?",
+          "first_relevant_rank": 2,
+          "recall": {
+            "1": 0.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1600.6,
+          "top": [
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "PORFP_-_Dell_Laptop_Final.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2"
+          ]
+        },
+        {
+          "id": "b2-memory",
+          "split": "heldout",
+          "question": "How much RAM does the quoted laptop configuration have?",
+          "first_relevant_rank": 1,
+          "recall": {
+            "1": 1.0,
+            "3": 1.0,
+            "5": 1.0,
+            "10": 1.0
+          },
+          "latency_ms": 1672.4,
+          "top": [
+            "Dell_Laptop_Specs.pdf p1",
+            "PORFP_-_Dell_Laptop_Final.pdf p2",
+            "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html p1"
+          ]
+        }
+      ]
+    }
+  ],
+  "notes": {
+    "scope": "each question searched within its own bid"
+  }
+}

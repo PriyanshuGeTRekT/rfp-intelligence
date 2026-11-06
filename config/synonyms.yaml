@@ -21,3 +21,6 @@ groups:
   - [submission, submit, submittal, how to submit, electronic submission, sealed]
   - [cooperative, co-op, piggyback, master contract, purchasing cooperative, contract vehicle]
   - [manufacturer, oem, mfg, brand]
+  # Added after error analysis on dev question b1-mwbe-goal. It is correct vocabulary but did
+  # not fix that question: the goal sentence is outranked by a dozen other M/WBE form chunks.
+  - [m/wbe, mwbe, minority and women-owned, minority-owned, women-owned, hub, historically underutilized business, dbe, disadvantaged business]

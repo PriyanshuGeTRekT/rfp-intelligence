@@ -1,0 +1,250 @@
+# Retrieval gold set: questions and the passages that answer them.
+#
+# A passage is a locator, not a chunk id, so labels survive re-chunking:
+#   file          case-insensitive substring of the file name
+#   must_contain  phrase that must appear in the hit's text (case and whitespace ignored)
+#   pages         optional; the hit's page range must include one of them
+# match: any  -> the question is answered when any locator is retrieved (default)
+# match: all  -> every locator is needed; recall is the share retrieved
+# split: dev questions were written alongside the system; heldout questions were written
+#   afterwards and not used for any tuning. Both are reported.
+#
+# Questions are phrased the way a user asks, not copied from the passage.
+
+questions:
+  # ---------------------------------------------------------------- Bid1: Dallas ISD JA-207652
+  - id: b1-due-final
+    bid: Bid1
+    split: dev
+    question: When is the proposal due now that the addenda have been issued?
+    relevant:
+      - {file: Addendum 2, must_contain: "July 9, 2024 at 2:00 PM CST"}
+      - {file: BidNet, must_contain: "Closing Date: 07/09/2024"}
+
+  - id: b1-due-original
+    bid: Bid1
+    split: dev
+    question: What was the original submission deadline in the RFP?
+    relevant:
+      - {file: FINAL, must_contain: "Solicitation Due | 27-JUN-2024 14:00:00", pages: [2]}
+
+  - id: b1-prebid
+    bid: Bid1
+    split: dev
+    question: When is the pre-bid meeting and how do vendors attend?
+    relevant:
+      - {file: FINAL, must_contain: "pre-proposal meeting will be held", pages: [2]}
+      - {file: BidNet, must_contain: "Prebid Conference: 06/10/2024"}
+
+  - id: b1-number
+    bid: Bid1
+    split: dev
+    question: What is the solicitation number for this bid?
+    relevant:
+      - {file: BidNet, must_contain: "Solicitation Number: JA-207652"}
+
+  - id: b1-term
+    bid: Bid1
+    split: dev
+    question: How long is the contract and can it be renewed?
+    relevant:
+      - {file: FINAL, must_contain: "three (3) year agreement", pages: [2]}
+
+  - id: b1-bond
+    bid: Bid1
+    split: dev
+    question: Does the bidder need to provide a bid bond?
+    relevant:
+      - {file: FINAL, must_contain: "Insurance and/or bond requirements", pages: [17]}
+
+  - id: b1-install
+    bid: Bid1
+    split: dev
+    question: What deployment or installation services must the vendor provide?
+    relevant:
+      - {file: FINAL, must_contain: "white glove services", pages: [3]}
+
+  - id: b1-etching
+    bid: Bid1
+    split: dev
+    question: Do monitors need to be laser etched?
+    relevant:
+      - {file: Addendum 1, must_contain: "laser etch"}
+
+  - id: b1-extension
+    bid: Bid1
+    split: dev
+    question: Did the district agree to give vendors more time to respond?
+    relevant:
+      - {file: Addendum 1, must_contain: "does not anticipate extending"}
+      - {file: Addendum 2, must_contain: "extend the due date"}
+
+  - id: b1-buyer
+    bid: Bid1
+    split: dev
+    question: Who is the buyer for this solicitation and what is their email?
+    relevant:
+      - {file: FINAL, must_contain: "Buyer ALZATE", pages: [2]}
+
+  - id: b1-warranty-staff
+    bid: Bid1
+    split: dev
+    question: What minimum warranty is required on staff laptops?
+    relevant:
+      - {file: FINAL, must_contain: "Warranty: 3-year minimum"}
+
+  - id: b1-qty-chromebook
+    bid: Bid1
+    split: dev
+    question: How many small touch Chromebooks does the district expect to buy?
+    relevant:
+      - {file: FINAL, must_contain: "15.01 Tier 1 Small | 50,000", pages: [35]}
+
+  - id: b1-form-1295
+    bid: Bid1
+    split: dev
+    question: Is the certificate of interested parties form required with the response?
+    relevant:
+      - {file: FINAL, must_contain: "FORM 1295 - CERTIFICATE OF INTERESTED PARTIES"}
+      - {file: Addendum 1, must_contain: "FORM 1295"}
+
+  - id: b1-mwbe-goal
+    bid: Bid1
+    split: dev
+    question: What is the minority and women-owned business participation goal?
+    relevant:
+      - {file: FINAL, must_contain: "aspirational M/WBE goal is 30%"}
+
+  - id: b1-price-change
+    bid: Bid1
+    split: dev
+    question: How far in advance must a vendor request a price increase?
+    relevant:
+      - {file: FINAL, must_contain: "one hundred twenty (120) days prior", pages: [21]}
+
+  - id: b1-autopilot
+    bid: Bid1
+    split: dev
+    question: Must Windows devices be enrolled in a management service before delivery?
+    relevant:
+      - {file: Addendum 1, must_contain: "autopilot is required"}
+
+  - id: b1-repair-time
+    bid: Bid1
+    split: heldout
+    question: How quickly must warranty repairs be completed?
+    relevant:
+      - {file: FINAL, must_contain: "five (5) business days"}
+
+  - id: b1-punchout
+    bid: Bid1
+    split: heldout
+    question: Does the vendor have to set up an online catalog connection with the district?
+    relevant:
+      - {file: FINAL, must_contain: "Punch-Out Process"}
+      - {file: FINAL, must_contain: "Punch-out Setup Request"}
+
+  - id: b1-references
+    bid: Bid1
+    split: heldout
+    question: How many customer references are needed?
+    relevant:
+      - {file: FINAL, must_contain: "three business references"}
+
+  # ---------------------------------------------------------------- Bid2: Maryland BPM044557
+  - id: b2-due
+    bid: Bid2
+    split: dev
+    question: What is the closing date and time for the Dell laptop bid?
+    relevant:
+      - {file: BidNet, must_contain: "Closing Date: 06/10/2024 02:00 PM EDT"}
+      - {file: PORFP, must_contain: "PROPOSAL DUE"}
+
+  - id: b2-affidavits
+    bid: Bid2
+    split: dev
+    match: all
+    question: Which affidavits must the vendor submit?
+    relevant:
+      - {file: PORFP, must_contain: "Mercury Affidavit"}
+      - {file: Mercury_Affidavit, must_contain: "MERCURY AFFIDAVIT"}
+      - {file: Contract_Affidavit, must_contain: "AFFIDAVIT"}
+
+  - id: b2-delivery
+    bid: Bid2
+    split: dev
+    question: How soon after award must the laptops be delivered?
+    relevant:
+      - {file: PORFP, must_contain: "Delivery within 45 days"}
+
+  - id: b2-warranty
+    bid: Bid2
+    split: dev
+    question: What warranty coverage is required for the laptops?
+    relevant:
+      - {file: PORFP, must_contain: "Dell Limited Hardware Warranty"}
+
+  - id: b2-invoice
+    bid: Bid2
+    split: dev
+    question: Where and when should invoices be sent?
+    relevant:
+      - {file: PORFP, must_contain: "Email invoices"}
+
+  - id: b2-sku-cpu
+    bid: Bid2
+    split: dev
+    question: What is the SKU for the Intel Core Ultra 5 processor?
+    relevant:
+      - {file: Dell_Laptop_Specs, must_contain: "379-BFNZ"}
+
+  - id: b2-dock
+    bid: Bid2
+    split: dev
+    question: WD22TB4
+    relevant:
+      - {file: PORFP, must_contain: "WD22TB4"}
+      - {file: BidNet, must_contain: "WD22TB4"}
+
+  - id: b2-qty
+    bid: Bid2
+    split: dev
+    question: How many laptops and docks are being purchased?
+    relevant:
+      - {file: PORFP, must_contain: "Qty", pages: [3]}
+
+  - id: b2-eligibility
+    bid: Bid2
+    split: dev
+    question: Which vendors are allowed to bid on this purchase order?
+    relevant:
+      - {file: PORFP, must_contain: "Only Master Contractors"}
+
+  - id: b2-questions
+    bid: Bid2
+    split: dev
+    question: What is the deadline for submitting questions about the Dell laptop solicitation?
+    relevant:
+      - {file: PORFP, must_contain: "Questions Due (Closing)"}
+
+  - id: b2-poc
+    bid: Bid2
+    split: heldout
+    question: Who is the agency point of contact and what is their phone number?
+    relevant:
+      - {file: PORFP, must_contain: "Tamaira Hawkins"}
+      - {file: BidNet, must_contain: "Tamaira Hawkins"}
+
+  - id: b2-submission
+    bid: Bid2
+    split: heldout
+    question: How must proposals be submitted, and are emailed bids accepted?
+    relevant:
+      - {file: PORFP, must_contain: "eMaryland Marketplace"}
+
+  - id: b2-memory
+    bid: Bid2
+    split: heldout
+    question: How much RAM does the quoted laptop configuration have?
+    relevant:
+      - {file: Dell_Laptop_Specs, must_contain: "16 GB: 2 x 8 GB"}

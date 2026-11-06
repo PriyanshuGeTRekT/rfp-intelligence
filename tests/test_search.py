@@ -97,7 +97,10 @@ def test_named_configs_use_only_their_lists(runtime: Runtime) -> None:
     sparse = engine.search("delivery terms", bid_id="BidA", config="sparse").hits
     assert sparse and all(set(h.signals["ranks"]) == {"bm25"} for h in sparse)
     assert "rerank" not in sparse[0].signals
-    assert "rerank" in engine.search("delivery terms", bid_id="BidA").hits[0].signals
+    # the default (hybrid_facts) does not rerank; reranking is opt-in
+    assert "rerank" not in engine.search("delivery terms", bid_id="BidA").hits[0].signals
+    reranked = engine.search("delivery terms", bid_id="BidA", config="hybrid_facts_rerank")
+    assert "rerank" in reranked.hits[0].signals
     assert set(NAMED_CONFIGS) == {
         "dense",
         "sparse",

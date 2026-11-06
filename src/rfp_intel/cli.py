@@ -13,6 +13,7 @@ import typer
 from rfp_intel import __version__
 from rfp_intel.config import get_settings
 from rfp_intel.logs import configure_logging
+from rfp_intel.search.models import DEFAULT_CONFIG
 
 app = typer.Typer(help="RFP Intelligence Platform", no_args_is_help=True)
 
@@ -185,7 +186,7 @@ def search(
     k: int = 5,
     config: Annotated[
         str, typer.Option(help="dense, sparse, hybrid, hybrid_facts, hybrid_facts_rerank")
-    ] = "hybrid_facts_rerank",
+    ] = DEFAULT_CONFIG,
     as_json: Annotated[bool, typer.Option("--json", help="Print the full result as JSON")] = False,
 ) -> None:
     """Hybrid search; prints file, page, score and chunk text for each hit."""
@@ -243,12 +244,103 @@ def ask(
     _todo("ask")
 
 
+CONFIG_DESCRIPTIONS = {
+    "dense": "bge-small embeddings only",
+    "sparse": "BM25 only (Qdrant sparse vectors with IDF), with synonym expansion",
+    "hybrid": "dense + BM25 + exact identifier matches, fused with RRF (k=60)",
+    "hybrid_facts": "hybrid plus dense and BM25 lists restricted to chunks with the fact labels "
+    "the question routes to (default)",
+    "hybrid_facts_rerank": "hybrid_facts, top 30 reranked by the configured cross-encoder "
+    "(RFP_RERANK_MODEL, default BAAI/bge-reranker-v2-m3-int8)",
+}
+
+
 @app.command(name="eval")
 def eval_(
-    suite: Annotated[str, typer.Argument(help="retrieval or extraction")] = "retrieval",
+    suite: Annotated[
+        str, typer.Argument(help="retrieval (extraction comes with the agents)")
+    ] = "retrieval",
+    gold: Annotated[Path, typer.Option(help="Gold questions")] = Path("eval/retrieval_gold.yaml"),
+    configs: Annotated[
+        list[str] | None, typer.Option("--config", help="Configs to run; all by default")
+    ] = None,
+    extra_reranker: Annotated[
+        str | None,
+        typer.Option(
+            help="Also run hybrid_facts with this reranker, e.g. BAAI/bge-reranker-v2-m3-int8"
+        ),
+    ] = None,
+    out_dir: Annotated[Path, typer.Option(help="Where the report goes")] = Path("docs/eval"),
+    baseline: Annotated[Path, typer.Option(help="Committed baseline")] = Path("eval/baseline.json"),
+    check: Annotated[
+        bool, typer.Option(help="Fail if the default config fell below the baseline")
+    ] = False,
+    update_baseline: Annotated[
+        bool, typer.Option(help="Write this run as the new baseline")
+    ] = False,
 ) -> None:
-    """Run an evaluation suite and write the report."""
-    _todo("eval")
+    """Run the retrieval evaluation and write docs/eval/retrieval.md and .json."""
+    from rfp_intel.eval.retrieval import (
+        baseline_from,
+        check_regression,
+        evaluate,
+        load_baseline,
+        load_gold,
+        save_run,
+    )
+    from rfp_intel.search.embed import FastEmbedReranker
+    from rfp_intel.search.engine import SearchEngine
+    from rfp_intel.search.models import NAMED_CONFIGS, SearchConfig
+    from rfp_intel.search.runtime import open_runtime
+
+    if suite != "retrieval":
+        _todo(f"eval {suite}")
+    names = configs or list(NAMED_CONFIGS)
+    unknown = [n for n in names if n not in NAMED_CONFIGS]
+    if unknown:
+        typer.echo(f"unknown config {unknown}; choose from {', '.join(NAMED_CONFIGS)}", err=True)
+        raise typer.Exit(code=1)
+    s = get_settings()
+    gold_set = load_gold(gold)
+    descriptions = {n: CONFIG_DESCRIPTIONS[n] for n in names}
+    with open_runtime(s) as rt:
+        if rt.backend.count() == 0:
+            typer.echo("the index is empty; run `rfp index` first", err=True)
+            raise typer.Exit(code=1)
+        run = evaluate(rt.engine(), gold_set, names, gold_file=gold.as_posix())
+        if extra_reranker:
+            label = f"hybrid_facts_rerank[{extra_reranker.split('/')[-1]}]"
+            engine = SearchEngine(
+                rt.backend, rt.dense, rt.sparse, rt.fact_config, synonyms=rt.synonyms,
+                reranker=FastEmbedReranker(extra_reranker, cache_dir=s.models_dir),
+            )  # fmt: skip
+            extra = evaluate(
+                engine, gold_set, [SearchConfig(name=label)], gold_file=gold.as_posix()
+            )
+            run.configs.extend(extra.configs)
+            descriptions[label] = f"hybrid_facts reranked by {extra_reranker}"
+    save_run(run, out_dir / "retrieval.json", out_dir / "retrieval.md", descriptions)
+
+    for c in run.configs:
+        typer.echo(
+            f"{c.config:<44} R@1 {c.metric('recall@1'):.3f}  R@5 {c.metric('recall@5'):.3f}  "
+            f"R@10 {c.metric('recall@10'):.3f}  MRR {c.metric('mrr'):.3f}  "
+            f"{c.metric('latency_ms'):.0f} ms"
+        )
+    typer.echo(f"report: {out_dir / 'retrieval.md'}")
+
+    default = DEFAULT_CONFIG if DEFAULT_CONFIG in names else names[0]
+    if update_baseline:
+        baseline.parent.mkdir(parents=True, exist_ok=True)
+        baseline.write_text(baseline_from(run, default).model_dump_json(indent=2), encoding="utf-8")
+        typer.echo(f"baseline written: {baseline}")
+    if check:
+        problems = check_regression(run, load_baseline(baseline))
+        for p in problems:
+            typer.echo(f"REGRESSION: {p}", err=True)
+        if problems:
+            raise typer.Exit(code=1)
+        typer.echo("no regression against the baseline")
 
 
 @app.command()
