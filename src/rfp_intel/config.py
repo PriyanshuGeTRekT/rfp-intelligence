@@ -25,6 +25,7 @@ class Settings(BaseSettings):
     data_dir: Path = Path("data/bids")
     state_dir: Path = Path("var")
     traces_dir: Path = Path("traces")
+    config_dir: Path = Path("config")
 
     # LLM provider. The key keeps its conventional unprefixed name.
     anthropic_api_key: SecretStr | None = Field(

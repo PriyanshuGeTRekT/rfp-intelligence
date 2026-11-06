@@ -23,6 +23,23 @@ def _add_otel_ids(
     return event_dict
 
 
+class _StderrLogger:
+    """Writes to whatever `sys.stderr` is at call time.
+
+    structlog's PrintLogger binds the stream once; if that stream is later replaced and
+    closed (test runners, embedded use), every later log call fails.
+    """
+
+    def msg(self, message: str) -> None:
+        print(message, file=sys.stderr, flush=True)
+
+    log = debug = info = warning = warn = error = critical = exception = fatal = msg
+
+
+def _stderr_logger_factory(*_: Any) -> _StderrLogger:
+    return _StderrLogger()
+
+
 def configure_logging(level: str = "INFO", *, json: bool = True) -> None:
     renderer: Any = structlog.processors.JSONRenderer() if json else structlog.dev.ConsoleRenderer()
     structlog.configure(
@@ -38,7 +55,7 @@ def configure_logging(level: str = "INFO", *, json: bool = True) -> None:
         wrapper_class=structlog.make_filtering_bound_logger(
             logging.getLevelNamesMapping()[level.upper()]
         ),
-        logger_factory=structlog.PrintLoggerFactory(file=sys.stderr),
+        logger_factory=_stderr_logger_factory,
         cache_logger_on_first_use=False,
     )
 

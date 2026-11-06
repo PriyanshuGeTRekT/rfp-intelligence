@@ -1,0 +1,69 @@
+# Content cues for document-type classification.
+#
+# Each cue is a case-insensitive regular expression with a weight. A document's score for a
+# type is the sum of the weights of the cues found in:
+#   - the head (title, running headers, first 800 characters): weight x head_multiplier
+#   - the body (first 8000 characters): weight x 1
+#   - the file name: filename_weight for each type keyword found
+# The highest score wins if it reaches min_score; otherwise the type is "other".
+# HTML pages with at least min_portal_fields label-value fields are "bid_page".
+#
+# These cues are the one place to tune classification. Keep them about the genre of document
+# (what an addendum or affidavit says about itself), never about a particular agency.
+
+min_score: 4
+head_multiplier: 2
+filename_weight: 2
+min_portal_fields: 3
+
+types:
+  addendum:
+    cues:
+      - {pattern: '\baddend(?:um|a)\s*(?:no\.?|number|#)\s*\w+', weight: 5}
+      - {pattern: '\bamendment\s*(?:no\.?|number|#)\s*\w+', weight: 5}
+      - {pattern: '\bamendment of solicitation\b', weight: 5}
+      - {pattern: '\bpurpose of this (?:addendum|amendment)\b', weight: 4}
+      - {pattern: '\b(?:this|the following) (?:addendum|amendment) (?:is|shall|hereby)\b', weight: 3}
+      - {pattern: '\backnowledge (?:receipt of )?(?:this|the|all) (?:addend|amendment)', weight: 2}
+      - {pattern: '\bquestions? and answers?\b|\bresponses? to (?:vendor|bidder|offeror)s?.? questions\b', weight: 2}
+    filename: ['addend', 'amendment', 'amend', 'clarification']
+
+  rfp:
+    cues:
+      - {pattern: '\brequest for (?:proposals?|quot(?:e|ation)s?|qualifications|information)\b', weight: 4}
+      - {pattern: '\binvitation (?:to|for) (?:bid|tender)s?\b', weight: 4}
+      - {pattern: '\bpurchase order request\b', weight: 3}
+      - {pattern: '\bsolicitation (?:number|no\.?|due|type)\b', weight: 2}
+      - {pattern: '\bscope of (?:work|services)\b', weight: 2}
+      - {pattern: '\bevaluation criteria\b', weight: 2}
+      - {pattern: '\b(?:proposals?|bids?|responses?|offers?) (?:are|is|must be|shall be) (?:due|received|submitted)\b', weight: 2}
+      - {pattern: '\bterms and conditions\b', weight: 1}
+      - {pattern: '\b(?:rfp|rfq|ifb|itb|rfi|porfp)\b', weight: 1}
+    filename: ['rfp', 'rfq', 'ifb', 'itb', 'solicitation', 'porfp', 'tender']
+
+  specs:
+    cues:
+      - {pattern: '\bsku\b', weight: 3}
+      - {pattern: '\b(?:part|model|item) (?:number|no\.?|#)', weight: 2}
+      - {pattern: '\b(?:technical )?specifications?\b', weight: 1}
+      - {pattern: '\b(?:quote|quotation) (?:number|no\.?|#|date)\b', weight: 2}
+      - {pattern: '\bconfiguration\b', weight: 1}
+      - {pattern: '\b(?:processor|memory|storage|display|battery|chipset)\b', weight: 1}
+    filename: ['spec', 'specs', 'specification', 'datasheet', 'quote', 'configuration']
+
+  affidavit:
+    cues:
+      - {pattern: '\baffidavit\b', weight: 4}
+      - {pattern: '\b(?:hereby )?(?:affirm|swear|attest)s? (?:that|under)\b', weight: 3}
+      - {pattern: '\baffiant\b', weight: 3}
+      - {pattern: '\bnotary\b|\bsworn\b|\bsubscribed and sworn\b', weight: 2}
+      - {pattern: '\bunder (?:the )?penalt(?:y|ies) of perjury\b', weight: 2}
+    filename: ['affidavit', 'certification', 'attestation']
+
+  form:
+    cues:
+      - {pattern: '\bform w-?9\b|\brequest for taxpayer\b', weight: 4}
+      - {pattern: '\b(?:please )?(?:print|type) (?:or (?:print|type) )?(?:name|clearly)\b', weight: 1}
+      - {pattern: '\bsignature of (?:authorized|bidder|offeror|vendor|proposer)', weight: 2}
+      - {pattern: '\b(?:complete|fill out) (?:and return|this form)\b', weight: 2}
+    filename: ['form', 'w9', 'w-9', 'questionnaire']

@@ -72,7 +72,8 @@ select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF", "S", "PTH", "N"]
 ignore = ["S101"]  # assert is fine in tests and for invariants
 
 [tool.ruff.lint.per-file-ignores]
-"tests/**" = ["S"]
+# Tests hold long literal sentences from real documents; wrapping them hurts readability.
+"tests/**" = ["S", "E501"]
 
 [tool.mypy]
 python_version = "3.12"
@@ -84,6 +85,11 @@ plugins = ["pydantic.mypy"]
 [[tool.mypy.overrides]]
 module = ["fitz.*", "pymupdf.*", "dateparser.*", "fastembed.*"]
 ignore_missing_imports = true
+
+# PyMuPDF ships without type annotations; only the module that wraps it calls it.
+[[tool.mypy.overrides]]
+module = ["rfp_intel.ingestion.pdf"]
+disallow_untyped_calls = false
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

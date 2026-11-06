@@ -57,6 +57,48 @@ def doctor() -> None:
 
 
 @app.command()
+def parse(
+    bid: BidArg,
+    out: Annotated[Path | None, typer.Option(help="Write the parsed bid as JSON here")] = None,
+) -> None:
+    """Parse a bid folder and print what was found in each file (no indexing)."""
+    from rfp_intel.ingestion.loader import load_bid_folder
+    from rfp_intel.security import PathNotAllowedError, resolve_within
+
+    s = get_settings()
+    try:
+        folder = resolve_within(s.data_dir, bid)
+    except PathNotAllowedError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    if not folder.is_dir():
+        typer.echo(f"bid folder not found: {folder}", err=True)
+        raise typer.Exit(code=1)
+
+    result = load_bid_folder(folder, s.config_dir / "doc_types.yaml")
+    for doc in result.documents:
+        extra = f" addendum {doc.addendum_number}" if doc.addendum_number else ""
+        when = f"{doc.doc_date} ({doc.doc_date_source})" if doc.doc_date else "no date"
+        typer.echo(
+            f"{doc.file_name}\n"
+            f"  type   {doc.doc_type.value}{extra}  [{doc.doc_type_reason}]\n"
+            f"  title  {doc.title}\n"
+            f"  date   {when}\n"
+            f"  size   {doc.page_count} pages, {len(doc.blocks)} blocks, "
+            f"{len(doc.tables)} tables, {len(doc.sections)} sections"
+        )
+    if result.issues:
+        typer.echo("issues:")
+        for issue in result.issues:
+            where = f" p{issue.page}" if issue.page else ""
+            typer.echo(f"  {issue.severity:<7} {issue.file_name}{where}: {issue.message}")
+    if out is not None:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(result.model_dump_json(indent=2), encoding="utf-8")
+        typer.echo(f"wrote {out}")
+
+
+@app.command()
 def index(
     bid: BidArg,
     force: Annotated[bool, typer.Option(help="Re-index even unchanged files")] = False,

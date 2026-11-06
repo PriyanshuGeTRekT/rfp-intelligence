@@ -5,8 +5,9 @@ Hybrid search and multi-agent field extraction over public bid documents. Given 
 20 fields and answers free-form questions with citations, or says the answer is not in the
 documents.
 
-> Status: phase 0 (scaffold). Configuration, logging, tracing, API security basics, CLI
-> surface, tests and CI are in place. Ingestion, search and agents are next.
+> Status: phase 1 (ingestion) done. PDF, HTML and text parsing, cleaning, tables, sections,
+> content-based document classification, addendum numbers, document dates and a per-page
+> failure report. The fact layer, search and agents are next.
 
 ## Quick start
 
@@ -23,7 +24,8 @@ uv run pytest               # unit tests: no API key, no model downloads
 | Command | What it does | Status |
 |---|---|---|
 | `rfp doctor` | Show configuration, check data directory and keys | done |
-| `rfp index <bid>` | Parse a bid folder and index it incrementally | phase 1 to 3 |
+| `rfp parse <bid> [--out f.json]` | Parse a bid folder; print type, title, date and issues per file | done |
+| `rfp index <bid>` | Parse a bid folder and index it incrementally | phase 2 to 3 |
 | `rfp search "<query>"` | Hybrid search with file, page and chunk text per hit | phase 3 |
 | `rfp extract <bid>` | Multi-agent extraction to one cited JSON | phase 5 |
 | `rfp ask "<question>"` | Cited answer or "not found in documents" | phase 6 |
@@ -66,9 +68,41 @@ phone numbers in span attributes are masked before export unless `RFP_TRACE_REDA
 
 ## Design decisions
 
-To be written as each phase lands: chunking, embedding model, retrieval and fusion, the fact
-layer, addendum reconciliation, agent framework, prompts, confidence tiers.
+### Ingestion
+
+One parser per format (PyMuPDF for PDF, BeautifulSoup for HTML, a plain reader for `.txt`
+and `.md`) produces the same model: blocks (heading, paragraph, label-value, table) in reading
+order, each with its page and section path, plus tables, page status and document metadata.
+
+- **Visual rows.** Lines that overlap vertically are one row; segments far apart are joined
+  with ` | `. This keeps form labels next to their values ("Solicitation Due | 27-JUN-2024
+  14:00:00") and keeps borderless tables such as price schedules readable row by row.
+- **Ruled tables.** PyMuPDF finds the grid; each cell is then read from word positions,
+  because PyMuPDF's own cell text drops spaces and moves hyphens in some PDFs ("210-BLYZ"
+  came out as "210BLYZ -"). Wrapped form cells that spill onto a new row are merged back.
+- **Headers and footers.** Margin lines repeating on at least half the pages (digits masked,
+  so "Page 3 of 40" matches "Page 4 of 40") are removed from the body and kept once in
+  `running_text`, so an identifier printed only in a running header is not lost.
+- **Headings and sections.** Bold, larger or all-caps short lines are headings; numbering sets
+  the level ("2.1" is level 2). A heading repeated at the top of the next page is dropped.
+- **Cleaning.** NFKC, zero-width and replacement characters removed, dot leaders and character
+  rules dropped, hyphenated line breaks joined only where a lowercase word continues, wrapped
+  email addresses and URLs rejoined.
+- **Classification is by content.** `config/doc_types.yaml` holds weighted cues per type
+  (addendum, rfp, specs, affidavit, form); head text counts double and the file name is a weak
+  extra signal. Each document records the reason for its type.
+- **Document date.** A date next to a cue such as "Issue Date" or "Publication" on the first
+  pages, else the PDF creation date. "Due date" is not a cue: an addendum that moves the
+  deadline must not take the new deadline as its own date.
+- **Failures are reported, not fatal.** Unsupported files are skipped and listed, unreadable
+  files are logged as errors, and pages without a text layer (scans, or text drawn as vector
+  outlines like the W-9 in Bid1) are flagged as needing OCR.
 
 ## Assumptions and limitations
 
-To be written.
+- Two-column prose layouts are not detected; side-by-side columns would be merged into rows.
+  None of the bids seen so far use them.
+- OCR is not run yet; pages that need it are reported.
+- `.docx` and `.xlsx` attachments are skipped and reported.
+- PDF table detection costs about 0.15 s per page, so a 62-page RFP parses in about 10 s.
+  Indexing is incremental, so this cost is paid once per file.
