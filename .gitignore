@@ -1,0 +1,15 @@
+__pycache__/
+*.py[cod]
+.venv/
+.env
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+# runtime state (rebuilt by `rfp index`)
+var/
+# traces are run output; the curated example lives in docs/
+traces/*
+!traces/.gitkeep
