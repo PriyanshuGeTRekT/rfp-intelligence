@@ -27,7 +27,9 @@ from rfp_intel.search.models import Chunk
 
 DENSE = "dense"
 SPARSE = "bm25"
-KEYWORD_FIELDS = ("bid_id", "doc_id", "doc_type", "chunk_type", "identifiers", "fact_types")
+KEYWORD_FIELDS = (
+    "bid_id", "doc_id", "doc_type", "chunk_type", "identifiers", "fact_types", "fact_ids",
+)  # fmt: skip
 
 
 class Filters(dict[str, Any]):
@@ -50,6 +52,10 @@ class SearchBackend(Protocol):
     ) -> list[tuple[str, float]]: ...
 
     def match_identifiers(self, ids: Sequence[str], filters: Filters, limit: int) -> list[str]: ...
+
+    def chunks_with_facts(
+        self, fact_ids: Sequence[str], filters: Filters, limit: int
+    ) -> list[str]: ...
 
     def fetch(self, chunk_ids: Sequence[str]) -> dict[str, dict[str, Any]]: ...
 
@@ -94,6 +100,12 @@ def _filter(filters: Filters) -> models.Filter | None:
         must.append(
             models.FieldCondition(
                 key="identifiers", match=models.MatchAny(any=list(filters["identifiers"]))
+            )
+        )
+    if filters.get("fact_ids"):
+        must.append(
+            models.FieldCondition(
+                key="fact_ids", match=models.MatchAny(any=list(filters["fact_ids"]))
             )
         )
     return models.Filter(must=must) if must else None
@@ -213,6 +225,17 @@ class QdrantBackend:
             return (-matched, int(payload.get("token_estimate", 0)))  # more matches, then shorter
 
         return [str((p.payload or {})["chunk_id"]) for p in sorted(points, key=specificity)]
+
+    def chunks_with_facts(self, fact_ids: Sequence[str], filters: Filters, limit: int) -> list[str]:
+        if not fact_ids:
+            return []
+        points, _ = self.client.scroll(
+            self.collection,
+            scroll_filter=_filter(Filters({**filters, "fact_ids": list(fact_ids)})),
+            limit=limit,
+            with_payload=["chunk_id"],
+        )
+        return [str((p.payload or {})["chunk_id"]) for p in points]
 
     def fetch(self, chunk_ids: Sequence[str]) -> dict[str, dict[str, Any]]:
         if not chunk_ids:

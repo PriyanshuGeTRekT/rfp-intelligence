@@ -5,8 +5,9 @@ Hybrid search and multi-agent field extraction over public bid documents. Given 
 20 fields and answers free-form questions with citations, or says the answer is not in the
 documents.
 
-> Status: phases 1 to 4 done: ingestion, the fact layer, hybrid search with incremental
-> indexing, CLI and REST API, and the retrieval evaluation. The agents are next.
+> Status: phases 1 to 4 and 5a done: ingestion, the fact layer, hybrid search with incremental
+> indexing, CLI and REST API, the retrieval evaluation, and the deterministic agent building
+> blocks. The LangGraph agent graph, prompts and question answering (5b) are next.
 
 ## Quick start
 
@@ -231,7 +232,52 @@ document id, pipeline version and embedding model. `rfp index` re-processes a fi
 one of those changes, deletes the index entries of files that disappeared, and leaves other
 bids untouched. A file that fails to parse keeps its previous entry and is reported.
 
+### Agent building blocks (deterministic)
+
+The parts of the agent system that need no LLM are built and tested first; the LangGraph
+graph and prompts sit on top of them.
+
+- **Fields** (`config/fields.yaml`): the 20 fields with their type, group (four extraction
+  groups run in parallel, plus the generated summary), description for the prompt, fact
+  labels and search queries. It is the one file to tune for a new kind of bid.
+- **Evidence per field** (`agents/evidence.py`): hybrid search for the field's queries plus
+  every chunk that holds a fact with the field's labels, so a typed candidate is never lost
+  to ranking. Evidence text stays in a store keyed by chunk id; graph state carries ids only.
+  The searches run are recorded: they are the proof behind "not found".
+- **Addendum reconciliation** (`agents/reconcile.py`): addenda become ordered change events
+  (replace, amend, confirm, clarify, add_requirement), applied in addendum order by a pure
+  function. Date fields need no LLM: deadline and pre-bid facts inside an addendum become
+  replace events. The portal page never overrides a document; it fills a missing time and
+  corroborates. A difference nothing explains is a conflict, not a silent choice. On the real
+  bids this yields Bid1's due date as July 9, 2024, 2:00 PM CDT (Addendum 2 replacing June 27,
+  matching the portal's 3:00 PM EDT) and Bid2's as June 10, 2024, 2:00 PM EDT (date from the
+  purchase-order RFP, time from the portal).
+- **Validator** (`agents/validate.py`): every quote must be verbatim text from the passage it
+  cites; the value must follow from the quotes by field type (identifiers as tokens, dates
+  that parse to a quoted date, no number that the quotes do not contain, list items covered
+  by quoted words); "not found" is accepted only after at least three searches and no
+  labelled facts. A failure returns a reason for the retry.
+- **Confidence** (`agents/confidence.py`): a decision table, not a formula. A: grounded and
+  two documents agree or an addendum set it (0.95). B: grounded, one source (0.85). C:
+  loosely grounded, OCR, or assembled from two sources (0.70). D: sources differ but an
+  addendum explains it (0.60). E: unexplained conflict (0.40). NF-1: not found after a
+  thorough search (0.80). NF-2: not found, search incomplete (0.50). The numbers label tiers;
+  they are not probabilities, and the tiers will be checked against the gold fields.
+- **LLM seam** (`agents/llm.py`): one `structured()` call returning a validated Pydantic
+  object and usage (tokens, cache reads, latency, cost). `AnthropicLLM` uses `messages.parse`
+  with the output schema, `output_config.effort`, a cached system prompt, retries on
+  transient errors and explicit errors for refusal, truncation and schema mismatch.
+  `ScriptedLLM` answers deterministically for tests.
+
 ## Assumptions and limitations
+
+- **Windows path length.** This repo's current location is deep enough that the Anthropic
+  SDK cannot be imported from `.venv`: one of its module files ends up past the 260-character
+  path limit. Clone or move the repo to a short path (for example `C:\dev\rfp-intelligence`)
+  or enable Windows long paths. Nothing outside the live Claude client imports the SDK, and
+  Linux and CI are unaffected.
+- `AnthropicLLM` has not yet been run against the live API (no key during development); its
+  request shape is covered by tests with a fake client.
 
 - The embedded Qdrant store allows one process at a time; run the API or the CLI against
   it, not both, or point both at a Qdrant server with `RFP_QDRANT_URL`.

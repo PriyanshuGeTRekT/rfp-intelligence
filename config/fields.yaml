@@ -1,0 +1,224 @@
+# The 20 output fields.
+#
+# key            JSON key in the output
+# name           field name as the brief writes it
+# group          extraction group; groups run in parallel, one LLM call each
+# type           how the validator checks a value against its quotes:
+#                identifier | datetime | duration | text | list | summary
+# description    what counts as the value; this text goes into the extraction prompt
+# fact_types     fact labels that mark candidate evidence (config/fact_types.yaml)
+# fact_kinds     fact kinds that can be the value itself
+# queries        search queries used to gather evidence, besides the field name
+# reconcile      true when addenda can change the value (change events are applied)
+#
+# Keep descriptions about procurement in general. Never put a bid's own values here.
+
+groups:
+  identity_dates: Identity and dates
+  commercial_legal: Commercial and legal terms
+  product_specs: Product and specifications
+  parties_logistics: Parties and logistics
+
+fields:
+  - key: bid_number
+    name: Bid Number
+    group: identity_dates
+    type: identifier
+    description: >-
+      The number the issuing agency assigned to this solicitation (RFP, RFQ, IFB, PORFP or
+      sourcing event number). If the portal and the document give different numbering systems,
+      report the primary solicitation number and mention the other in notes.
+    fact_types: [identifier]
+    fact_kinds: [identifier]
+    queries: [solicitation number, bid number, RFP number reference number]
+
+  - key: title
+    name: Title
+    group: identity_dates
+    type: text
+    description: The solicitation's title as the agency states it, without the number.
+    queries: [solicitation title, request for proposal title]
+
+  - key: due_date
+    name: Due Date
+    group: identity_dates
+    type: datetime
+    reconcile: true
+    description: >-
+      The final deadline for submitting bids or proposals, with time and time zone, after all
+      addenda. Not the questions deadline, not the pre-bid meeting, not line-item delivery dates.
+    fact_types: [deadline]
+    fact_kinds: [datetime]
+    queries: [proposal due date and time, closing date, submission deadline extended addendum]
+
+  - key: pre_bid_meeting
+    name: Pre Bid Meeting
+    group: identity_dates
+    type: datetime
+    reconcile: true
+    description: >-
+      Date, time, place or link of any pre-bid or pre-proposal meeting or site visit, and
+      whether attendance is mandatory. Not specified when the documents name no meeting.
+    fact_types: [pre_bid]
+    fact_kinds: [datetime]
+    queries: [pre-bid meeting, pre-proposal conference, site visit]
+
+  - key: bid_submission_type
+    name: Bid Submission Type
+    group: identity_dates
+    type: text
+    description: >-
+      How responses must be submitted: electronic portal (which one), email, sealed hard copy,
+      number of copies; and what is not accepted.
+    fact_types: [submission_method]
+    queries: [how to submit proposals, electronic submission portal, sealed bids hard copy]
+
+  - key: term_of_bid
+    name: Term of Bid
+    group: commercial_legal
+    type: text
+    reconcile: true
+    description: >-
+      Contract term and renewal options, or that the award is a one-time purchase order; quote
+      validity period if stated.
+    fact_types: [term_renewal]
+    fact_kinds: [duration]
+    queries: [contract term renewal options, length of contract, quote valid days]
+
+  - key: bid_bond_requirement
+    name: Bid Bond Requirement
+    group: commercial_legal
+    type: text
+    reconcile: true
+    description: >-
+      Whether a bid bond, bid security or guarantee is required, and its amount or percentage.
+      If the documents only refer to bond requirements "elsewhere" without stating one, say
+      that it is not specified rather than not required.
+    fact_types: [bond_insurance]
+    fact_kinds: [money, percent]
+    queries: [bid bond required amount, bid security guarantee, performance bond insurance]
+
+  - key: payment_terms
+    name: Payment Terms
+    group: commercial_legal
+    type: text
+    description: >-
+      When and how the agency pays the vendor (Net days, invoicing rules, prompt payment).
+      Not the vendor's own credit terms, and not subcontractor payment rules.
+    fact_types: [payment_invoice]
+    queries: [payment terms net days, invoice submission payment, prompt payment]
+
+  - key: contract_or_cooperative
+    name: Contract or Cooperative to use
+    group: commercial_legal
+    type: text
+    description: >-
+      The contract vehicle or purchasing cooperative the purchase is made under (a master
+      contract, a cooperative, piggyback eligibility), or that the solicitation creates its own
+      contract.
+    queries: [master contract cooperative purchasing, piggyback cooperative agreement, contract vehicle]
+
+  - key: additional_documentation
+    name: Any Additional Documentation Required
+    group: commercial_legal
+    type: list
+    reconcile: true
+    description: >-
+      Forms, affidavits, certifications, references and acknowledgements that must be
+      submitted with the response, including signed addenda.
+    queries: [forms required with proposal, affidavits certifications to submit, acknowledge addendum signed, references required]
+
+  - key: product
+    name: Product
+    group: product_specs
+    type: text
+    description: The goods or services being bought, with quantities when stated.
+    fact_kinds: [quantity]
+    queries: [products to be purchased quantity, scope of work devices, price schedule line items]
+
+  - key: model_no
+    name: Model_no
+    group: product_specs
+    type: list
+    description: >-
+      Manufacturer model numbers or names the documents require or quote (for example a laptop
+      model). Not specified when the agency lets vendors propose models.
+    fact_kinds: [identifier]
+    queries: [model number, product model required, brand and model]
+
+  - key: part_no
+    name: Part_no
+    group: product_specs
+    type: list
+    description: >-
+      Part numbers or SKUs listed in the documents (quotes, configurations, line items).
+      Not specified when none are listed.
+    fact_kinds: [identifier]
+    queries: [part number SKU, configuration SKU list, item part numbers]
+
+  - key: mfg_for_registration
+    name: MFG for Registration
+    group: product_specs
+    type: text
+    description: >-
+      The manufacturer the products are registered with or must come from (OEM requirements,
+      manufacturer warranty registration).
+    queries: [manufacturer OEM required, manufacturer warranty registration, brand]
+
+  - key: product_specification
+    name: Product Specification
+    group: product_specs
+    type: text
+    reconcile: true
+    description: >-
+      The key technical specifications or minimum requirements (processor, memory, storage,
+      display, warranty, other requirements), summarised faithfully per item.
+    queries: [minimum specifications requirements, processor memory storage display, technical specifications warranty]
+
+  - key: company_name
+    name: company_name
+    group: parties_logistics
+    type: text
+    description: The issuing agency or organisation (the buyer), not a vendor or manufacturer.
+    queries: [issuing organization, agency name purchasing department]
+
+  - key: contact_info
+    name: contact_info
+    group: parties_logistics
+    type: text
+    description: >-
+      The agency's procurement contact for this solicitation: name, title, email and phone.
+      Not contacts for unrelated processes (for example catalog setup or M/WBE offices).
+    fact_types: [contact]
+    fact_kinds: [email, phone]
+    queries: [buyer contact email phone, point of contact procurement officer]
+
+  - key: installation
+    name: Installation
+    group: parties_logistics
+    type: text
+    reconcile: true
+    description: >-
+      Installation, deployment, imaging, tagging or other on-site services required, or that
+      none are required.
+    queries: [installation deployment services, white glove imaging asset tagging, setup configuration services]
+
+  - key: delivery_date
+    name: Delivery Date
+    group: parties_logistics
+    type: text
+    reconcile: true
+    description: >-
+      When goods must be delivered: a date, or a period relative to award or order (for
+      example "within 45 days of award"), and delivery location if stated.
+    fact_types: [delivery]
+    fact_kinds: [duration, datetime]
+    queries: [delivery timeline days after award, delivery date location, shipment lead time]
+
+  - key: bid_summary
+    name: Bid Summary
+    group: report
+    type: summary
+    description: >-
+      Three to six sentences summarising the bid: who is buying what, key dates after addenda,
+      main requirements and anything notable. Generated from the other fields.
