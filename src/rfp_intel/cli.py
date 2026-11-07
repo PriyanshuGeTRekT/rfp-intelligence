@@ -376,8 +376,15 @@ def eval_(
     from rfp_intel.search.models import NAMED_CONFIGS, SearchConfig
     from rfp_intel.search.runtime import open_runtime
 
+    if suite == "extraction":
+        _eval_extraction(
+            gold if gold != Path("eval/retrieval_gold.yaml") else Path("eval/extraction_gold.yaml"),
+            out_dir,
+        )
+        return
     if suite != "retrieval":
-        _todo(f"eval {suite}")
+        typer.echo("suite must be retrieval or extraction", err=True)
+        raise typer.Exit(code=1)
     names = configs or list(NAMED_CONFIGS)
     unknown = [n for n in names if n not in NAMED_CONFIGS]
     if unknown:
@@ -424,6 +431,66 @@ def eval_(
         if problems:
             raise typer.Exit(code=1)
         typer.echo("no regression against the baseline")
+
+
+def _eval_extraction(gold: Path, out_dir: Path, results: Path = Path("outputs")) -> None:
+    from rfp_intel.eval.extraction import (
+        evaluate_extraction,
+        load_extraction_gold,
+        save_extraction_report,
+    )
+
+    report = evaluate_extraction(results, load_extraction_gold(gold), gold_file=gold.as_posix())
+    save_extraction_report(report, out_dir / "extraction.json", out_dir / "extraction.md")
+    if report.missing_bids:
+        typer.echo(f"no results for {report.missing_bids}; run `rfp extract <bid>` first", err=True)
+    for bid, acc in report.by_bid().items():
+        typer.echo(f"{bid}: {acc:.1%} of fields correct")
+    for row in report.calibration():
+        typer.echo(f"  tier {row.tier:<4} {row.correct}/{row.count} correct ({row.accuracy:.0%})")
+    failed = [s for s in report.scores if not s.passed]
+    for s in failed:
+        typer.echo(f"  MISS {s.bid_id} {s.field}: {s.reason}")
+    typer.echo(f"report: {out_dir / 'extraction.md'}")
+    if report.missing_bids and not report.scores:
+        raise typer.Exit(code=1)
+
+
+@app.command()
+def trace(
+    run_id: Annotated[str, typer.Argument(help="Run id, as printed by `rfp extract`")],
+    out: Annotated[
+        Path | None, typer.Option(help="Write Markdown here instead of printing")
+    ] = None,
+) -> None:
+    """Render a run's trace (traces/<run_id>.jsonl) as a tree of spans."""
+    from rfp_intel.trace_render import load_spans, render_trace
+
+    path = get_settings().traces_dir / f"{run_id}.jsonl"
+    if not path.exists():
+        typer.echo(f"no trace at {path}", err=True)
+        raise typer.Exit(code=1)
+    text = render_trace(load_spans(path))
+    if out is None:
+        typer.echo(text)
+    else:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(text, encoding="utf-8")
+        typer.echo(f"wrote {out}")
+
+
+@app.command()
+def diagram(
+    out: Annotated[Path, typer.Option(help="Where to write the Mermaid source")] = Path(
+        "docs/agent_graph.mmd"
+    ),
+) -> None:
+    """Write the agent graph's topology as Mermaid (used by docs/architecture.md)."""
+    from rfp_intel.agents.graph import graph_mermaid
+
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(graph_mermaid(), encoding="utf-8")
+    typer.echo(f"wrote {out}")
 
 
 @app.command()

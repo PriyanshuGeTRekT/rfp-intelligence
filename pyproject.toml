@@ -41,9 +41,13 @@ obs = [
     "openinference-instrumentation-langchain>=0.1",
 ]
 opensearch = ["opensearch-py>=2.7"]
+mcp = [
+    "mcp>=1.9",
+]
 
 [project.scripts]
 rfp = "rfp_intel.cli:app"
+rfp-mcp = "rfp_intel.mcp_server:main"
 
 [dependency-groups]
 dev = [
@@ -83,7 +87,7 @@ mypy_path = "src"
 plugins = ["pydantic.mypy"]
 
 [[tool.mypy.overrides]]
-module = ["fitz.*", "pymupdf.*", "dateparser.*", "fastembed.*"]
+module = ["fitz.*", "pymupdf.*", "dateparser.*", "fastembed.*", "mcp.*"]
 ignore_missing_imports = true
 
 # PyMuPDF ships without type annotations; only the module that wraps it calls it.

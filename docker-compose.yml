@@ -1,0 +1,25 @@
+# `docker compose up api` serves the REST API with the embedded vector store under ./data.
+# `docker compose --profile qdrant up` adds a Qdrant server; set RFP_QDRANT_URL to use it.
+services:
+  api:
+    build: .
+    ports: ["8000:8000"]
+    environment:
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      RFP_API_KEY: ${RFP_API_KEY:-}
+      RFP_QDRANT_URL: ${RFP_QDRANT_URL:-}
+      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+    volumes:
+      - ./data/bids:/data/bids:ro
+      - rfp-data:/data
+
+  qdrant:
+    image: qdrant/qdrant:v1.13.4
+    profiles: ["qdrant"]
+    ports: ["6333:6333"]
+    volumes:
+      - qdrant-data:/qdrant/storage
+
+volumes:
+  rfp-data:
+  qdrant-data:

@@ -578,7 +578,20 @@ def _unique_changes(changes: list[AddendumChange]) -> list[AddendumChange]:
 
 
 def build_graph(s: Services, checkpointer: SqliteSaver | None = None) -> Any:
-    nodes = make_nodes(s)
+    return _wire(make_nodes(s)).compile(checkpointer=checkpointer)
+
+
+def graph_mermaid() -> str:
+    """The graph's topology as a Mermaid diagram, for the architecture document."""
+    names = ("plan", "reconcile", "extract_group", "extract_field", "validate", "finalize")
+    nodes: dict[str, Any] = {name: (lambda state: {}) for name in names}
+    nodes["fan_out"] = lambda state: []
+    nodes["after_validate"] = lambda state: "finalize"
+    mermaid: str = _wire(nodes).compile().get_graph().draw_mermaid()
+    return mermaid
+
+
+def _wire(nodes: dict[str, Any]) -> StateGraph[RunState]:
     g: StateGraph[RunState] = StateGraph(RunState)
     g.add_node("plan", nodes["plan"])
     g.add_node("reconcile", nodes["reconcile"])
@@ -593,7 +606,7 @@ def build_graph(s: Services, checkpointer: SqliteSaver | None = None) -> Any:
     g.add_conditional_edges("validate", nodes["after_validate"], ["extract_field", "finalize"])
     g.add_edge("extract_field", "validate")
     g.add_edge("finalize", END)
-    return g.compile(checkpointer=checkpointer)
+    return g
 
 
 def run_extraction(

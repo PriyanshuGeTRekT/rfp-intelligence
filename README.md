@@ -36,6 +36,10 @@ uv run pytest -m slow       # end-to-end retrieval tests with the real models
 | `rfp extract <bid> [--out f.json] [--resume RUN_ID]` | Multi-agent extraction to `outputs/<bid>.json`; needs `ANTHROPIC_API_KEY` | done, untested live |
 | `rfp ask "<question>" [--bid] [--k] [--config]` | Cited answer or "Not found in documents."; appends to `outputs/qa_log.jsonl` | done, untested live |
 | `rfp eval retrieval [--config] [--check] [--update-baseline]` | Recall@k, MRR and latency per configuration; writes docs/eval/retrieval.md | done |
+| `rfp eval extraction` | Field accuracy and calibration per tier for `outputs/*.json`; writes docs/eval/extraction.md | done, needs outputs |
+| `rfp trace <run_id> [--out f.md]` | Render a run's spans as a tree | done |
+| `rfp diagram` | Write the agent graph as Mermaid | done |
+| `rfp-mcp [--http]` | MCP server with list_bids, search, facts and ask tools (`uv sync --extra mcp`) | done |
 | `rfp serve` | REST API: `POST /index`, `GET /search`, `POST /ask` | done |
 
 ## Layout
@@ -71,6 +75,31 @@ uv run --with arize-phoenix python -m phoenix.server.main serve
 
 Then set `OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:6006/v1/traces` in `.env`. Emails and
 phone numbers in span attributes are masked before export unless `RFP_TRACE_REDACT_PII=false`.
+
+## Docker
+
+```bash
+docker compose up api                      # API on :8000, embedded index under a volume
+docker compose --profile qdrant up         # plus a Qdrant server; set RFP_QDRANT_URL=http://qdrant:6333
+docker compose run --rm api index          # any CLI command runs in the same image
+```
+
+The image installs dependencies from the lock file and keeps models, the index and traces in
+the `/data` volume. Bid folders are mounted read-only from `./data/bids`.
+
+## MCP server
+
+`uv sync --extra mcp && uv run rfp-mcp` starts a Model Context Protocol server over stdio
+with four tools: `list_bids`, `search`, `facts` and `ask`. Point Claude Desktop or any MCP
+client at it to query the index conversationally; `ask` needs `ANTHROPIC_API_KEY`.
+
+## Documents
+
+- [docs/architecture.md](docs/architecture.md): system and agent-graph diagrams, a run step
+  by step, and where each requirement of the brief lives.
+- [docs/eval/retrieval.md](docs/eval/retrieval.md): the retrieval evaluation.
+- `docs/eval/extraction.md`, `outputs/<bid>.json`, `outputs/qa_log.jsonl` and
+  `docs/trace_example.md` are produced by the first live run.
 
 ## Design decisions
 
