@@ -21,7 +21,9 @@ class FieldSpec(BaseModel):
     fact_types: list[str] = Field(default_factory=list)
     fact_kinds: list[FactKind] = Field(default_factory=list)
     queries: list[str] = Field(default_factory=list)
+    doc_types: list[str] = Field(default_factory=list)  # searched once more, filtered to these
     reconcile: bool = False
+    enrich: bool = False  # reconciled date fields the model still describes (place, mandatory)
 
 
 class FieldCatalog(BaseModel):

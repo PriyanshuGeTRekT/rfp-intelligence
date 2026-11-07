@@ -17,6 +17,7 @@ from rfp_intel.agents.llm import AnthropicLLM, LLMError, ScriptedLLM, Usage, cos
 from rfp_intel.agents.reconcile import (
     ChangeEvent,
     apply_text_events,
+    display_datetime,
     events_from_facts,
     format_datetime,
     resolve_datetime,
@@ -138,7 +139,7 @@ ADD2 = dt_fact(
 def test_addendum_replaces_and_portal_corroborates() -> None:
     facts = [RFP, PORTAL_NEW, ADD2]
     r = resolve_datetime("due_date", facts, events_from_facts(facts))
-    assert r.value == "July 9, 2024, 2:00 PM CDT"
+    assert r.value == "2024-07-09 14:00 CDT"
     assert r.normalized and r.normalized["utc"] == "2024-07-09T19:00:00Z"
     (change,) = r.changes
     assert (change.operation, change.old_value, change.new_value, change.addendum_number) == (
@@ -163,7 +164,7 @@ def test_later_addendum_wins_regardless_of_input_order() -> None:
     )
     facts = [ADD2, add1, RFP]
     r = resolve_datetime("due_date", facts, events_from_facts(facts))
-    assert r.value == "July 9, 2024, 2:00 PM CDT"
+    assert r.value == "2024-07-09 14:00 CDT"
     assert [c.addendum_number for c in r.changes] == [1, 2]
     assert r.changes[1].old_value == "July 2, 2024 at 2:00 PM CT"
 
@@ -178,7 +179,7 @@ def test_addendum_repeating_the_date_confirms_it() -> None:
     facts = [RFP, same]
     r = resolve_datetime("due_date", facts, events_from_facts(facts))
     assert [c.operation for c in r.changes] == ["confirm"]
-    assert r.value == "June 27, 2024, 2:00 PM" and r.evidence.confirmed_by_addendum
+    assert r.value == "2024-06-27 14:00" and r.evidence.confirmed_by_addendum
 
 
 def test_unexplained_portal_difference_is_a_conflict() -> None:
@@ -206,25 +207,24 @@ def test_date_from_document_time_from_portal() -> None:
         "Closing Date: 06/10/2024 02:00 PM EDT", doc_type="bid_page", file="portal.html"
     )
     r = resolve_datetime("due_date", [doc, portal], [])
-    assert r.value == "June 10, 2024, 2:00 PM EDT"
+    assert r.value == "2024-06-10 14:00 EDT"
     assert r.evidence.assembled and tier(r.evidence) == "C"
     assert {s.file for s in r.sources} == {"porfp.pdf", "portal.html"}
 
 
 def test_portal_only_and_nothing() -> None:
     r = resolve_datetime("due_date", [PORTAL_NEW], [])
-    assert r.value == "July 9, 2024, 3:00 PM EDT" and any("Only the portal" in n for n in r.notes)
+    assert r.value == "2024-07-09 15:00 EDT" and any("Only the portal" in n for n in r.notes)
     none = resolve_datetime("pre_bid_meeting", [RFP], [])
     assert none.value is None and not none.evidence.found
 
 
 def test_format_datetime() -> None:
-    assert format_datetime({"date": "2024-07-09"}) == "July 9, 2024"
-    assert (
-        format_datetime({"date": "2024-07-09", "time": "09:05", "tz_text": "ET"})
-        == "July 9, 2024, 9:05 AM ET"
-    )
-    assert format_datetime({"date": "2024-07-09", "time": "00:00"}) == "July 9, 2024, 12:00 AM"
+    assert format_datetime({"date": "2024-07-09"}) == "2024-07-09"
+    value = {"date": "2024-07-09", "time": "09:05", "tz_text": "ET"}
+    assert format_datetime(value) == "2024-07-09 09:05 ET"
+    assert display_datetime(value) == "July 9, 2024, 9:05 AM ET"
+    assert display_datetime({"date": "2024-07-09", "time": "00:00"}) == "July 9, 2024, 12:00 AM"
 
 
 def _event(
@@ -264,13 +264,14 @@ def test_real_bids_due_dates(bid1_folder: BidFolder, bid2_folder: BidFolder) -> 
     config = load_fact_types(REPO_ROOT / "config" / "fact_types.yaml")
     f1 = [f for d in bid1_folder.documents for f in extract_facts(d, config)]
     r1 = resolve_datetime("due_date", f1, events_from_facts(f1))
-    assert r1.value == "July 9, 2024, 2:00 PM CDT" and tier(r1.evidence) == "A"
+    assert r1.value == "2024-07-09 14:00 CDT" and tier(r1.evidence) == "A"
     assert r1.changes[0].old_value == "27-JUN-2024 14:00:00"
     pre = resolve_datetime("pre_bid_meeting", f1, events_from_facts(f1))
-    assert pre.value == "June 10, 2024, 2:00 PM CDT"
+    assert pre.value == "2024-06-10 14:00 CDT"
+    assert any(n.startswith("Extended by Addendum 2 (original date: 2024-06-27") for n in r1.notes)
     f2 = [f for d in bid2_folder.documents for f in extract_facts(d, config)]
     r2 = resolve_datetime("due_date", f2, events_from_facts(f2))
-    assert r2.value == "June 10, 2024, 2:00 PM EDT" and r2.evidence.assembled
+    assert r2.value == "2024-06-10 14:00 EDT" and r2.evidence.assembled
     assert resolve_datetime("pre_bid_meeting", f2, []).value is None
 
 
@@ -362,7 +363,7 @@ def test_identifiers_and_dates(catalog: FieldCatalog, store: EvidenceStore) -> N
         catalog,
         store,
         "due_date",
-        "July 9, 2024, 2:00 PM CDT",
+        "2024-07-09 14:00 CDT",
         [("e2", "July 9, 2024 at 2:00 PM CST")],
     )[0]
     ok, reason = _check(
@@ -529,3 +530,15 @@ def test_anthropic_client_request_shape_retry_and_errors(monkeypatch: pytest.Mon
     )
     with pytest.raises(ValueError):
         fatal.structured(system="s", user="u", schema=Answer, model="claude-opus-5-5")
+
+
+def test_model_events_restating_a_date_change_are_dropped() -> None:
+    from rfp_intel.agents.reconcile import drop_restated_dates
+
+    date_event = _event("replace", "July 9, 2024 at 2:00 PM CST", 2, field="due_date")
+    misfiled = _event("replace", "July 9, 2024 at 2:00 PM CST", 2, field="term_of_bid")
+    misfiled = misfiled.model_copy(
+        update={"quote": "The new due date for this RFP will be July 9, 2024 at 2:00 PM CST."}
+    )
+    other = _event("add_requirement", "Signed Addendum 2", 2)
+    assert drop_restated_dates([misfiled, other], [date_event]) == [other]

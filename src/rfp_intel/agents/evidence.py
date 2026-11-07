@@ -2,8 +2,14 @@
 
 For each field, evidence is the union of:
 - hybrid search for the field name and its configured queries, scoped to the bid;
+- the field name searched again within its preferred document types (specs for part
+  numbers, affidavits and forms for documentation), when the catalog names any;
 - every chunk that contains a fact with the field's labels (deadline, delivery, ...), so a
   typed candidate can never be missed because search ranked it low.
+
+With reranking on, the pooled candidates are ordered by the cross-encoder against the field's
+name and description, once per field (reranking every query separately would cost several
+times more for the same pool). Fact-bearing chunks stay first either way.
 
 Evidence text lives in an `EvidenceStore` keyed by chunk id; graph state carries only ids, so
 checkpoints and traces stay small. The record of what was searched is kept per field: it is
@@ -24,6 +30,8 @@ from rfp_intel.search.models import DEFAULT_CONFIG, SearchConfig
 
 PER_QUERY = 5
 MAX_ITEMS = 10
+POOL = 30  # candidates pooled across queries before the per-field rerank
+MAX_FACT_CHUNKS = 4  # fact-bearing chunks kept ahead of the ranked ones
 MIN_QUERIES_FOR_ABSENCE = 3
 
 
@@ -37,6 +45,7 @@ class EvidenceItem(BaseModel):
     addendum_number: int | None = None
     section: str = ""
     text: str
+    ocr: bool = False  # from a scanned page read by OCR
 
     @property
     def pages(self) -> str:
@@ -125,6 +134,7 @@ def _item(payload: dict[str, Any]) -> EvidenceItem:
         addendum_number=payload.get("addendum_number"),
         section=" > ".join(payload.get("section_path", [])),
         text=payload["text"],
+        ocr=bool(payload.get("ocr", False)),
     )
 
 
@@ -144,13 +154,16 @@ def gather(
     *,
     extra_queries: Sequence[str] = (),
     config: SearchConfig | str = DEFAULT_CONFIG,
+    rerank: bool = False,
 ) -> FieldEvidence:
     queries = list(dict.fromkeys([spec.name, *spec.queries, *extra_queries]))
-    ranked: dict[
-        str, tuple[int, int]
-    ] = {}  # chunk id -> (best rank, number of queries that found it)
-    for q in queries:
-        for hit in engine.search(q, bid_id=bid_id, k=PER_QUERY, config=config).hits:
+    searches: list[tuple[str, list[str]]] = [(q, []) for q in queries]
+    if spec.doc_types:
+        searches.append((spec.name, spec.doc_types))
+    ranked: dict[str, tuple[int, int]] = {}  # chunk id -> (best rank, queries that found it)
+    for q, doc_types in searches:
+        hits = engine.search(q, bid_id=bid_id, doc_types=doc_types, k=PER_QUERY, config=config)
+        for hit in hits.hits:
             best, count = ranked.get(hit.chunk_id, (hit.rank, 0))
             ranked[hit.chunk_id] = (min(best, hit.rank), count + 1)
 
@@ -163,15 +176,18 @@ def gather(
 
     fact_chunks = engine.backend.chunks_with_facts(
         [f.fact_id for f in typed], Filters(bid_id=bid_id), limit=MAX_ITEMS
-    )
-    ordered = sorted(ranked, key=lambda c: (ranked[c][0], -ranked[c][1]))
-    ids = list(dict.fromkeys([*fact_chunks, *ordered]))[:MAX_ITEMS]
+    )[:MAX_FACT_CHUNKS]
+    pool = sorted(ranked, key=lambda c: (ranked[c][0], -ranked[c][1]))[:POOL]
+    if rerank:
+        pool = [c for c, _ in engine.rerank(f"{spec.name}: {spec.description}", pool)]
+    ids = list(dict.fromkeys([*fact_chunks, *pool]))[:MAX_ITEMS]
     for payload in engine.backend.fetch(ids).values():
         store.add(_item(payload))
+    described = [*queries, *(f"{q} (in {', '.join(t)})" for q, t in searches if t)]
     return FieldEvidence(
         field=spec.key,
         evidence_ids=[i for i in ids if store.get(i) is not None],
-        queries=queries,
+        queries=described,
         candidates=[_candidate(f) for f in (typed or by_kind)[:25]],
         typed_fact_count=len(typed),
     )

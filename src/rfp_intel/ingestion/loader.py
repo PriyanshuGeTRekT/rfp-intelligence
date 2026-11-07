@@ -8,6 +8,7 @@ from opentelemetry import trace
 from rfp_intel.ingestion.html import parse_html, parse_text
 from rfp_intel.ingestion.meta import CueConfig, enrich, load_cues
 from rfp_intel.ingestion.models import BidFolder, Issue, PageStatus, ParsedDocument
+from rfp_intel.ingestion.office import parse_docx, parse_xlsx
 from rfp_intel.ingestion.pdf import parse_pdf
 from rfp_intel.logs import get_logger
 
@@ -21,13 +22,24 @@ PARSERS: dict[str, Parser] = {
     ".htm": parse_html,
     ".txt": parse_text,
     ".md": parse_text,
+    ".docx": parse_docx,
+    ".xlsx": parse_xlsx,
 }
 
 
 def _page_issues(doc: ParsedDocument) -> list[Issue]:
     issues: list[Issue] = []
+    ocr = [p.number for p in doc.pages if p.status is PageStatus.OCR]
+    if ocr:
+        issues.append(
+            Issue(
+                file_name=doc.file_name,
+                severity="info",
+                message=f"{len(ocr)} scanned pages read by OCR; check citations against the file",
+            )
+        )
     for page in doc.pages:
-        if page.status is PageStatus.OK:
+        if page.status in (PageStatus.OK, PageStatus.OCR):
             continue
         issues.append(
             Issue(
@@ -37,7 +49,7 @@ def _page_issues(doc: ParsedDocument) -> list[Issue]:
                 message=page.note or f"page is {page.status.value}",
             )
         )
-    if doc.pages and all(p.status is not PageStatus.OK for p in doc.pages):
+    if doc.pages and all(p.status not in (PageStatus.OK, PageStatus.OCR) for p in doc.pages):
         issues.append(
             Issue(
                 file_name=doc.file_name, severity="error", message="no extractable text on any page"

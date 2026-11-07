@@ -12,7 +12,7 @@ import json
 import os
 import re
 import time
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
 from typing import Any, TypeVar
 
@@ -117,8 +117,8 @@ def resolve_provider(settings: Any) -> Resolved:
     source = "none"
     if settings.llm_api_key is not None:
         key, source = settings.llm_api_key.get_secret_value(), "RFP_LLM_API_KEY"
-    elif preset and preset.key_env and os.environ.get(preset.key_env):
-        key, source = os.environ[preset.key_env], preset.key_env
+    elif preset and preset.key_env and (env_key := _external_env(settings, preset.key_env)):
+        key, source = env_key, preset.key_env
     local = any(h in base_url for h in LOCAL_HOSTS)
     needs_key = (preset.needs_key if preset else True) and not local
     if needs_key and not key:
@@ -128,6 +128,11 @@ def resolve_provider(settings: Any) -> Resolved:
         )
     auth_style = settings.llm_auth_style or (preset.auth_style if preset else "bearer")
     return Resolved(name, "openai", base_url, key, auth_style, source)
+
+
+def _external_env(settings: Any, name: str) -> str | None:
+    lookup = getattr(settings, "external_env", None)
+    return lookup(name) if lookup else os.environ.get(name)
 
 
 class Ping(BaseModel):
@@ -161,6 +166,44 @@ def check_llm(llm: LLM, model: str) -> dict[str, Any]:
 
 
 _TRANSIENT_STATUS = {408, 409, 425, 429, 500, 502, 503, 504}
+_MAX_WAIT_S = 90.0  # longest server-requested wait honored before giving up
+
+
+class _InvalidOutputError(Exception):
+    """The server rejected the model's own output as not matching the schema (repairable)."""
+
+
+def retry_delay(response: httpx.Response, attempt: int) -> float:
+    """The server's `retry-after` (seconds or Groq-style "7.5s"/"1m2s"), else 2**attempt.
+    Not capped: a caller compares it with the longest wait it is willing to make."""
+    for header in ("retry-after", "x-ratelimit-reset-tokens", "x-ratelimit-reset-requests"):
+        value = response.headers.get(header)
+        if value and (seconds := _parse_seconds(value)) is not None:
+            return max(seconds, 0.5)
+    return float(2**attempt)
+
+
+def _quota_message(response: httpx.Response) -> str:
+    try:
+        message = str(response.json()["error"]["message"])
+    except (ValueError, KeyError, TypeError):
+        message = response.text
+    return message[:300]
+
+
+def _parse_seconds(value: str) -> float | None:
+    value = value.strip()
+    try:
+        return float(value)
+    except ValueError:
+        pass
+    parts = re.findall(r"(\d+(?:\.\d+)?)(ms|h|m|s)", value)
+    if not parts:
+        return None
+    scale = {"h": 3600.0, "m": 60.0, "s": 1.0, "ms": 0.001}
+    return sum(float(n) * scale[unit] for n, unit in parts)
+
+
 _EFFORT = {"low": "low", "medium": "medium", "high": "high", "xhigh": "high", "max": "high"}
 _FENCE_RE = re.compile(r"^```(?:json)?\s*|\s*```$", re.S)
 
@@ -175,8 +218,9 @@ class OpenAICompatibleLLM:
         extra_query: Mapping[str, str] | None = None,
         send_reasoning_effort: bool = False,
         timeout_s: float = 120.0,
-        max_attempts: int = 3,
+        max_attempts: int = 4,
         transport: httpx.BaseTransport | None = None,
+        sleep: Callable[[float], None] = time.sleep,
     ) -> None:
         headers = (
             {"Authorization": f"Bearer {api_key}"}
@@ -192,6 +236,7 @@ class OpenAICompatibleLLM:
         )
         self.send_reasoning_effort = send_reasoning_effort
         self.max_attempts = max_attempts
+        self._sleep = sleep
         self.mode: dict[str, str] = {}  # model -> "json_schema" | "json_object", once learned
 
     # --------------------------------------------------------------------------------------
@@ -210,9 +255,13 @@ class OpenAICompatibleLLM:
         usage = Usage()
         repair: str | None = None
         for _ in range(2):  # one repair round for an invalid or non-JSON answer
-            data = self._complete(
-                model, system, user + (repair or ""), json_schema, effort, max_tokens, usage
-            )
+            try:
+                data = self._complete(
+                    model, system, user + (repair or ""), json_schema, effort, max_tokens, usage
+                )
+            except _InvalidOutputError as exc:
+                repair = _repair_note(str(exc))
+                continue
             choice = data["choices"][0]
             finish = choice.get("finish_reason")
             if finish == "length":
@@ -223,10 +272,7 @@ class OpenAICompatibleLLM:
             try:
                 parsed = schema.model_validate(json.loads(_FENCE_RE.sub("", content.strip())))
             except (json.JSONDecodeError, ValidationError) as exc:
-                repair = (
-                    "\n\nYour previous reply was not valid for the required schema: "
-                    f"{str(exc)[:400]}. Reply with one JSON object that matches the schema."
-                )
+                repair = _repair_note(str(exc))
                 continue
             usage.cost_usd = cost(model, usage)
             return parsed, usage
@@ -251,18 +297,36 @@ class OpenAICompatibleLLM:
                 response = self.client.post("/chat/completions", json=body)
             except httpx.TransportError as exc:
                 last = exc
-                time.sleep(2**attempt)
+                self._sleep(2**attempt)
                 continue
             elapsed = round((time.perf_counter() - start) * 1000, 1)
+            if response.status_code == 400 and "json_validate_failed" in response.text:
+                # Structured output works; this answer did not fit the schema.
+                raise _InvalidOutputError(response.text[:400])
             if response.status_code == 400 and mode == "json_schema":
                 log.info("json_schema_unsupported", model=model, detail=response.text[:200])
                 self.mode[model] = "json_object"
                 continue
+            if response.status_code in (413, 429) and "request too large" in response.text.lower():
+                # One request exceeds the per-minute ceiling: waiting cannot help.
+                raise LLMError(
+                    f"request too large for the provider's limit: {_quota_message(response)}; "
+                    "lower RFP_LLM_MAX_PROMPT_TOKENS or RFP_LLM_MAX_OUTPUT_TOKENS"
+                )
             if response.status_code in _TRANSIENT_STATUS:
                 last = httpx.HTTPStatusError(
                     response.text[:200], request=response.request, response=response
                 )
-                time.sleep(2**attempt)
+                delay = retry_delay(response, attempt)
+                if delay > _MAX_WAIT_S:
+                    # A quota that resets in minutes or hours (Groq's tokens-per-day limit, for
+                    # one) will not clear by waiting here: fail now, with the server's reason.
+                    raise LLMError(
+                        f"rate limited for {delay:.0f} s, longer than the {_MAX_WAIT_S:.0f} s "
+                        f"this client waits: {_quota_message(response)}"
+                    )
+                log.info("llm_retry", model=model, status=response.status_code, wait_s=delay)
+                self._sleep(delay)
                 continue
             if response.status_code >= 400:
                 raise LLMError(f"provider returned {response.status_code}: {response.text[:300]}")
@@ -316,3 +380,10 @@ class OpenAICompatibleLLM:
                 latency_ms=elapsed_ms,
             )
         )
+
+
+def _repair_note(error: str) -> str:
+    return (
+        "\n\nYour previous reply was not valid for the required schema: "
+        f"{error[:400]}. Reply with one JSON object that matches the schema."
+    )

@@ -36,11 +36,13 @@ def test_bid2_types(bid2: BidFolder) -> None:
     assert types == ["affidavit", "affidavit", "bid_page", "rfp", "specs"]
 
 
-def test_bid1_w9_pages_are_flagged_for_ocr(bid1: BidFolder) -> None:
+def test_bid1_w9_outline_pages_are_read_by_ocr(bid1: BidFolder) -> None:
+    """The W-9 is drawn as vector outlines with no text layer; OCR reads it like a scan."""
     rfp = _doc(bid1, "JA-207652")
-    flagged = [p.number for p in rfp.pages if p.status is PageStatus.NO_TEXT_LAYER]
-    assert flagged == [54, 55, 56, 57, 58, 59]
-    assert {i.page for i in bid1.issues if i.file_name == rfp.file_name} == set(flagged)
+    read = [p.number for p in rfp.pages if p.status is PageStatus.OCR]
+    assert read == [54, 55, 56, 57, 58, 59]
+    assert not [p for p in rfp.pages if p.status is PageStatus.NO_TEXT_LAYER]
+    assert any("W-9" in b.text or "Taxpayer" in b.text for b in rfp.blocks if b.page in read)
 
 
 def test_bid1_headers_removed_but_kept(bid1: BidFolder) -> None:

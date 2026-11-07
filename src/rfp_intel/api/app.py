@@ -1,78 +1,41 @@
 """FastAPI application.
 
-Security basics live here because they are cheap and reviewers look for them:
-- `X-API-Key` on every route except /health, compared in constant time, when RFP_API_KEY is set;
-- a request-size cap checked against Content-Length;
-- `/index` only accepts folders inside the data directory.
+Routes live under `/api` (search, ask, bids, jobs, runs). The brief's example endpoints
+(`POST /index`, `GET /search?q=...&bid_id=...&top_k=5`, `POST /ask`) are also served at the
+root. When the web app has been built (`web/dist`), it is served at `/`.
 
-The search stack (models and the embedded index) is built on first use and shared. Embedded
-Qdrant allows one client per folder, so calls into it are serialized with a lock.
+Security basics:
+- `X-API-Key` on every API route except /health, compared in constant time, when
+  RFP_API_KEY is set;
+- a request-size cap checked against Content-Length;
+- paths from requests are resolved inside the data directory, never outside it.
 """
 
 import secrets
-import threading
 from collections.abc import AsyncIterator, Awaitable, Callable
 from contextlib import asynccontextmanager
+from pathlib import Path
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Query, Request, Response
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Request, Response
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from rfp_intel import __version__
-from rfp_intel.agents.llm import LLM, LLMError, llm_from_settings
-from rfp_intel.agents.qa import QAResult, answer
-from rfp_intel.api.schemas import AskRequest, Health, IndexRequest
+from rfp_intel.agents.llm import LLM
+from rfp_intel.api.context import AppContext, RuntimeFactory
+from rfp_intel.api.routes import ask, bids, compare, runs, search
+from rfp_intel.api.schemas import Health
 from rfp_intel.config import Settings, get_settings
 from rfp_intel.logs import get_logger
-from rfp_intel.search.indexer import IndexReport
-from rfp_intel.search.models import DEFAULT_CONFIG, NAMED_CONFIGS, SearchResult
-from rfp_intel.search.runtime import Runtime, open_runtime
-from rfp_intel.security import PathNotAllowedError, resolve_within
+from rfp_intel.search.runtime import open_runtime
 
 log = get_logger(__name__)
-
-RuntimeFactory = Callable[[Settings], Runtime]
-
-
-class _Services:
-    def __init__(self, settings: Settings, factory: RuntimeFactory, llm: LLM | None) -> None:
-        self.settings = settings
-        self.factory = factory
-        self.lock = threading.Lock()
-        self._runtime: Runtime | None = None
-        self._llm = llm
-
-    def llm(self) -> LLM:
-        if self._llm is None:
-            self._llm = llm_from_settings(self.settings)
-        return self._llm
-
-    def runtime(self) -> Runtime:
-        if self._runtime is None:
-            self._runtime = self.factory(self.settings)
-        return self._runtime
-
-    def close(self) -> None:
-        if self._runtime is not None:
-            self._runtime.close()
-            self._runtime = None
+WEB_DIST = Path(__file__).resolve().parents[3] / "web" / "dist"
 
 
-def _settings(request: Request) -> Settings:
-    settings: Settings = request.app.state.settings
-    return settings
-
-
-def _services(request: Request) -> _Services:
-    services: _Services = request.app.state.services
-    return services
-
-
-def require_api_key(
-    request: Request,
-    x_api_key: Annotated[str | None, Header()] = None,
-) -> None:
-    expected = _settings(request).api_key
+def require_api_key(request: Request, x_api_key: Annotated[str | None, Header()] = None) -> None:
+    expected = request.app.state.context.settings.api_key
     if expected is None:
         return
     if x_api_key is None or not secrets.compare_digest(
@@ -81,95 +44,56 @@ def require_api_key(
         raise HTTPException(status_code=401, detail="missing or invalid X-API-Key")
 
 
-router = APIRouter(dependencies=[Depends(require_api_key)])
+def _api_router() -> APIRouter:
+    router = APIRouter(dependencies=[Depends(require_api_key)])
+    for module in (search, ask, bids, compare, runs):
+        router.include_router(module.router)
+    return router
 
 
-@router.post("/index")
-def index(body: IndexRequest, request: Request, force: bool = False) -> IndexReport:
-    """Index one bid folder (incremental: unchanged files are skipped)."""
-    settings = _settings(request)
-    try:
-        folder = resolve_within(settings.data_dir, body.path)
-    except PathNotAllowedError as exc:
-        raise HTTPException(status_code=400, detail=str(exc)) from exc
-    if not folder.is_dir():
-        raise HTTPException(status_code=404, detail="bid folder not found")
-    services = _services(request)
-    with services.lock:
-        return services.runtime().indexer().index_folder(folder, force=force)
+def _brief_aliases() -> APIRouter:
+    """The endpoints the brief names, at the paths it names."""
+    router = APIRouter(dependencies=[Depends(require_api_key)], tags=["brief"])
+    router.add_api_route("/index", bids.index, methods=["POST"])
+    router.add_api_route("/search", search.search, methods=["GET"])
+    router.add_api_route("/ask", ask.ask, methods=["POST"])
+    return router
 
 
-@router.get("/search")
-def search(
-    request: Request,
-    q: Annotated[str, Query(min_length=1, max_length=500)],
-    bid_id: str | None = None,
-    doc_type: Annotated[list[str] | None, Query()] = None,
-    addendum_number: int | None = None,
-    k: Annotated[int, Query(ge=1, le=50)] = 5,
-    config: str = DEFAULT_CONFIG,
-) -> SearchResult:
-    """Hybrid search. Every hit carries file, pages, chunk text and per-list ranks."""
-    if config not in NAMED_CONFIGS:
-        raise HTTPException(
-            status_code=422, detail=f"config must be one of {sorted(NAMED_CONFIGS)}"
-        )
-    services = _services(request)
-    with services.lock:
-        return (
-            services.runtime()
-            .engine()
-            .search(
-                q,
-                bid_id=bid_id,
-                doc_types=doc_type,
-                addendum_number=addendum_number,
-                k=k,
-                config=config,
-            )
-        )
+def _mount_web(app: FastAPI, dist: Path) -> None:
+    """Serve the built single-page app; unknown non-API paths get index.html."""
+    if not (dist / "index.html").exists():
+        return
+    app.mount("/assets", StaticFiles(directory=dist / "assets"), name="assets")
 
-
-@router.post("/ask")
-def ask(body: AskRequest, request: Request) -> QAResult:
-    """Answer a question with verbatim citations, or "Not found in documents"."""
-    if body.config not in NAMED_CONFIGS:
-        raise HTTPException(
-            status_code=422, detail=f"config must be one of {sorted(NAMED_CONFIGS)}"
-        )
-    services = _services(request)
-    try:
-        llm = services.llm()
-    except LLMError as exc:
-        raise HTTPException(status_code=503, detail=str(exc)) from exc
-    with services.lock:
-        return answer(
-            services.runtime().engine(),
-            llm,
-            services.settings.extract_model,
-            body.question,
-            bid_id=body.bid_id,
-            k=body.k,
-            config=body.config,
-        )
+    @app.get("/{path:path}", include_in_schema=False)
+    def spa(path: str) -> FileResponse:
+        if path.startswith(("api/", "health")):
+            raise HTTPException(status_code=404)
+        candidate = (dist / path).resolve()
+        if path and candidate.is_file() and candidate.is_relative_to(dist.resolve()):
+            return FileResponse(candidate)
+        # index.html names the hashed bundles of the current build: revalidate it on every load,
+        # or a browser keeps running the previous build's code after a deploy.
+        return FileResponse(dist / "index.html", headers={"Cache-Control": "no-cache"})
 
 
 def create_app(
     settings: Settings | None = None,
     runtime_factory: RuntimeFactory | None = None,
     llm: LLM | None = None,
+    web_dist: Path | None = WEB_DIST,
 ) -> FastAPI:
     settings = settings or get_settings()
-    services = _Services(settings, runtime_factory or (lambda s: open_runtime(s)), llm)
+    ctx = AppContext(settings, runtime_factory or (lambda s: open_runtime(s)), llm)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:
         yield
-        services.close()
+        ctx.close()
 
     app = FastAPI(title="RFP Intelligence API", version=__version__, lifespan=lifespan)
-    app.state.settings = settings
-    app.state.services = services
+    app.state.context = ctx
     if settings.api_key is None:
         log.warning("api_auth_disabled", hint="set RFP_API_KEY to require X-API-Key")
 
@@ -189,9 +113,19 @@ def create_app(
                 return JSONResponse({"detail": "request body too large"}, status_code=413)
         return await call_next(request)
 
-    @app.get("/health")
+    @app.get("/health", tags=["health"])
+    @app.get("/api/health", tags=["health"], include_in_schema=False)
     def health() -> Health:
-        return Health(status="ok", version=__version__)
+        return Health(
+            status="ok",
+            version=__version__,
+            llm_provider=settings.llm_provider,
+            extract_model=settings.extract_model,
+            reranker=ctx.reranker_loaded(),
+        )
 
-    app.include_router(router)
+    app.include_router(_api_router(), prefix="/api")
+    app.include_router(_brief_aliases())
+    if web_dist is not None:
+        _mount_web(app, web_dist)
     return app

@@ -2,18 +2,23 @@
 
 A draft passes only when:
 1. cited: a found value has at least one quote;
-2. quotes_verbatim: every quote is a substring of the passage it cites (case and whitespace
-   ignored). A paraphrase is not evidence;
+2. quotes_verbatim: every quote reproduces text of the passage it cites: the same words in
+   the same order, case and punctuation between words aside (`ground`). A paraphrase is not
+   evidence. Grounded quotes are replaced by the passage's exact text before output;
 3. value_supported: the value can be read off the quotes, by field type: identifiers appear as
    tokens, dates parse to a date that a quote contains, every number in any value appears in a
    quote (no invented figures), list items and text are covered by the quotes' words;
 4. not_found_justified: "not found" is allowed only after a thorough search found no
    labelled facts for the field.
 
+A draft that carries an `error` (the model call failed: timeout, invalid JSON after repair,
+refusal) fails the `model_call` check, so the orchestrator retries it like any rejected field.
+
 A failed check produces a reason the extractor gets back on retry.
 """
 
 import re
+from collections.abc import Sequence
 from typing import Literal
 
 from pydantic import BaseModel, Field
@@ -45,6 +50,7 @@ class FieldDraft(BaseModel):
     value: str | list[str] | None = None
     quotes: list[Quote] = Field(default_factory=list)
     notes: str | None = None
+    error: str | None = None  # set when no model answer was obtained
 
 
 class Check(BaseModel):
@@ -66,6 +72,111 @@ class ValidationResult(BaseModel):
 
 def norm(text: str) -> str:
     return re.sub(r"\s+", " ", text).strip().casefold()
+
+
+MIN_GROUNDED_CHARS = 4
+
+
+def _alnum_view(text: str) -> tuple[str, list[int]]:
+    """Lowercase letters and digits, with every other run of characters as one space, plus
+    the index in `text` of each kept character."""
+    chars: list[str] = []
+    index: list[int] = []
+    gap = True  # drop leading separators
+    for i, ch in enumerate(text):
+        low = ch.lower() if len(ch.lower()) == 1 else ch
+        if low.isalnum():
+            chars.append(low)
+            index.append(i)
+            gap = False
+        elif not gap:
+            chars.append(" ")
+            index.append(i)
+            gap = True
+    if chars and chars[-1] == " ":
+        chars.pop()
+        index.pop()
+    return "".join(chars), index
+
+
+def ground(quote: str, passage: str) -> str | None:
+    """The exact passage text a quote reproduces, or None.
+
+    Models copy words faithfully but often not the punctuation around them: a table row
+    "Solicitation Number | JA-207652" comes back as "Solicitation Number: JA-207652", or with
+    markdown asterisks. The quote is accepted when its letters and digits appear in the
+    passage in the same order with only separators between them, and it is then replaced by
+    the passage's own text, so every citation in the output is verbatim source text.
+
+    An elided quote ("The term shall be three (3) years ... renewed for two one-year
+    periods") is accepted when every fragment grounds, in order, in the same passage; the
+    result joins the exact fragments with " … "."""
+    fragments = [f for f in _ELLIPSIS_RE.split(quote) if f.strip()]
+    if len(fragments) > 1:
+        view, index = _alnum_view(passage)
+        parts: list[str] = []
+        offset = 0
+        for fragment in fragments:
+            found = _find(fragment, passage, view, index, offset)
+            if found is None:
+                return None
+            start, end, offset = found
+            parts.append(passage[start:end])
+        return " … ".join(parts)
+    view, index = _alnum_view(passage)
+    found = _find(quote, passage, view, index, 0)
+    return passage[found[0] : found[1]] if found else None
+
+
+_ELLIPSIS_RE = re.compile(r"\s*(?:\.{3,}|…|\[\.\.\.\])\s*")
+
+
+def _find(
+    quote: str, passage: str, view: str, index: list[int], from_pos: int
+) -> tuple[int, int, int] | None:
+    """(start, end) of the quote in `passage`, and where in `view` the match ended."""
+    wanted, _ = _alnum_view(quote)
+    if len(wanted) < MIN_GROUNDED_CHARS:
+        return None
+    pattern = re.compile(rf"(?<![^\W_]){re.escape(wanted)}(?![^\W_])")  # whole words only
+    match = pattern.search(view, from_pos)
+    if match is None:
+        return None
+    pos = match.start()
+    start, end = index[pos], index[pos + len(wanted) - 1] + 1
+    # Keep punctuation the quote itself starts or ends with, when the passage has it too.
+    q = quote.strip()
+    if q and not q[-1].isalnum() and passage[end : end + 1] == q[-1]:
+        end += 1
+    if q and not q[0].isalnum() and start > 0 and passage[start - 1] == q[0]:
+        start -= 1
+    return start, end, match.end()
+
+
+def ground_in(
+    quote: str, cited: str, store: EvidenceStore, shown: Sequence[str]
+) -> tuple[str, str] | None:
+    """(evidence id, exact text) for a quote: in the passage it cites, or else in another
+    passage the model was shown. Models copy the text faithfully but sometimes attach the id
+    of the passage next to it; the quote is still verbatim source text, so the citation is
+    pointed at the passage that holds it."""
+    for evidence_id in dict.fromkeys([cited, *shown]):
+        item = store.get(evidence_id)
+        if item is not None and (exact := ground(quote, item.text)) is not None:
+            return evidence_id, exact
+    return None
+
+
+def ground_draft(
+    draft: "FieldDraft", store: EvidenceStore, shown: Sequence[str] = ()
+) -> "FieldDraft":
+    """The draft with each quote replaced by the exact text it reproduces, and pointed at the
+    passage that holds it, where one does (`shown`: the passages the model was given)."""
+    quotes = []
+    for q in draft.quotes:
+        found = ground_in(q.text, q.evidence_id, store, shown)
+        quotes.append(q if found is None else Quote(evidence_id=found[0], text=found[1]))
+    return draft.model_copy(update={"quotes": quotes})
 
 
 def _words(text: str) -> set[str]:
@@ -119,6 +230,10 @@ def validate(
     draft: FieldDraft, spec: FieldSpec, store: EvidenceStore, evidence: FieldEvidence
 ) -> ValidationResult:
     checks: list[Check] = []
+    if draft.error:
+        failure = f"the model call failed: {draft.error}"
+        checks.append(Check(name="model_call", passed=False, reason=failure))
+        return ValidationResult(field=draft.field, passed=False, checks=checks)
     if draft.status == "not_found":
         ok = evidence.coverage_met(spec)
         reason = None
@@ -142,7 +257,7 @@ def validate(
     bad_quotes: list[str] = []
     for quote in draft.quotes:
         item = store.get(quote.evidence_id)
-        if item is None or norm(quote.text) not in norm(item.text):
+        if item is None or ground(quote.text, item.text) is None:
             bad_quotes.append(quote.text[:60])
     checks.append(
         Check(

@@ -13,3 +13,9 @@ var/
 # traces are run output; the curated example lives in docs/
 traces/*
 !traces/.gitkeep
+
+# frontend
+web/node_modules/
+web/dist/
+*.tsbuildinfo
+# extraction records and the Q&A log are deliverables: keep them

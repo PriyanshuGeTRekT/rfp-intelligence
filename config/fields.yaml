@@ -9,7 +9,10 @@
 # fact_types     fact labels that mark candidate evidence (config/fact_types.yaml)
 # fact_kinds     fact kinds that can be the value itself
 # queries        search queries used to gather evidence, besides the field name
+# doc_types      document types searched once more with a filter (a preference, not a limit)
 # reconcile      true when addenda can change the value (change events are applied)
+# enrich         for a date the reconciler resolves: the model still extracts the rest of the
+#                value (place, attendance) with the resolved date given as a hint
 #
 # Keep descriptions about procurement in general. Never put a bid's own values here.
 
@@ -56,9 +59,10 @@ fields:
     group: identity_dates
     type: datetime
     reconcile: true
+    enrich: true
     description: >-
       Date, time, place or link of any pre-bid or pre-proposal meeting or site visit, and
-      whether attendance is mandatory. Not specified when the documents name no meeting.
+      whether attendance is mandatory. "None" when the documents say there is no meeting.
     fact_types: [pre_bid]
     fact_kinds: [datetime]
     queries: [pre-bid meeting, pre-proposal conference, site visit]
@@ -79,11 +83,12 @@ fields:
     type: text
     reconcile: true
     description: >-
-      Contract term and renewal options, or that the award is a one-time purchase order; quote
-      validity period if stated.
+      Contract term and renewal options. When no term is stated, report what the documents say
+      instead: the procurement type (for example a fixed-price, one-time purchase order) and
+      any quote or price validity period.
     fact_types: [term_renewal]
     fact_kinds: [duration]
-    queries: [contract term renewal options, length of contract, quote valid days]
+    queries: [contract term renewal options, length of contract, quote valid days, procurement type fixed price purchase order]
 
   - key: bid_bond_requirement
     name: Bid Bond Requirement
@@ -92,8 +97,9 @@ fields:
     reconcile: true
     description: >-
       Whether a bid bond, bid security or guarantee is required, and its amount or percentage.
-      If the documents only refer to bond requirements "elsewhere" without stating one, say
-      that it is not specified rather than not required.
+      "Not required" only when a passage says so. If the documents only refer to bond
+      requirements "elsewhere" without stating one, return not_found and say so in notes:
+      unstated is not the same as not required.
     fact_types: [bond_insurance]
     fact_kinds: [money, percent]
     queries: [bid bond required amount, bid security guarantee, performance bond insurance]
@@ -125,26 +131,35 @@ fields:
     reconcile: true
     description: >-
       Forms, affidavits, certifications, references and acknowledgements that must be
-      submitted with the response, including signed addenda.
-    queries: [forms required with proposal, affidavits certifications to submit, acknowledge addendum signed, references required]
+      submitted with the response, including signed addenda. An affidavit or form included
+      in the solicitation for the bidder to complete and sign is required even when no
+      sentence lists it: name it by its own title and quote that title.
+    queries: [forms required with proposal, affidavits certifications to submit, acknowledge addendum signed, references required, attachments to complete and attach to the submission]
+    doc_types: [affidavit, form]
 
   - key: product
     name: Product
     group: product_specs
     type: text
-    description: The goods or services being bought, with quantities when stated.
+    description: >-
+      The goods or services being bought, with quantities when stated. When the solicitation
+      groups products into categories or tiers (in its requirements or price schedule), name
+      each category and give its quantity or estimated quantity.
     fact_kinds: [quantity]
-    queries: [products to be purchased quantity, scope of work devices, price schedule line items]
+    queries: [products to be purchased quantity, scope of work devices, price schedule line items, estimated quantity per tier]
 
   - key: model_no
     name: Model_no
     group: product_specs
     type: list
     description: >-
-      Manufacturer model numbers or names the documents require or quote (for example a laptop
-      model). Not specified when the agency lets vendors propose models.
+      Manufacturer model names and numbers the documents require or quote, as the
+      manufacturer markets them (a product line and number, for example a laptop or a dock
+      model), one item per product. Not part numbers, SKUs or configuration codes. Return
+      not_found when the agency lets vendors propose models.
     fact_kinds: [identifier]
     queries: [model number, product model required, brand and model]
+    doc_types: [specs]
 
   - key: part_no
     name: Part_no
@@ -152,9 +167,10 @@ fields:
     type: list
     description: >-
       Part numbers or SKUs listed in the documents (quotes, configurations, line items).
-      Not specified when none are listed.
+      Return not_found when none are listed.
     fact_kinds: [identifier]
     queries: [part number SKU, configuration SKU list, item part numbers]
+    doc_types: [specs]
 
   - key: mfg_for_registration
     name: MFG for Registration
@@ -168,12 +184,16 @@ fields:
   - key: product_specification
     name: Product Specification
     group: product_specs
-    type: text
+    type: list
     reconcile: true
     description: >-
-      The key technical specifications or minimum requirements (processor, memory, storage,
-      display, warranty, other requirements), summarised faithfully per item.
+      The key technical specifications or minimum requirements, one item per specification
+      (processor, memory, storage, display, battery, warranty, other requirements), each in
+      the documents' words. When several products or tiers are specified, prefix each item
+      with its product or tier. At most 15 items: keep the specifications that distinguish
+      the products (processor, memory, storage, display, warranty) over generic ones.
     queries: [minimum specifications requirements, processor memory storage display, technical specifications warranty]
+    doc_types: [specs]
 
   - key: company_name
     name: company_name

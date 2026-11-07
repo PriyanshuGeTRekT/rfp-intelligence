@@ -12,6 +12,8 @@ from rfp_intel.agents.llm import PRICES, AnthropicLLM, LLMError, llm_from_settin
 from rfp_intel.agents.providers import OpenAICompatibleLLM
 from rfp_intel.config import Settings
 
+from .conftest import DEFAULTS_ENV
+
 
 class Answer(BaseModel):
     text: str
@@ -43,6 +45,8 @@ class Server:
         step = self.script.pop(0)
         if isinstance(step, int):
             return httpx.Response(step, json={"error": {"message": f"status {step}"}})
+        if isinstance(step, httpx.Response):
+            return step
         if isinstance(step, Exception):
             raise step
         return httpx.Response(200, json=step)
@@ -52,17 +56,13 @@ class Server:
 
 
 def _client(server: Server, **kw: Any) -> OpenAICompatibleLLM:
+    kw.setdefault("sleep", lambda seconds: None)
     return OpenAICompatibleLLM(
         "sk-test",
         base_url="https://llm.example/v1",
         transport=httpx.MockTransport(server.handler),
         **kw,
     )
-
-
-@pytest.fixture(autouse=True)
-def _no_sleep(monkeypatch: pytest.MonkeyPatch) -> None:
-    monkeypatch.setattr(providers.time, "sleep", lambda s: None)
 
 
 def test_json_schema_request_and_usage() -> None:
@@ -122,9 +122,53 @@ def test_transient_errors_retry_then_give_up() -> None:
     out, _ = _client(server).structured(system="s", user="q", schema=Answer, model="m")
     assert out.text == "ok" and len(server.requests) == 3
     with pytest.raises(LLMError, match="gave up"):
-        _client(Server([503, 503, 503])).structured(system="s", user="q", schema=Answer, model="m")
+        _client(Server([503] * 4)).structured(system="s", user="q", schema=Answer, model="m")
     with pytest.raises(LLMError, match="provider returned 401"):
         _client(Server([401])).structured(system="s", user="q", schema=Answer, model="m")
+
+
+def test_server_requested_waits_are_honored() -> None:
+    limited = httpx.Response(429, headers={"retry-after": "7"}, json={"error": {}})
+    groq_style = httpx.Response(429, headers={"x-ratelimit-reset-tokens": "1m2.5s"}, json={})
+    waits: list[float] = []
+    server = Server([limited, groq_style, _reply('{"text": "ok", "count": 1}')])
+    _client(server, sleep=waits.append).structured(system="s", user="q", schema=Answer, model="m")
+    assert waits == [7.0, 62.5]
+    assert providers.retry_delay(httpx.Response(503), attempt=2) == 4.0
+
+
+def test_a_request_over_the_per_minute_ceiling_fails_fast() -> None:
+    too_big = httpx.Response(
+        429,
+        headers={"retry-after": "3"},
+        json={"error": {"message": "Request too large for model"}},
+    )
+    with pytest.raises(LLMError, match="RFP_LLM_MAX_PROMPT_TOKENS"):
+        _client(Server([too_big])).structured(system="s", user="q", schema=Answer, model="m")
+
+
+def test_a_quota_that_resets_later_fails_fast_with_the_reason() -> None:
+    daily = httpx.Response(
+        429,
+        headers={"retry-after": "1740"},
+        json={"error": {"message": "Rate limit reached on tokens per day (TPD): Limit 200000"}},
+    )
+    waits: list[float] = []
+    with pytest.raises(LLMError, match="tokens per day"):
+        _client(Server([daily]), sleep=waits.append).structured(
+            system="s", user="q", schema=Answer, model="m"
+        )
+    assert waits == []  # no pointless retries
+
+
+def test_server_side_schema_failure_gets_a_repair_round() -> None:
+    rejected = httpx.Response(400, json={"error": {"code": "json_validate_failed"}})
+    server = Server([rejected, _reply('{"text": "ok", "count": 1}')])
+    client = _client(server)
+    out, _ = client.structured(system="s", user="q", schema=Answer, model="m")
+    assert out.count == 1
+    assert "not valid for the required schema" in server.body()["messages"][1]["content"]
+    assert client.mode == {}  # json_schema mode is kept: the server supports it
 
 
 def test_truncation_and_content_filter_are_errors() -> None:
@@ -157,7 +201,7 @@ def test_azure_style_auth_query_and_reasoning_effort() -> None:
 
 def _settings(**kw: Any) -> Settings:
     values: dict[str, Any] = {"anthropic_api_key": None, "llm_api_key": None, **kw}
-    return Settings(_env_file=None, **values)  # type: ignore[call-arg]
+    return Settings(_env_file=DEFAULTS_ENV, **values)  # type: ignore[call-arg]
 
 
 def test_provider_switch(monkeypatch: pytest.MonkeyPatch) -> None:

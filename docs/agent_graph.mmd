@@ -6,20 +6,27 @@ config:
 graph TD;
 	__start__([<p>__start__</p>]):::first
 	plan(plan)
+	ingest(ingest)
 	reconcile(reconcile)
-	extract_group(extract_group)
-	extract_field(extract_field)
+	extract(extract)
 	validate(validate)
-	finalize(finalize)
+	report(report)
+	answer(answer)
+	retrieve(retrieve)
 	__end__([<p>__end__</p>]):::last
 	__start__ --> plan;
-	extract_field --> validate;
-	extract_group --> validate;
-	plan --> reconcile;
-	reconcile -.-> extract_group;
-	validate -.-> extract_field;
-	validate -.-> finalize;
-	finalize --> __end__;
+	extract --> validate;
+	ingest --> reconcile;
+	plan -.-> answer;
+	plan -.-> ingest;
+	reconcile -.-> retrieve;
+	reconcile -.-> validate;
+	retrieve -.-> extract;
+	validate -.-> report;
+	validate -.-> retrieve;
+	answer --> __end__;
+	report --> __end__;
 	classDef default fill:#f2f0ff,line-height:1.2
 	classDef first fill-opacity:0
 	classDef last fill:#bfb6fc
+

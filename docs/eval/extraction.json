@@ -1,0 +1,607 @@
+{
+  "results_dir": "outputs",
+  "gold_file": "eval/extraction_gold.yaml",
+  "scores": [
+    {
+      "bid_id": "Bid1",
+      "field": "bid_number",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "JA-207652",
+      "reason": "a pattern matched"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "title",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "Student and Staff Computing Devices",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "due_date",
+      "passed": true,
+      "tier": "A",
+      "confidence": 0.95,
+      "status": "found",
+      "value": "2024-07-09 14:00 CDT",
+      "reason": "instant matches"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "pre_bid_meeting",
+      "passed": true,
+      "tier": "A",
+      "confidence": 0.95,
+      "status": "found",
+      "value": "2024-06-10 14:00 CST via TEAMS video conference (link: https://www.microsoft.com/en-us/microsoft-teams/join-a-meeting); ",
+      "reason": "instant matches"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "bid_submission_type",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "Responses must be submitted online via the iSupplier portal (https://www.dallasisd.org/domain/143) or manually as one or",
+      "reason": "a pattern matched"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "term_of_bid",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "3-year initial term with two one-year extensions, not to exceed five years total",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "bid_bond_requirement",
+      "passed": true,
+      "tier": "NF-1",
+      "confidence": 0.8,
+      "status": "not_found",
+      "value": null,
+      "reason": "absent, as expected"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "delivery_date",
+      "passed": true,
+      "tier": "NF-2",
+      "confidence": 0.5,
+      "status": "not_found",
+      "value": null,
+      "reason": "absent, as expected"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "payment_terms",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "within 10 days of receiving payment from the district",
+      "reason": "found, but states the absence"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "additional_documentation",
+      "passed": false,
+      "tier": "A",
+      "confidence": 0.95,
+      "status": "found",
+      "value": "INTERLOCAL AGREEMENT (\"Rider\") CONSENT FORM ; FORM 1295 - CERTIFICATE OF INTERESTED PARTIES ; Non-warranty options can b",
+      "reason": "missing items ['M/?WBE|minority', 'W-?9']"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "installation",
+      "passed": true,
+      "tier": "A",
+      "confidence": 0.95,
+      "status": "found",
+      "value": "White glove deployment services (asset decal, reporting, etching, delivery) are required, All deliveries and deployments",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "mfg_for_registration",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "OEM",
+      "reason": "found, but states the absence"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "contract_or_cooperative",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "Educational Purchasing Cooperative of North Texas (EPCNT) Interlocal Agreement Rider; Central Texas Purchasing Alliance ",
+      "reason": "found, but states the absence"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "model_no",
+      "passed": true,
+      "tier": "NF-1",
+      "confidence": 0.8,
+      "status": "not_found",
+      "value": null,
+      "reason": "absent, as expected"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "part_no",
+      "passed": true,
+      "tier": "NF-1",
+      "confidence": 0.8,
+      "status": "not_found",
+      "value": null,
+      "reason": "absent, as expected"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "product",
+      "passed": false,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "Student Tablet - 50,000",
+      "reason": "missing ['Chromebook', 'laptop']"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "contact_info",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "JASMINE ALZATE, Buyer, JALZATE@dallasisd.org, 972.925.3700",
+      "reason": "a pattern matched"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "company_name",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "Dallas Independent School District",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "product_specification",
+      "passed": true,
+      "tier": "A",
+      "confidence": 0.95,
+      "status": "found",
+      "value": "Student Windows – Screen Resolution 1920-1080 Non-Touch, Student Windows – Memory: Minimum 16GB RAM DDR5 Memory, Student",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid1",
+      "field": "bid_summary",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "Dallas Independent School District is seeking to purchase 50,000 Student Tablets under bid number JA-207652. The final b",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "bid_number",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "BPM044557",
+      "reason": "a pattern matched"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "title",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "Dell Laptops w/Extended Warranty",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "due_date",
+      "passed": true,
+      "tier": "C",
+      "confidence": 0.7,
+      "status": "found",
+      "value": "2024-06-10 14:00 EDT",
+      "reason": "instant matches"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "pre_bid_meeting",
+      "passed": true,
+      "tier": "NF-1",
+      "confidence": 0.8,
+      "status": "not_found",
+      "value": null,
+      "reason": "absent, as expected"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "bid_submission_type",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "Electronic submission through eMMA portal; bids not accepted by email, fax, U.S. Mail, or hand delivery.",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "term_of_bid",
+      "passed": true,
+      "tier": "A",
+      "confidence": 0.95,
+      "status": "found",
+      "value": "Fixed Price; pricing valid for thirty days",
+      "reason": "a pattern matched"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "bid_bond_requirement",
+      "passed": true,
+      "tier": "NF-1",
+      "confidence": 0.8,
+      "status": "not_found",
+      "value": null,
+      "reason": "absent, as expected"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "delivery_date",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "within 45 days of Award",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "payment_terms",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "Invoices must be emailed to STOaccountspayable@treasurer.state.md.us and submitted within 10 days of equipment delivery",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "additional_documentation",
+      "passed": true,
+      "tier": "A",
+      "confidence": 0.95,
+      "status": "found",
+      "value": "MERCURY CONTENT INFORMATION ; Proposal Affidavit",
+      "reason": "all items present"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "installation",
+      "passed": true,
+      "tier": "NF-1",
+      "confidence": 0.8,
+      "status": "not_found",
+      "value": null,
+      "reason": "absent, as expected"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "mfg_for_registration",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "Dell",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "contract_or_cooperative",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "Master Contract: Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007",
+      "reason": "a pattern matched"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "model_no",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "Dell Latitude 5550 ; Dell Thunderbolt 4 Dock – WD22TB4",
+      "reason": "all items present"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "part_no",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "210-BLYZ ; 379-BFNZ ; 619-ARSB ; 658-BCSB ; 338-CNRG ; 338-CNRK ; 321-BKTQ ; 409-BCXY ; 631-BBSQ ; 370-BBTL ; 400-BRFT ;",
+      "reason": "all items present"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "product",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "SI# CC7802 Dell Latitude 5550 (Qty: 30), Dell Thunderbolt 4 Dock – WD22TB4 (Qty: 30)",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "contact_info",
+      "passed": true,
+      "tier": "A",
+      "confidence": 0.95,
+      "status": "found",
+      "value": "Tamaira Hawkins, Phone: 410-260-7533, Email: thawkins@treasurer.state.md.us",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "company_name",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "State of Maryland Treasurer's Office",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "product_specification",
+      "passed": true,
+      "tier": "A",
+      "confidence": 0.95,
+      "status": "found",
+      "value": "Intel Core Ultra 5 125U processor (12 MB cache, 12 cores, 14 threads, up to 4.3 GHz Turbo) ; 16 GB: 2 x 8 GB, DDR5, 5600",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid2",
+      "field": "bid_summary",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "The State of Maryland Treasurer's Office (bid_number BPM044557) is procuring 30 units of Dell Latitude 5550 laptops and ",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "bid_number",
+      "passed": true,
+      "tier": "C",
+      "confidence": 0.7,
+      "status": "found",
+      "value": "2025-003",
+      "reason": "a pattern matched"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "title",
+      "passed": false,
+      "tier": "NF-1",
+      "confidence": 0.8,
+      "status": "not_found",
+      "value": null,
+      "reason": "expected a value, got null"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "due_date",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "2024-09-06 13:00",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "pre_bid_meeting",
+      "passed": true,
+      "tier": "NF-1",
+      "confidence": 0.8,
+      "status": "not_found",
+      "value": null,
+      "reason": "absent, as expected"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "bid_submission_type",
+      "passed": false,
+      "tier": "NF-2",
+      "confidence": 0.5,
+      "status": "not_found",
+      "value": null,
+      "reason": "expected a value, got null"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "term_of_bid",
+      "passed": true,
+      "tier": "C",
+      "confidence": 0.7,
+      "status": "found",
+      "value": "twelve (12) months",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "bid_bond_requirement",
+      "passed": true,
+      "tier": "C",
+      "confidence": 0.7,
+      "status": "found",
+      "value": "10% bid security in cash, a certified cashier’s check or furnish a bid bond as its bid security.",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "delivery_date",
+      "passed": false,
+      "tier": "C",
+      "confidence": 0.7,
+      "status": "found",
+      "value": "November30,2024",
+      "reason": "missing ['October 31, 2024|2024-10-31']"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "payment_terms",
+      "passed": false,
+      "tier": "NF-2",
+      "confidence": 0.5,
+      "status": "not_found",
+      "value": null,
+      "reason": "expected a value, got null"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "additional_documentation",
+      "passed": false,
+      "tier": "C",
+      "confidence": 0.7,
+      "status": "found",
+      "value": "Instructions to Bidders ; Bid Form ; Substitution Listing ; Workers' Compensation Certificate ; Guarantee ; This form mu",
+      "reason": "missing items ['Non-?Collusion', 'Addend']"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "installation",
+      "passed": true,
+      "tier": "NF-1",
+      "confidence": 0.8,
+      "status": "not_found",
+      "value": null,
+      "reason": "absent, as expected"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "mfg_for_registration",
+      "passed": true,
+      "tier": "C",
+      "confidence": 0.7,
+      "status": "found",
+      "value": "Dell Chrome 3120 Chromebook* (Latest Model) or functionally equivalent",
+      "reason": "found, but states the absence"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "contract_or_cooperative",
+      "passed": false,
+      "tier": "C",
+      "confidence": 0.7,
+      "status": "found",
+      "value": "Purchase Contract",
+      "reason": "none of ['NASPO', 'CMAS', 'WSCA', 'CALNET'] matched"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "model_no",
+      "passed": true,
+      "tier": "C",
+      "confidence": 0.7,
+      "status": "found",
+      "value": "Dell Chrome 3120 Chromebook ; GOOGLE CHROME OS MANAGEMENT CONSOLE LICENSE ; Dell Optical Mouse- MS 116",
+      "reason": "all items present"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "part_no",
+      "passed": false,
+      "tier": "NF-1",
+      "confidence": 0.8,
+      "status": "not_found",
+      "value": null,
+      "reason": "expected a value, got null"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "product",
+      "passed": true,
+      "tier": "C",
+      "confidence": 0.7,
+      "status": "found",
+      "value": "Dell Chrome 3120 Chromebook* (Latest Model) or functionally equivalent, Quantity: 500; GOOGLE CHROME OS MANAGEMENT CONSO",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "contact_info",
+      "passed": true,
+      "tier": "C",
+      "confidence": 0.7,
+      "status": "found",
+      "value": "Sandra Rivera, Assistant Superintendent of Business, email: srivera@duesd.org, phone: (661) 721-5000, ext. 00125.",
+      "reason": "a pattern matched"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "company_name",
+      "passed": true,
+      "tier": "C",
+      "confidence": 0.7,
+      "status": "found",
+      "value": "Delano Union School District",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "product_specification",
+      "passed": true,
+      "tier": "C",
+      "confidence": 0.7,
+      "status": "found",
+      "value": "HP Fortis 11 inch G10 Chromebook,11.6 HD LED UWVA 250N TOP Touchscreen Anti-Glare Slim (1366 x 768, 1.78 (16:9)), Intel ",
+      "reason": "all patterns present"
+    },
+    {
+      "bid_id": "Bid3",
+      "field": "bid_summary",
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "Bid number 2025-003 from Delano Union School District seeks to purchase 500 Dell Chrome 3120 Chromebooks, 500 Google Chr",
+      "reason": "all patterns present"
+    }
+  ],
+  "missing_bids": []
+}

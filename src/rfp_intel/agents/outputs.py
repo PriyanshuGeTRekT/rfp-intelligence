@@ -72,9 +72,24 @@ class CitationOut(BaseModel):
     quote: str = Field(description="Exact text copied from the passage")
 
 
+class StatementOut(BaseModel):
+    text: str = Field(description="One sentence of the answer")
+    citations: list[CitationOut] = Field(
+        default_factory=list, description="Quotes from the passages that state this sentence"
+    )
+
+
 class AnswerOut(BaseModel):
     found: bool = Field(description="False when the passages do not answer the question")
-    answer: str = Field(
-        description="The answer, or a short statement that it is not in the documents"
+    statements: list[StatementOut] = Field(
+        default_factory=list,
+        description="The answer, one sentence per statement, each with its own citations; "
+        "empty when found is false",
     )
-    citations: list[CitationOut] = Field(default_factory=list)
+    note: str | None = Field(
+        default=None, description="When found is false: what the documents do or do not say"
+    )
+
+
+class QueriesOut(BaseModel):
+    queries: list[str] = Field(description="Two to four short search queries")

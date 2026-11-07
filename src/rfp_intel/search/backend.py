@@ -12,13 +12,19 @@ against a Qdrant server by URL. One collection holds, per chunk:
 
 Keeping dense, sparse and metadata on the same point means adding, changing or deleting a
 document is one operation on one store, never two stores to keep in step.
+
+The embedded client (a local folder or memory) is not safe to call from several threads at
+once, and the agents search from parallel graph branches, so in those modes every client call
+is serialized. A Qdrant server handles concurrency itself and is called directly.
 """
 
+import functools
+import threading
 import uuid
 import warnings
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from pathlib import Path
-from typing import Any, Protocol
+from typing import Any, Protocol, cast
 
 from qdrant_client import QdrantClient, models
 
@@ -58,8 +64,6 @@ class SearchBackend(Protocol):
     ) -> list[str]: ...
 
     def fetch(self, chunk_ids: Sequence[str]) -> dict[str, dict[str, Any]]: ...
-
-    def scroll_document(self, doc_id: str) -> list[dict[str, Any]]: ...
 
     def count(self, filters: Filters | None = None) -> int: ...
 
@@ -113,6 +117,28 @@ def _filter(filters: Filters) -> models.Filter | None:
     return models.Filter(must=must) if must else None
 
 
+class _Serialized:
+    """Proxy that runs one call at a time on the wrapped client."""
+
+    def __init__(self, client: QdrantClient) -> None:
+        self._client = client
+        self._lock = threading.RLock()
+
+    def __getattr__(self, name: str) -> Any:
+        attr = getattr(self._client, name)
+        if not callable(attr):
+            return attr
+        return self._locked(attr)
+
+    def _locked(self, fn: Callable[..., Any]) -> Callable[..., Any]:
+        @functools.wraps(fn)
+        def call(*args: Any, **kwargs: Any) -> Any:
+            with self._lock:
+                return fn(*args, **kwargs)
+
+        return call
+
+
 class QdrantBackend:
     def __init__(
         self,
@@ -126,10 +152,10 @@ class QdrantBackend:
         if url:
             self.client = QdrantClient(url=url)
         elif location:
-            self.client = QdrantClient(location=location)
+            self.client = cast(QdrantClient, _Serialized(QdrantClient(location=location)))
         elif path is not None:
             path.mkdir(parents=True, exist_ok=True)
-            self.client = QdrantClient(path=str(path))
+            self.client = cast(QdrantClient, _Serialized(QdrantClient(path=str(path))))
         else:
             raise ValueError("give a path, a url or a location such as ':memory:'")
         self.collection = collection
@@ -238,22 +264,6 @@ class QdrantBackend:
             with_payload=["chunk_id"],
         )
         return [str((p.payload or {})["chunk_id"]) for p in points]
-
-    def scroll_document(self, doc_id: str) -> list[dict[str, Any]]:
-        """All chunk payloads of one document."""
-        out: list[dict[str, Any]] = []
-        offset = None
-        while True:
-            points, offset = self.client.scroll(
-                self.collection,
-                scroll_filter=_filter(Filters(doc_id=doc_id)),
-                limit=256,
-                offset=offset,
-                with_payload=True,
-            )
-            out.extend(dict(p.payload or {}) for p in points)
-            if offset is None:
-                return out
 
     def fetch(self, chunk_ids: Sequence[str]) -> dict[str, dict[str, Any]]:
         if not chunk_ids:

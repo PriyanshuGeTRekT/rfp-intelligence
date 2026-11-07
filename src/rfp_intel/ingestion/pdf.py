@@ -45,6 +45,12 @@ MIN_PAGE_CHARS = 10  # below this a page counts as having no text
 # A textless page with this many vector shapes is almost always text drawn as outlines
 # (a flattened form, a printed-to-PDF scan), so it is reported as needing OCR, not empty.
 MIN_OUTLINE_DRAWINGS = 20
+# Tables on OCR pages, found from layout (see _layout_tables).
+MIN_TABLE_ROWS = 3
+MIN_LAYOUT_COLUMNS = 3
+COLUMN_TOLERANCE = 18.0  # points: segment starts this close are one column
+MAX_MEDIAN_CELL_CHARS = 40  # longer cells are prose that happens to be indented
+OCR_SIZE_RATIO = 0.75  # an OCR box is about 4/3 of the font size
 _LIST_START_RE = re.compile(r"^(?:\(?\d{1,2}[.)]|\(?[a-zA-Z][.)]|[•◦▪■●○·])\s")
 _PDF_DATE_RE = re.compile(r"D:(\d{4})(\d{2})(\d{2})")
 
@@ -282,6 +288,106 @@ def _find_tables(page: pymupdf.Page, page_no: int, first_id: int) -> list[Table]
     return tables
 
 
+@dataclass
+class _Segment:
+    text: str
+    x0: float
+    x1: float
+
+
+def _segments(row: _Row) -> list[_Segment]:
+    """A row's text split where a column gap separates it (the same gap `_Row.text` marks)."""
+    segs: list[_Segment] = []
+    for ln in row.lines:
+        if segs and ln.x0 - segs[-1].x1 < max(12.0, 1.5 * ln.size):
+            segs[-1] = _Segment(f"{segs[-1].text} {ln.text}", segs[-1].x0, ln.x1)
+        else:
+            segs.append(_Segment(ln.text, ln.x0, ln.x1))
+    return segs
+
+
+def _column_starts(segment_rows: list[list[_Segment]]) -> list[float]:
+    """Column positions: segment starts within COLUMN_TOLERANCE of each other form one column,
+    and a column counts when segments from at least half the rows start there."""
+    starts = sorted(s.x0 for segs in segment_rows for s in segs)
+    groups: list[list[float]] = []
+    for x in starts:
+        if groups and x - groups[-1][-1] <= COLUMN_TOLERANCE:
+            groups[-1].append(x)
+        else:
+            groups.append([x])
+    need = max(2, len(segment_rows) // 2)
+    return [min(g) for g in groups if len(g) >= need]
+
+
+def _layout_table(run: list[_Row], page_no: int, table_id: int) -> Table | None:
+    segment_rows = [_segments(r) for r in run]
+    columns = _column_starts([segs for segs in segment_rows if len(segs) >= 2])
+    if len(columns) < MIN_LAYOUT_COLUMNS:
+        return None
+    grid: list[list[str]] = []
+    for segs in segment_rows:
+        cells = [""] * len(columns)
+        for s in segs:  # a segment belongs to the last column starting at or before it
+            col = max([0, *(i for i, x in enumerate(columns) if x <= s.x0 + COLUMN_TOLERANCE / 2)])
+            cells[col] = f"{cells[col]} {s.text}".strip()
+        grid.append(cells)
+    rows = _clean_table(_merge_continuation_rows(_clean_table(grid)))
+    if len(rows) < MIN_TABLE_ROWS or len(rows[0]) < MIN_LAYOUT_COLUMNS:
+        return None
+    cells = [c for r in rows for c in r]
+    if sum(1 for c in cells if c) / len(cells) < 0.5:
+        return None
+    # Indented prose (lettered or numbered paragraphs) also lines up in columns; a table has
+    # several filled cells in most rows, and short ones.
+    if sum(1 for r in rows if sum(1 for c in r if c) >= 2) < 0.6 * len(rows):
+        return None
+    lengths = sorted(len(c) for c in cells if c)
+    if lengths[len(lengths) // 2] > MAX_MEDIAN_CELL_CHARS:
+        return None
+    x0 = min(r.x0 for r in run)
+    x1 = max(ln.x1 for r in run for ln in r.lines)
+    return Table(
+        table_id=table_id,
+        page=page_no,
+        rows=rows,
+        bbox=_bbox((x0, run[0].y0, x1, run[-1].y1)),
+        method="ocr_layout",
+    )
+
+
+def _layout_tables(lines: list[_Line], page_no: int, first_id: int) -> list[Table]:
+    """Tables on a page read by OCR, where there are no ruling lines to find them by.
+
+    A table is a run of consecutive rows split into several segments whose starts line up in
+    at least MIN_LAYOUT_COLUMNS shared columns. A one-segment row inside a run that starts right
+    of the first column is a wrapped cell and stays in the run, to be merged into the row above.
+    Two-column label / value rows are left to the row path, which already keeps them together.
+    """
+    tables: list[Table] = []
+    run: list[_Row] = []
+
+    def close() -> None:
+        if len(run) >= MIN_TABLE_ROWS:
+            table = _layout_table(run, page_no, first_id + len(tables))
+            if table is not None:
+                tables.append(table)
+        run.clear()
+
+    for row in _build_rows(lines):
+        segs = _segments(row)
+        near = not run or row.y0 - run[-1].y1 <= 2.5 * row.lines[0].height
+        wrapped = bool(run) and len(segs) == 1 and segs[0].x0 > run[0].x0 + COLUMN_TOLERANCE
+        if near and (len(segs) >= 2 or wrapped):
+            run.append(row)
+            continue
+        close()
+        if len(segs) >= 2:
+            run.append(row)
+    close()
+    return tables
+
+
 def _bbox(values: Sequence[float]) -> BBox:
     x0, y0, x1, y1 = (round(float(v), 1) for v in values)
     return (x0, y0, x1, y1)
@@ -478,6 +584,39 @@ def _title(first_page: list[_Row], page_height: float, body_size: float, fallbac
     return fallback
 
 
+def _ocr_scanned_pages(doc: pymupdf.Document, raw_pages: list[list[_Line]]) -> set[int]:
+    """OCR every page with almost no text whose content is images (a scan) or vector outlines
+    (text flattened into drawings, as some fill-in forms are); return the indexes it read."""
+    from rfp_intel.ingestion.ocr import ocr_available, ocr_page
+
+    scanned = [
+        i
+        for i in range(len(doc))
+        if sum(len(ln.text) for ln in raw_pages[i]) < MIN_PAGE_CHARS
+        and (doc[i].get_images(full=False) or len(doc[i].get_drawings()) >= MIN_OUTLINE_DRAWINGS)
+    ]
+    if not scanned or not ocr_available():
+        return set()
+    read: set[int] = set()
+    for i in scanned:
+        lines = [
+            _Line(
+                text=ln.text,
+                x0=ln.x0,
+                y0=ln.y0,
+                x1=ln.x1,
+                y1=ln.y1,
+                size=round((ln.y1 - ln.y0) * OCR_SIZE_RATIO, 1),
+                bold=False,
+            )
+            for ln in ocr_page(doc[i])
+        ]
+        if sum(len(ln.text) for ln in lines) >= MIN_PAGE_CHARS:
+            raw_pages[i] = lines
+            read.add(i)
+    return read
+
+
 def pdf_metadata_date(metadata: dict[str, str]) -> date | None:
     for key in ("creationDate", "modDate"):
         m = _PDF_DATE_RE.match(metadata.get(key, ""))
@@ -501,6 +640,7 @@ def parse_pdf(path: Path, bid_id: str, file_name: str | None = None) -> ParsedDo
             raise ValueError("PDF is encrypted")
         metadata = {k: str(v) for k, v in (doc.metadata or {}).items() if v}
         raw_pages = [_extract_lines(page) for page in doc]
+        ocr_pages = _ocr_scanned_pages(doc, raw_pages)
         heights = [page.rect.height for page in doc]
         running = _running_keys(raw_pages, heights)
         body_size = _body_size(raw_pages)
@@ -528,7 +668,11 @@ def parse_pdf(path: Path, bid_id: str, file_name: str | None = None) -> ParsedDo
             chars = sum(len(ln.text) for ln in body_lines)
             drawings = page.get_drawings() if chars < MIN_PAGE_CHARS else []
             page_tables = (
-                _find_tables(page, page_no, first_id=len(tables)) if chars >= MIN_PAGE_CHARS else []
+                _layout_tables(body_lines, page_no, first_id=len(tables))
+                if index in ocr_pages
+                else _find_tables(page, page_no, first_id=len(tables))
+                if chars >= MIN_PAGE_CHARS
+                else []
             )
             tables.extend(page_tables)
             free_lines = [
@@ -547,7 +691,17 @@ def parse_pdf(path: Path, bid_id: str, file_name: str | None = None) -> ParsedDo
             blocks.extend(_blocks_for_page(items, page_no, body_size))
 
             images = len(page.get_images(full=False))
-            if chars >= MIN_PAGE_CHARS:
+            if index in ocr_pages:
+                pages.append(
+                    PageInfo(
+                        number=page_no,
+                        status=PageStatus.OCR,
+                        char_count=chars,
+                        image_count=images,
+                        note="text read by OCR",
+                    )
+                )
+            elif chars >= MIN_PAGE_CHARS:
                 pages.append(
                     PageInfo(
                         number=page_no, status=PageStatus.OK, char_count=chars, image_count=images

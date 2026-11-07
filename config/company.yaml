@@ -1,0 +1,29 @@
+# The bidding company's capabilities. `rfp go-no-go <bid>` and the comparison report check each
+# extraction record against them. Edit this file to describe your own company; no code changes.
+company: Example Technology Reseller
+
+# Manufacturers we are registered or authorized to resell, and the names we look for to tell
+# whether a bid requires one we are not authorized for.
+authorized_manufacturers: [Dell, HP, Lenovo, Microsoft]
+known_manufacturers: [Dell, HP, Hewlett-Packard, Lenovo, Apple, Microsoft, Acer, Asus, Samsung, Google, Panasonic]
+
+# What we sell: at least one of these words should appear in the bid's Product field.
+product_keywords: [laptop, notebook, chromebook, desktop, tablet, monitor, dock, computer, device]
+
+# Imaging, deployment, asset tagging, white-glove delivery and similar on-site services.
+can_install: true
+
+# The largest bid bond or bid security we can post, as a percentage of the bid.
+max_bid_bond_percent: 5
+
+# Our fastest delivery after award, in days. A bid that requires delivery sooner fails.
+min_delivery_days: 30
+
+# Cooperative and state contract vehicles we hold. A bid naming another one needs a review.
+cooperative_contracts: [NASPO ValuePoint, TIPS, EPCNT, Sourcewell, OMNIA Partners]
+
+# Documents we cannot supply. A bid that requires one of these is a no-go.
+unavailable_documents: [performance bond, SAM.gov CAGE code]
+
+# Calendar days we need to prepare a response.
+min_days_to_prepare: 10

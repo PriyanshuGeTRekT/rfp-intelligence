@@ -21,6 +21,7 @@ def fr(
     value: str | list[str] | None, tier: str = "B", normalized: dict[str, str] | None = None
 ) -> FieldResult:
     return FieldResult(
+        key="f",
         value=value,
         status="found" if value is not None else "not_found",
         confidence=0.85,
@@ -32,7 +33,7 @@ def fr(
 def test_gold_covers_every_field_of_both_bids() -> None:
     gold = load_extraction_gold(GOLD)
     keys = {f.key for f in load_fields(REPO_ROOT / "config" / "fields.yaml").fields}
-    assert set(gold.bids) == {"Bid1", "Bid2"}
+    assert set(gold.bids) == {"Bid1", "Bid2", "Bid3"}  # Bid3: the unseen bid
     for rules in gold.bids.values():
         assert set(rules) == keys
 
@@ -69,9 +70,13 @@ def test_instant_rule_uses_normalized_then_date_then_text() -> None:
 
 
 def _result(bid_id: str, fields: dict[str, FieldResult]) -> BidResult:
+    """Fields given by key are stored the way the system writes them: by display name."""
+    named = {
+        k.replace("_", " ").title(): f.model_copy(update={"key": k}) for k, f in fields.items()
+    }
     return BidResult(
-        bid_id=bid_id, run_id="r", generated_at="t", documents=[], fields=fields,
-        validation=ValidationTally(fields=len(fields), passed_first_time=len(fields), passed_after_retry=0, failed=0, retries=0),
+        bid_id=bid_id, run_id="r", generated_at="t", documents=[], fields=named,
+        validation=ValidationTally(fields=len(fields)),
     )  # fmt: skip
 
 
@@ -91,7 +96,7 @@ def test_evaluate_and_calibration(tmp_path: Path) -> None:
     )
     (tmp_path / "Bid2.json").write_text(_result("Bid2", fields).model_dump_json(), encoding="utf-8")
     report = evaluate_extraction(tmp_path, gold, gold_file="g")
-    assert report.missing_bids == ["Bid1"]
+    assert report.missing_bids == ["Bid1", "Bid3"]
     rows = {r.tier: r for r in report.calibration()}
     assert (rows["A"].count, rows["A"].correct) == (2, 2)
     assert (rows["B"].count, rows["B"].correct) == (2, 1)
@@ -104,5 +109,5 @@ def test_evaluate_and_calibration(tmp_path: Path) -> None:
     assert (
         "## Calibration" in md
         and "| A | 2 | 2 | 100% |" in md
-        and "Missing result files for: Bid1" in md
+        and "Missing result files for: Bid1, Bid3" in md
     )

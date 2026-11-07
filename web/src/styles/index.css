@@ -1,0 +1,94 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Palette: warm neutrals with one deep teal accent; status colors tuned for AA contrast. */
+@layer base {
+  :root {
+    --canvas: 248 248 246;
+    --surface: 255 255 255;
+    --subtle: 243 243 240;
+    --line: 229 228 224;
+    --line-strong: 208 206 200;
+    --ink: 28 27 25;
+    --muted: 104 101 95;
+    --faint: 150 147 140;
+    --accent: 15 95 89;
+    --accent-soft: 230 242 240;
+    --accent-ink: 11 72 67;
+    --ok: 22 121 66;
+    --ok-soft: 231 245 236;
+    --warn: 161 98 7;
+    --warn-soft: 253 243 222;
+    --bad: 185 28 28;
+    --bad-soft: 253 234 234;
+    --info: 37 84 165;
+    --info-soft: 233 240 252;
+    color-scheme: light;
+  }
+
+  .dark {
+    --canvas: 16 16 15;
+    --surface: 24 24 22;
+    --subtle: 32 32 30;
+    --line: 44 43 40;
+    --line-strong: 62 61 57;
+    --ink: 236 235 231;
+    --muted: 163 160 152;
+    --faint: 120 117 110;
+    --accent: 94 186 175;
+    --accent-soft: 21 46 44;
+    --accent-ink: 148 214 205;
+    --ok: 96 196 131;
+    --ok-soft: 22 44 31;
+    --warn: 226 168 72;
+    --warn-soft: 50 38 16;
+    --bad: 240 113 113;
+    --bad-soft: 56 24 24;
+    --info: 125 166 236;
+    --info-soft: 24 35 58;
+    color-scheme: dark;
+  }
+
+  html {
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+  }
+
+  body {
+    @apply bg-canvas text-ink font-sans text-[13px] leading-5;
+    font-feature-settings: "cv11", "ss01";
+  }
+
+  :focus-visible {
+    @apply outline-none ring-2 ring-accent/60 ring-offset-1 ring-offset-canvas;
+  }
+
+  ::selection {
+    @apply bg-accent/20;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .num {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .scrollbar-thin {
+    scrollbar-width: thin;
+    scrollbar-color: rgb(var(--line-strong)) transparent;
+  }
+
+  mark.hl {
+    @apply rounded-sm bg-warn-soft px-0.5 text-ink;
+  }
+}

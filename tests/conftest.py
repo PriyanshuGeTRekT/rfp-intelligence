@@ -4,6 +4,7 @@ from pathlib import Path
 import pymupdf
 import pytest
 
+from rfp_intel.agents.llm import load_prices
 from rfp_intel.config import Settings, get_settings
 from rfp_intel.ingestion.loader import load_bid_folder
 from rfp_intel.ingestion.meta import CueConfig, load_cues
@@ -21,6 +22,8 @@ from rfp_intel.search.runtime import Runtime, open_runtime
 REPO_ROOT = Path(__file__).resolve().parents[1]
 BIDS_DIR = REPO_ROOT / "data" / "bids"
 CUES_PATH = REPO_ROOT / "config" / "doc_types.yaml"
+# Tests read the shipped defaults (model names) but never a developer's .env.
+DEFAULTS_ENV = REPO_ROOT / "config" / "defaults.env"
 
 
 @pytest.fixture
@@ -33,10 +36,11 @@ def data_dir(tmp_path: Path) -> Path:
 @pytest.fixture
 def settings(tmp_path: Path, data_dir: Path) -> Settings:
     return Settings(
-        _env_file=None,  # type: ignore[call-arg]
+        _env_file=DEFAULTS_ENV,  # type: ignore[call-arg]
         data_dir=data_dir,
         state_dir=tmp_path / "var",
         traces_dir=tmp_path / "traces",
+        outputs_dir=tmp_path / "outputs",
         config_dir=REPO_ROOT / "config",
         api_key=None,
     )
@@ -54,8 +58,16 @@ def fake_runtime(settings: Settings) -> Runtime:
 
 
 @pytest.fixture(autouse=True)
-def _fresh_settings_cache() -> None:
+def _fresh_settings_cache(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Every test sees the shipped defaults and its own environment, never a developer's .env
+    (which may hold real keys: a test must not call a real model)."""
+    monkeypatch.setitem(Settings.model_config, "env_file", (DEFAULTS_ENV,))
     get_settings.cache_clear()
+
+
+@pytest.fixture(autouse=True, scope="session")
+def _prices() -> None:
+    load_prices(REPO_ROOT / "config" / "llm_prices.yaml")
 
 
 @pytest.fixture(scope="session")

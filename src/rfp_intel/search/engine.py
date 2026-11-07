@@ -26,7 +26,14 @@ from rfp_intel.facts.labels import FactTypeConfig
 from rfp_intel.search.backend import Filters, SearchBackend
 from rfp_intel.search.embed import DenseEmbedder, Reranker, SparseEmbedder
 from rfp_intel.search.fusion import RankedList, rrf
-from rfp_intel.search.models import DEFAULT_CONFIG, NAMED_CONFIGS, Hit, SearchConfig, SearchResult
+from rfp_intel.search.models import (
+    DEFAULT_CONFIG,
+    NAMED_CONFIGS,
+    Hit,
+    QueryAnalysis,
+    SearchConfig,
+    SearchResult,
+)
 from rfp_intel.search.query import Synonyms, analyze
 
 tracer = trace.get_tracer(__name__)
@@ -60,6 +67,7 @@ class SearchEngine:
         bid_id: str | None = None,
         doc_types: Sequence[str] | None = None,
         addendum_number: int | None = None,
+        doc_id: str | None = None,
         k: int = 5,
         config: SearchConfig | str = DEFAULT_CONFIG,
     ) -> SearchResult:
@@ -69,7 +77,10 @@ class SearchEngine:
             t0 = time.perf_counter()
             analysis = analyze(query, self.fact_config, self.synonyms, expand=cfg.expand)
             base = Filters(
-                bid_id=bid_id, doc_types=list(doc_types or []), addendum_number=addendum_number
+                bid_id=bid_id,
+                doc_types=list(doc_types or []),
+                addendum_number=addendum_number,
+                doc_id=doc_id,
             )
             n = cfg.candidates
             lists: list[RankedList] = []
@@ -143,6 +154,28 @@ class SearchEngine:
             span.set_attribute("search.top_scores", [round(h.score, 4) for h in hits])
             span.set_attribute("search.latency_ms", timings["total"])
             return SearchResult(query=analysis, config=cfg.name, hits=hits, timings_ms=timings)
+
+    def analyze(self, query: str) -> QueryAnalysis:
+        """What the engine reads into a query: identifiers, fact labels it routes to, synonyms."""
+        return analyze(query, self.fact_config, self.synonyms, expand=True)
+
+    def rerank(self, query: str, chunk_ids: Sequence[str]) -> list[tuple[str, float]]:
+        """Order already-retrieved chunks by the cross-encoder against one query, for callers
+        that pool candidates from several searches. Without a reranker the order is kept."""
+        payloads = self.backend.fetch(chunk_ids)
+        present = [c for c in chunk_ids if c in payloads]
+        if self.reranker is None or not present:
+            return [(c, 0.0) for c in present]
+        with tracer.start_as_current_span("rerank") as span:
+            texts = [str(payloads[c].get("embed_text") or payloads[c]["text"]) for c in present]
+            scores = self.reranker.score(query, texts)
+            for i, c in enumerate(present):
+                if payloads[c].get("is_boilerplate"):
+                    scores[i] -= RERANK_BOILERPLATE_MARGIN
+            ranked = sorted(zip(present, scores, strict=True), key=lambda x: x[1], reverse=True)
+            span.set_attribute("search.query", query)
+            span.set_attribute("search.reranked", len(ranked))
+            return ranked
 
 
 def _ms(start: float) -> float:

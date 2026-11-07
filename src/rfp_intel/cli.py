@@ -5,25 +5,41 @@ code 2 and say so, rather than pretending to work.
 """
 
 import platform
+import sys
 from pathlib import Path
-from typing import Annotated
+from typing import TYPE_CHECKING, Annotated
 
 import typer
 
 from rfp_intel import __version__
 from rfp_intel.config import get_settings
 from rfp_intel.logs import configure_logging
-from rfp_intel.search.models import DEFAULT_CONFIG
+from rfp_intel.search.models import CONFIG_DESCRIPTIONS, DEFAULT_CONFIG
+
+if TYPE_CHECKING:
+    from datetime import date
+
+    from rfp_intel.agents.llm import LLM
+    from rfp_intel.agents.schema import BidResult
+    from rfp_intel.agents.services import Services
+    from rfp_intel.search.runtime import Runtime
 
 app = typer.Typer(help="RFP Intelligence Platform", no_args_is_help=True)
 
-BidArg = Annotated[str, typer.Argument(help="Bid folder name under the data directory")]
+BidArg = Annotated[
+    str, typer.Argument(help="Bid folder: a name under the data directory, or any folder path")
+]
 
 
 @app.callback()
 def main(
     json_logs: Annotated[bool, typer.Option("--json-logs/--pretty-logs")] = False,
 ) -> None:
+    # Windows consoles and redirected output default to a legacy code page; model answers
+    # contain characters it lacks (non-breaking hyphens, curly quotes).
+    for stream in (sys.stdout, sys.stderr):
+        if hasattr(stream, "reconfigure"):
+            stream.reconfigure(encoding="utf-8", errors="replace")
     configure_logging(get_settings().log_level, json=json_logs)
 
 
@@ -171,8 +187,12 @@ def facts(
 
 
 def _bid_folder(bid: str) -> Path:
+    from rfp_intel.ingestion.loader import PARSERS
     from rfp_intel.security import PathNotAllowedError, resolve_within
 
+    path = Path(bid)
+    if path.is_dir() and any(p.suffix.lower() in PARSERS for p in path.iterdir() if p.is_file()):
+        return path.resolve()  # a bid folder anywhere on this machine: it holds documents
     try:
         folder = resolve_within(get_settings().data_dir, bid)
     except PathNotAllowedError as exc:
@@ -266,62 +286,72 @@ def search(
 @app.command()
 def extract(
     bid: BidArg,
-    out: Annotated[Path | None, typer.Option(help="Output JSON path")] = None,
+    out: Annotated[Path | None, typer.Option(help="Also write the JSON here")] = None,
     resume: Annotated[str | None, typer.Option(help="Resume a previous run id")] = None,
 ) -> None:
     """Run the multi-agent extraction and write one cited JSON for the bid."""
-    from rfp_intel.agents.evidence import EvidenceStore
-    from rfp_intel.agents.fields import load_fields
-    from rfp_intel.agents.graph import Services, run_extraction
-    from rfp_intel.agents.llm import LLMError, llm_from_settings
+    from rfp_intel.agents.graph import run_extraction
     from rfp_intel.search.runtime import open_runtime
     from rfp_intel.telemetry import setup_tracing
 
     s = get_settings()
     folder = _bid_folder(bid)
-    try:
-        llm = llm_from_settings(s)
-    except LLMError as exc:
-        typer.echo(str(exc), err=True)
-        raise typer.Exit(code=1) from exc
+    llm = _llm_or_exit()
     _, run_id = setup_tracing(s, run_id=resume)
-    out_dir = out.parent if out is not None else Path("outputs")
-    with open_runtime(s) as rt:
-        services = Services(
-            settings=s,
-            engine=rt.engine(),
-            indexer=rt.indexer(),
-            llm=llm,
-            catalog=load_fields(s.config_dir / "fields.yaml"),
-            store=EvidenceStore(loader=rt.backend.fetch),
-            out_dir=out_dir,
-        )
+    with open_runtime(s, load_reranker=s.extract_rerank) as rt:
         result, _state = run_extraction(
-            services,
-            folder.name,
+            _services(rt, llm),
+            folder,
             run_id=run_id,
             resume=resume is not None,
             checkpoint_path=s.state_dir / "checkpoints.sqlite",
         )
-    if out is not None and out.name != f"{folder.name}.json":
+    if out is not None:
+        out.parent.mkdir(parents=True, exist_ok=True)
         out.write_text(result.model_dump_json(indent=2), encoding="utf-8")
-    width = max(len(k) for k in result.fields)
-    for key, fr in result.fields.items():
+    _print_result(result)
+    typer.echo(
+        f"wrote {s.outputs_dir / (folder.name + '.json')}; "
+        f"trace {s.traces_dir / (run_id + '.jsonl')}"
+    )
+
+
+def _llm_or_exit() -> "LLM":
+    from rfp_intel.agents.llm import LLMError, llm_from_settings
+
+    try:
+        return llm_from_settings(get_settings())
+    except LLMError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+
+
+def _services(rt: "Runtime", llm: "LLM") -> "Services":
+    from rfp_intel.agents.services import Services
+
+    s = get_settings()
+    return Services.build(s, rt, llm, s.outputs_dir)
+
+
+def _print_result(result: "BidResult") -> None:
+    width = max(len(name) for name in result.fields)
+    for name, fr in result.fields.items():
         value = ", ".join(fr.value) if isinstance(fr.value, list) else (fr.value or "null")
-        typer.echo(f"{key:<{width}}  [{fr.tier:<4} {fr.confidence:.2f}]  {value[:90]}")
+        typer.echo(f"{name:<{width}}  [{fr.tier:<4} {fr.confidence:.2f}]  {value[:90]}")
     v = result.validation
     typer.echo(
-        f"\n{v.fields} fields: {v.passed_first_time} passed first time, "
-        f"{v.passed_after_retry} after retry, {v.failed} failed; {v.retries} retries; "
+        f"\nvalidation: {v.passed} passed, {v.failed} failed, {v.not_found} not found, "
+        f"{v.conflicts} conflicts; {v.retries} retries; "
         f"{len(result.addendum_changes)} addendum changes"
     )
+    for issue in v.consistency_issues:
+        typer.echo(f"consistency: {issue}")
+    for error in result.errors:
+        typer.echo(f"error: {error}", err=True)
     u = result.usage
     typer.echo(
         f"{int(u.get('calls', 0))} LLM calls, {int(u.get('input_tokens', 0))} in / "
         f"{int(u.get('output_tokens', 0))} out tokens, ${u.get('cost_usd', 0):.4f}"
-    )
-    typer.echo(
-        f"wrote {out_dir / (folder.name + '.json')}; trace {s.traces_dir / (run_id + '.jsonl')}"
     )
 
 
@@ -329,51 +359,65 @@ def extract(
 def ask(
     question: str,
     bid: Annotated[str | None, typer.Option(help="Restrict to one bid")] = None,
-    k: Annotated[int, typer.Option(help="Passages to read")] = 8,
-    config: Annotated[str, typer.Option(help="Retrieval configuration")] = DEFAULT_CONFIG,
-    log_path: Annotated[Path, typer.Option(help="Append the cited answer here")] = Path(
-        "outputs/qa_log.jsonl"
-    ),
+    log_path: Annotated[Path | None, typer.Option(help="Append the cited answer here")] = None,
     no_log: Annotated[bool, typer.Option("--no-log", help="Do not append to the log")] = False,
 ) -> None:
     """Answer a question with citations, or say it is not in the documents."""
-    from rfp_intel.agents.llm import LLMError, llm_from_settings
-    from rfp_intel.agents.qa import answer
+    _ask_all([(question, bid)], log_path=None if no_log else log_path or _qa_log())
+
+
+@app.command(name="ask-batch")
+def ask_batch(
+    questions: Annotated[Path, typer.Argument(help="Text file: one question per line")],
+    log_path: Annotated[Path | None, typer.Option(help="Append the cited answers here")] = None,
+) -> None:
+    """Answer every question in a file (blank lines and # comments skipped). A line
+    `Bid1 | question` restricts that question to one bid."""
+    items: list[tuple[str, str | None]] = []
+    for line in questions.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#"):
+            continue
+        bid, sep, text = line.partition("|")
+        items.append((text.strip(), bid.strip()) if sep else (line, None))
+    _ask_all(items, log_path=log_path or _qa_log())
+
+
+def _qa_log() -> Path:
+    return get_settings().outputs_dir / "qa_log.jsonl"
+
+
+def _ask_all(items: list[tuple[str, str | None]], *, log_path: Path | None) -> None:
+    """Answer questions through the agent graph, print them, and append them to the log."""
+    from rfp_intel.agents.graph import run_question
     from rfp_intel.search.models import NAMED_CONFIGS
     from rfp_intel.search.runtime import open_runtime
     from rfp_intel.telemetry import setup_tracing
 
     s = get_settings()
-    try:
-        llm = llm_from_settings(s)
-    except LLMError as exc:
-        typer.echo(str(exc), err=True)
-        raise typer.Exit(code=1) from exc
-    setup_tracing(s)
-    with open_runtime(s, load_reranker=NAMED_CONFIGS[config].rerank) as rt:
-        result = answer(rt.engine(), llm, s.extract_model, question, bid_id=bid, k=k, config=config)
-    typer.echo(result.answer)
-    for c in result.citations:
-        typer.echo(f'  [{c.bid_id}] {c.file} p{c.page}: "{c.quote}"')
-    typer.echo(
-        f"({result.passages_reviewed} passages, {result.dropped_citations} citations dropped, "
-        f"${result.usage.get('cost_usd', 0):.4f})"
-    )
-    if not no_log:
-        log_path.parent.mkdir(parents=True, exist_ok=True)
-        with log_path.open("a", encoding="utf-8") as fh:
-            fh.write(result.model_dump_json() + "\n")
-
-
-CONFIG_DESCRIPTIONS = {
-    "dense": "bge-small embeddings only",
-    "sparse": "BM25 only (Qdrant sparse vectors with IDF), with synonym expansion",
-    "hybrid": "dense + BM25 + exact identifier matches, fused with RRF (k=60)",
-    "hybrid_facts": "hybrid plus dense and BM25 lists restricted to chunks with the fact labels "
-    "the question routes to (default)",
-    "hybrid_facts_rerank": "hybrid_facts, top 30 reranked by the configured cross-encoder "
-    "(RFP_RERANK_MODEL, default BAAI/bge-reranker-v2-m3-int8)",
-}
+    llm = _llm_or_exit()
+    _, run_id = setup_tracing(s)
+    with open_runtime(s, load_reranker=NAMED_CONFIGS[s.qa_search_config].rerank) as rt:
+        for i, (question, bid) in enumerate(items, start=1):
+            result, _ = run_question(
+                _services(rt, llm), question, bid_id=bid, run_id=f"{run_id}-q{i}"
+            )
+            if len(items) > 1:
+                typer.echo(f"\n[{i}/{len(items)}] {question}")
+            typer.echo(result.answer)
+            for c in result.citations:
+                typer.echo(f'  [{c.bid_id}] {c.file} p{c.page}: "{c.quote}"')
+            typer.echo(
+                f"({result.passages_reviewed} passages from {', '.join(result.scope)}, "
+                f"{result.dropped_citations} citations dropped, "
+                f"${result.usage.get('cost_usd', 0):.4f})"
+            )
+            if result.error:
+                typer.echo(f"error: {result.error}", err=True)
+            if log_path is not None:
+                log_path.parent.mkdir(parents=True, exist_ok=True)
+                with log_path.open("a", encoding="utf-8") as fh:
+                    fh.write(result.model_dump_json() + "\n")
 
 
 @app.command(name="eval")
@@ -471,13 +515,14 @@ def eval_(
         typer.echo("no regression against the baseline")
 
 
-def _eval_extraction(gold: Path, out_dir: Path, results: Path = Path("outputs")) -> None:
+def _eval_extraction(gold: Path, out_dir: Path, results: Path | None = None) -> None:
     from rfp_intel.eval.extraction import (
         evaluate_extraction,
         load_extraction_gold,
         save_extraction_report,
     )
 
+    results = results or get_settings().outputs_dir
     report = evaluate_extraction(results, load_extraction_gold(gold), gold_file=gold.as_posix())
     save_extraction_report(report, out_dir / "extraction.json", out_dir / "extraction.md")
     if report.missing_bids:
@@ -492,6 +537,178 @@ def _eval_extraction(gold: Path, out_dir: Path, results: Path = Path("outputs"))
     typer.echo(f"report: {out_dir / 'extraction.md'}")
     if report.missing_bids and not report.scores:
         raise typer.Exit(code=1)
+
+
+@app.command(name="qa-report")
+def qa_report(
+    log_path: Annotated[Path | None, typer.Option("--log", help="Q&A log (JSONL)")] = None,
+    out: Annotated[Path, typer.Option(help="Markdown file to write")] = Path("docs/qa_log.md"),
+) -> None:
+    """Render the Q&A log as Markdown: each question, its answer and its verified citations."""
+    from rfp_intel.agents.qa import QAResult
+
+    path = log_path or _qa_log()
+    results = [
+        QAResult.model_validate_json(line)
+        for line in path.read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    lines = [
+        "# Sample Q&A log",
+        "",
+        f"{len(results)} questions answered by the agent graph (`rfp ask-batch "
+        "eval/qa_questions.txt`); raw records in `outputs/qa_log.jsonl`. Every quote below "
+        "was checked against the passage it cites.",
+        "",
+    ]
+    for i, r in enumerate(results, start=1):
+        meta = f"scope {', '.join(r.scope)} · {r.passages_reviewed} passages · model {r.model}"
+        if r.dropped_citations:
+            meta += f" · {r.dropped_citations} unverifiable citations removed"
+        if r.removed_statements:
+            meta += f" · {r.removed_statements} unsupported sentences removed"
+        text = (
+            " ".join(s.text + "".join(f" [{n + 1}]" for n in s.citations) for s in r.statements)
+            or r.answer
+        )
+        lines += [f"## {i}. {r.question}", "", text, ""]
+        for n, c in enumerate(r.citations, start=1):
+            quote = " ".join(c.quote.split())
+            lines.append(f"{n}. [{c.bid_id}] {c.file}, p. {c.page}: “{quote}”")
+        lines += ["", f"<sub>{meta}</sub>", ""]
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text("\n".join(lines), encoding="utf-8")
+    typer.echo(f"wrote {out}")
+
+
+@app.command()
+def deliverables(
+    bids: Annotated[
+        list[str] | None, typer.Argument(help="Bid folders; every folder in the data dir if none")
+    ] = None,
+    questions: Annotated[Path, typer.Option(help="Q&A questions")] = Path("eval/qa_questions.txt"),
+    gold: Annotated[Path, typer.Option(help="Extraction gold")] = Path("eval/extraction_gold.yaml"),
+    trace_bid: Annotated[
+        str | None, typer.Option(help="Bid whose run becomes docs/trace_example (default: last)")
+    ] = None,
+) -> None:
+    """Regenerate every submitted output in one go: one record per bid, the Q&A log and its
+    report, the extraction evaluation, and the example trace. Stops at the first failed step."""
+    s = get_settings()
+    names = bids or sorted(p.name for p in s.data_dir.iterdir() if p.is_dir())
+    for name in names:
+        typer.echo(f"\n== extract {name}")
+        extract(bid=name, out=None, resume=None)
+    log_path = _qa_log()
+    log_path.unlink(missing_ok=True)  # the log is rebuilt, not appended to
+    typer.echo("\n== questions")
+    ask_batch(questions=questions, log_path=log_path)
+    qa_report(log_path=log_path, out=Path("docs/qa_log.md"))
+    typer.echo("\n== evaluation")
+    _eval_extraction(gold, Path("docs/eval"))
+    _write_trace_example(s.outputs_dir / f"{trace_bid or names[-1]}.json")
+
+
+def _write_trace_example(record_path: Path) -> None:
+    from rfp_intel.agents.schema import BidResult
+    from rfp_intel.trace_render import load_spans, render_trace, scrub_paths
+
+    run_id = BidResult.model_validate_json(record_path.read_text(encoding="utf-8")).run_id
+    source = get_settings().traces_dir / f"{run_id}.jsonl"
+    Path("docs/trace_example.md").write_text(render_trace(load_spans(source)), encoding="utf-8")
+    raw = scrub_paths(source.read_text(encoding="utf-8"))
+    Path("docs/trace_example.jsonl").write_text(raw, encoding="utf-8")
+    typer.echo(f"wrote docs/trace_example.md and .jsonl from run {run_id}")
+
+
+def _records_or_exit(bids: list[str]) -> list["BidResult"]:
+    from rfp_intel.agents.compare import load_records
+
+    try:
+        return load_records(get_settings().outputs_dir, bids)
+    except FileNotFoundError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+
+
+def _as_of(value: str | None) -> "date | None":
+    from datetime import date
+
+    return date.fromisoformat(value) if value else None
+
+
+AsOf = Annotated[
+    str | None, typer.Option(help="Judge deadlines as of this date (YYYY-MM-DD); default today")
+]
+
+
+@app.command(name="go-no-go")
+def go_no_go(
+    bid: Annotated[str, typer.Argument(help="Bid id with an extraction record in outputs/")],
+    as_of: AsOf = None,
+    out: Annotated[Path | None, typer.Option(help="Also write the Markdown report here")] = None,
+) -> None:
+    """Recommend go, no-go or review for a bid against config/company.yaml (no model call)."""
+    from rfp_intel.agents.gonogo import load_company, recommend, render_markdown
+
+    s = get_settings()
+    [record] = _records_or_exit([bid])
+    rec = recommend(record, load_company(s.config_dir / "company.yaml"), _as_of(as_of))
+    text = render_markdown(rec)
+    typer.echo(text)
+    if out is not None:
+        out.parent.mkdir(parents=True, exist_ok=True)
+        out.write_text(text, encoding="utf-8")
+        typer.echo(f"wrote {out}")
+    raise typer.Exit(code=0 if rec.decision != "no-go" else 2)
+
+
+@app.command()
+def compare(
+    bids: Annotated[list[str], typer.Argument(help="Two or more bid ids with records")],
+    out: Annotated[Path, typer.Option(help="Markdown report")] = Path("docs/comparison.md"),
+    summary: Annotated[
+        bool, typer.Option(help="Write the key differences with the cheap model")
+    ] = True,
+    as_of: AsOf = None,
+) -> None:
+    """Side-by-side report of several bids, their key differences and go / no-go."""
+    from opentelemetry import trace as otel_trace
+
+    from rfp_intel.agents.compare import compare as compare_bids
+    from rfp_intel.agents.compare import render_markdown
+    from rfp_intel.agents.fields import load_fields
+    from rfp_intel.agents.gonogo import load_company
+    from rfp_intel.agents.guarded import GuardedLLM
+    from rfp_intel.telemetry import setup_tracing
+
+    if len(bids) < 2:
+        typer.echo("name at least two bids", err=True)
+        raise typer.Exit(code=1)
+    s = get_settings()
+    records = _records_or_exit(bids)
+    llm = GuardedLLM(_llm_or_exit(), max_output_tokens=s.llm_max_output_tokens) if summary else None
+    provider, run_id = setup_tracing(s)
+    tracer = otel_trace.get_tracer(__name__)
+    with tracer.start_as_current_span(
+        "agent.compare", attributes={"rfp.run_id": run_id, "rfp.bids": bids}
+    ):
+        result = compare_bids(
+            records,
+            load_fields(s.config_dir / "fields.yaml"),
+            llm=llm,
+            model=s.cheap_model,
+            company=load_company(s.config_dir / "company.yaml"),
+            as_of=_as_of(as_of),
+        )
+    provider.force_flush()
+    catalog = load_fields(s.config_dir / "fields.yaml")
+    out.parent.mkdir(parents=True, exist_ok=True)
+    out.write_text(render_markdown(result, catalog), encoding="utf-8")
+    out.with_suffix(".json").write_text(result.model_dump_json(indent=2), encoding="utf-8")
+    if result.error:
+        typer.echo(f"differences not written: {result.error}", err=True)
+    typer.echo(f"wrote {out} and {out.with_suffix('.json')}; trace {run_id}")
 
 
 @app.command()
@@ -536,4 +753,7 @@ def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
     """Start the REST API."""
     import uvicorn
 
+    from rfp_intel.telemetry import setup_server_tracing
+
+    setup_server_tracing(get_settings())
     uvicorn.run("rfp_intel.api.app:create_app", factory=True, host=host, port=port)

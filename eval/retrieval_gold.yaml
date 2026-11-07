@@ -7,7 +7,8 @@
 # match: any  -> the question is answered when any locator is retrieved (default)
 # match: all  -> every locator is needed; recall is the share retrieved
 # split: dev questions were written alongside the system; heldout questions were written
-#   afterwards and not used for any tuning. Both are reported.
+#   afterwards and not used for any tuning; unseen questions are about a bid folder added after
+#   the system was finished (Bid3). Each is reported separately.
 #
 # Questions are phrased the way a user asks, not copied from the passage.
 
@@ -248,3 +249,79 @@ questions:
     question: How much RAM does the quoted laptop configuration have?
     relevant:
       - {file: Dell_Laptop_Specs, must_contain: "16 GB: 2 x 8 GB"}
+
+  # ------------------------------------- Bid3: Delano USD RFP 2025-003 (unseen, scanned RFP)
+  - id: b3-due
+    bid: Bid3
+    split: unseen
+    question: When are proposals due?
+    relevant:
+      - {file: Computer Equipment.pdf, must_contain: "1:00PM on September 6, 2024", pages: [2]}
+      - {file: Computer Equipment.pdf, must_contain: "1:00 PM on September 6, 2024", pages: [4]}
+
+  - id: b3-bond
+    bid: Bid3
+    split: unseen
+    question: Do we need a bid bond or some other security, and how much?
+    relevant:
+      - {file: Addendum 1, must_contain: "10% bid security"}
+      - {file: Computer Equipment.pdf, must_contain: "furnish a 10% bid bond", pages: [5]}
+
+  - id: b3-substitution
+    bid: Bid3
+    split: unseen
+    question: Was any substitute product approved?
+    relevant:
+      - {file: Addendum 2, must_contain: "HP Fortis 11 inch G10 Chromebook"}
+
+  - id: b3-term
+    bid: Bid3
+    split: unseen
+    question: How long does the contract last?
+    relevant:
+      - {file: Computer Equipment.pdf, must_contain: "contract term is twelve (12) months", pages: [4]}
+
+  - id: b3-delivery
+    bid: Bid3
+    split: unseen
+    question: By what date must the equipment arrive?
+    relevant:
+      - {file: Computer Equipment.pdf, must_contain: "received no later than October 31, 2024", pages: [4]}
+      - {file: Computer Equipment.pdf, must_contain: "ONORBEFORE October 31, 2024", pages: [17]}
+
+  - id: b3-cooperative
+    bid: Bid3
+    split: unseen
+    question: Which purchasing contracts can vendors propose under?
+    relevant:
+      - {file: Computer Equipment.pdf, must_contain: "NASPO, CMAS, WSCA, CALNET", pages: [4]}
+
+  - id: b3-spec
+    bid: Bid3
+    split: unseen
+    question: What processor and memory must the Chromebooks have?
+    relevant:
+      - {file: Computer Equipment.pdf, must_contain: "Processor N100", pages: [17]}
+
+  - id: b3-quantity
+    bid: Bid3
+    split: unseen
+    question: How many Chromebooks is the district buying?
+    relevant:
+      - {file: Computer Equipment.pdf, must_contain: "Item 1: Quantity: 500", pages: [17]}
+
+  - id: b3-acknowledge
+    bid: Bid3
+    split: unseen
+    question: Do bidders have to return anything for the addenda?
+    match: any
+    relevant:
+      - {file: Addendum 1, must_contain: "This form must be signed and included with the RFP submittal"}
+      - {file: Addendum 2, must_contain: "This form must be signed and included with the RFP submittal"}
+
+  - id: b3-contact
+    bid: Bid3
+    split: unseen
+    question: Who should questions be sent to, and by when?
+    relevant:
+      - {file: Computer Equipment.pdf, must_contain: "srivera@duesd.org by 1:00PM on August 30, 2024", pages: [4]}

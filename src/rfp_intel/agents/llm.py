@@ -13,19 +13,31 @@ implementations:
 import time
 from collections.abc import Callable
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Protocol, TypeVar
 
+import yaml
 from pydantic import BaseModel
 
 T = TypeVar("T", bound=BaseModel)
 
-# USD per million tokens (input, output). Cache reads bill at 0.1x input, cache writes 1.25x.
-PRICES: dict[str, tuple[float, float]] = {
-    "claude-opus-5-5": (4.0, 20.0),
-    "claude-sonnet-5-5": (2.0, 10.0),
-    "claude-haiku-5-5": (0.10, 0.50),
-    "claude-fable-5-1": (10.0, 50.0),
-}
+# USD per million tokens (input, output), filled from config/llm_prices.yaml.
+PRICES: dict[str, tuple[float, float]] = {}
+
+
+def load_prices(path: Path) -> None:
+    """Load the price table; a missing file only means costs are reported as 0."""
+    if not path.exists():
+        return
+    data = yaml.safe_load(path.read_text(encoding="utf-8")) or {}
+    for model, (price_in, price_out) in (data.get("prices") or {}).items():
+        PRICES[str(model)] = (float(price_in), float(price_out))
+
+
+def estimate_tokens(text: str) -> int:
+    """A deliberately high estimate (3.5 characters per token) for budgets and pacing: GPT-style
+    tokenizers average about 4 on English, others count more tokens for the same text."""
+    return int(len(text) / 3.5) + 1
 
 
 class LLMError(RuntimeError):
@@ -212,18 +224,26 @@ def register_price(model: str, input_per_m: float | None, output_per_m: float | 
 
 
 def llm_from_settings(settings: Any) -> LLM:
-    """The configured provider's client, or a clear error naming what is missing."""
+    """The configured provider's client, paced when a token rate is set, or a clear error
+    naming what is missing."""
     from rfp_intel.agents.providers import OpenAICompatibleLLM, resolve_provider
+    from rfp_intel.agents.ratelimit import RateLimitedLLM
 
+    load_prices(settings.config_dir / "llm_prices.yaml")
     for model in (settings.extract_model, settings.cheap_model):
         register_price(model, settings.llm_price_input_per_m, settings.llm_price_output_per_m)
     resolved = resolve_provider(settings)
+    client: LLM
     if resolved.kind == "anthropic":
-        return AnthropicLLM(resolved.key or "")
-    return OpenAICompatibleLLM(
-        resolved.key or "none",
-        base_url=resolved.base_url or "",
-        auth_style=resolved.auth_style,
-        extra_query=settings.llm_extra_query,
-        send_reasoning_effort=settings.llm_send_reasoning_effort,
-    )
+        client = AnthropicLLM(resolved.key or "")
+    else:
+        client = OpenAICompatibleLLM(
+            resolved.key or "none",
+            base_url=resolved.base_url or "",
+            auth_style=resolved.auth_style,
+            extra_query=settings.llm_extra_query,
+            send_reasoning_effort=settings.llm_send_reasoning_effort,
+        )
+    if settings.llm_tokens_per_minute:
+        client = RateLimitedLLM(client, tokens_per_minute=settings.llm_tokens_per_minute)
+    return client

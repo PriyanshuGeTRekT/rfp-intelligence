@@ -42,6 +42,7 @@ class Chunk(BaseModel):
     fact_types: list[str] = Field(default_factory=list)
     fact_ids: list[str] = Field(default_factory=list)
     is_boilerplate: bool = False
+    ocr: bool = False  # text came from OCR of a scanned page
     token_estimate: int
 
     def payload(self) -> dict[str, Any]:
@@ -114,3 +115,14 @@ class SearchResult(BaseModel):
     config: str
     hits: list[Hit]
     timings_ms: dict[str, float] = Field(default_factory=dict)
+
+
+CONFIG_DESCRIPTIONS = {
+    "dense": "bge-small embeddings only",
+    "sparse": "BM25 only (Qdrant sparse vectors with IDF), with synonym expansion",
+    "hybrid": "dense + BM25 + exact identifier matches, fused with RRF (k=60)",
+    "hybrid_facts": "hybrid plus dense and BM25 lists restricted to chunks with the fact labels "
+    "the question routes to (the default)",
+    "hybrid_facts_rerank": "hybrid_facts, top 30 reranked by the configured cross-encoder "
+    "(RFP_RERANK_MODEL, default BAAI/bge-reranker-v2-m3-int8)",
+}

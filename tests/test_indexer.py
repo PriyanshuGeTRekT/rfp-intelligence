@@ -25,7 +25,7 @@ def folder(data_dir: Path) -> Path:
     (f / "notes.md").write_text(
         "# Delivery\n\nDeliver within 45 days of award.\n", encoding="utf-8"
     )
-    (f / "pricing.xlsx").write_bytes(b"not supported")
+    (f / "pricing.pptx").write_bytes(b"not supported")
     return f
 
 
@@ -40,7 +40,7 @@ def test_incremental_add_change_remove(runtime: Runtime, settings: Settings, fol
     first = indexer.index_folder(folder)
     assert sorted(first.added) == ["notes.md", "rfq.pdf"]
     assert first.chunks_written > 0 and first.facts_written > 0
-    assert any(i.file_name == "pricing.xlsx" for i in first.issues)
+    assert any(i.file_name == "pricing.pptx" for i in first.issues)
     total = runtime.backend.count(Filters(bid_id="BidA"))
     old_notes = _doc_ids(settings)["notes.md"]
 

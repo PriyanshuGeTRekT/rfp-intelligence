@@ -56,3 +56,29 @@ bids:
     company_name: {patterns: ["Treasurer"]}
     product_specification: {patterns: ["Ultra 5|125U", "16 ?GB", "256 ?GB", "3[- ]year"]}
     bid_summary: {patterns: ["Dell", "June 10"]}
+
+  # Unseen bid: Delano Union School District RFP 2025-003, downloaded 2026-11-07 from
+  # https://duesd.org/domain/199 after the extraction code was finished; nothing was tuned on
+  # it. The main RFP is a 70-page scan (read by OCR); Addendum 1 sets the bid security,
+  # Addendum 2 approves a substitute Chromebook. Values compiled by hand from the PDFs.
+  Bid3:
+    bid_number: {any_patterns: ["2025-003"]}
+    title: {patterns: ["Computer Equipment"]}
+    due_date: {patterns: ["2024-09-06|September 6, 2024", "13:00|1:00 ?PM"]}  # no zone stated
+    pre_bid_meeting: {absent: true, or_patterns: ["none", "no pre", "not "]}
+    bid_submission_type: {patterns: ["sealed"]}
+    term_of_bid: {patterns: ["12|twelve"]}
+    bid_bond_requirement: {patterns: ["10 ?%"]}   # RFP section 4, restated by Addendum 1
+    delivery_date: {patterns: ["October 31, 2024|2024-10-31"]}
+    payment_terms: {any_patterns: ["invoice", "delivered"]}
+    additional_documentation: {items: ["Bid Form", "Non-?Collusion", "Addend"]}
+    installation: {absent: true, or_patterns: ["not required", "no installation", "not mentioned", "not specified", "deliver"]}
+    mfg_for_registration: {absent: true, or_patterns: ["Dell", "functionally equivalent"]}
+    contract_or_cooperative: {any_patterns: ["NASPO", "CMAS", "WSCA", "CALNET"]}
+    model_no: {items: ["3120"]}
+    part_no: {items: ["9R3B5UT"]}   # the substitute's SKU, from Addendum 2
+    product: {patterns: ["Chromebook", "500"]}
+    contact_info: {any_patterns: ["Rivera", "srivera"]}
+    company_name: {patterns: ["Delano"]}
+    product_specification: {patterns: ["N100", "8 ?GB", "64 ?GB"]}
+    bid_summary: {patterns: ["Delano", "Chromebook"]}

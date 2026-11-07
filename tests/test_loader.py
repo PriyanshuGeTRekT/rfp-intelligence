@@ -18,7 +18,7 @@ def bid_folder(data_dir: Path) -> Path:
     folder = data_dir / "BidA"
     build_sample_pdf(folder / "RFQ_2024-117.pdf")
     (folder / "portal.html").write_text(PORTAL, encoding="utf-8")
-    (folder / "pricing.docx").write_bytes(b"PK\x03\x04 not supported yet")
+    (folder / "pricing.pptx").write_bytes(b"PK\x03\x04 not supported yet")
     (folder / "broken.pdf").write_bytes(b"%PDF-1.7 truncated")
     (folder / "attachments").mkdir()
     (folder / "attachments" / "notes.txt").write_text("Scope of work: laptops.", encoding="utf-8")
@@ -30,10 +30,10 @@ def test_loader_parses_what_it_can_and_reports_the_rest(bid_folder: Path, cues: 
     result = load_bid_folder(bid_folder, cues)
     names = sorted(d.file_name for d in result.documents)
     assert names == ["RFQ_2024-117.pdf", "attachments/notes.txt", "portal.html"]
-    assert result.skipped_files == ["pricing.docx"]
+    assert result.skipped_files == ["pricing.pptx"]
     by_file = {(i.file_name, i.page): i for i in result.issues}
     assert by_file[("broken.pdf", None)].severity == "error"
-    assert by_file[("pricing.docx", None)].severity == "warning"
+    assert by_file[("pricing.pptx", None)].severity == "warning"
     assert by_file[("RFQ_2024-117.pdf", 3)].message.endswith("needs OCR")
     assert ("RFQ_2024-117.pdf", 4) in by_file
 
@@ -82,7 +82,22 @@ def test_parse_command_refuses_paths_outside_data_dir(
     data_dir: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
     monkeypatch.setenv("RFP_DATA_DIR", str(data_dir))
-    assert CliRunner().invoke(app, ["parse", "../.."]).exit_code == 1
+    assert CliRunner().invoke(app, ["parse", "../../no-such-folder"]).exit_code == 1
+    empty = data_dir.parent / "not-a-bid"
+    (empty / "sub").mkdir(parents=True)
+    assert CliRunner().invoke(app, ["parse", str(empty)]).exit_code == 1  # holds no documents
+
+
+def test_parse_command_accepts_a_bid_folder_anywhere(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    monkeypatch.setenv("RFP_CONFIG_DIR", str(REPO_ROOT / "config"))
+    folder = tmp_path / "elsewhere" / "NewBid"
+    folder.mkdir(parents=True)
+    build_sample_pdf(folder / "rfq.pdf")
+    result = CliRunner().invoke(app, ["parse", str(folder)])
+    assert result.exit_code == 0, result.output
+    assert "rfq.pdf" in result.output
 
 
 def test_folder_named_after_bid(tmp_path: Path, cues: CueConfig) -> None:

@@ -1,16 +1,19 @@
-# `docker compose up api` serves the REST API with the embedded vector store under ./data.
-# `docker compose --profile qdrant up` adds a Qdrant server; set RFP_QDRANT_URL to use it.
+# `docker compose up` builds the image and serves the web app and API on http://localhost:8000.
+# Provider settings and keys come from .env (copy .env.example). Bid folders are read from
+# ./data/bids; the index, records, traces and model cache persist in the rfp-data volume.
+# `docker compose --profile qdrant up` adds a Qdrant server; set RFP_QDRANT_URL=http://qdrant:6333.
 services:
-  api:
+  app:
     build: .
     ports: ["8000:8000"]
+    env_file:
+      - path: .env
+        required: false
     environment:
-      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
-      RFP_API_KEY: ${RFP_API_KEY:-}
-      RFP_QDRANT_URL: ${RFP_QDRANT_URL:-}
-      OTEL_EXPORTER_OTLP_ENDPOINT: ${OTEL_EXPORTER_OTLP_ENDPOINT:-}
+      RFP_DATA_DIR: /data/bids
     volumes:
       - ./data/bids:/data/bids:ro
+      - ./outputs:/data/outputs
       - rfp-data:/data
 
   qdrant:

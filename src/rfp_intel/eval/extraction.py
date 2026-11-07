@@ -162,8 +162,9 @@ def evaluate_extraction(
             missing.append(bid_id)
             continue
         result = BidResult.model_validate_json(path.read_text(encoding="utf-8"))
+        by_key = {f.key: f for f in result.fields.values()}
         for key, rule in rules.items():
-            fr = result.fields.get(key)
+            fr = by_key.get(key)
             if fr is None:
                 scores.append(
                     FieldScore(

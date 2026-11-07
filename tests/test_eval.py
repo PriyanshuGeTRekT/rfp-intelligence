@@ -26,7 +26,7 @@ from rfp_intel.ingestion.models import BidFolder
 from rfp_intel.search.chunking import chunk_document
 from rfp_intel.search.models import Chunk, Hit
 
-from .conftest import REPO_ROOT, build_sample_pdf, fake_runtime
+from .conftest import BIDS_DIR, REPO_ROOT, build_sample_pdf, fake_runtime
 
 GOLD = REPO_ROOT / "eval" / "retrieval_gold.yaml"
 
@@ -147,7 +147,8 @@ def test_gold_set_shape() -> None:
     gold = load_gold(GOLD)
     ids = [q.id for q in gold.questions]
     assert len(ids) == len(set(ids)) and len(ids) >= 15
-    assert Counter(q.bid for q in gold.questions).keys() == {"Bid1", "Bid2"}
+    assert Counter(q.bid for q in gold.questions).keys() == {"Bid1", "Bid2", "Bid3"}
+    assert all(q.split == "unseen" for q in gold.questions if q.bid == "Bid3")
     assert sum(q.split == "heldout" for q in gold.questions) >= 5
 
 
@@ -168,6 +169,7 @@ def test_every_gold_passage_exists_in_the_chunks(real_chunks: list[Chunk]) -> No
     missing = [
         (q.id, loc.must_contain)
         for q in gold.questions
+        if q.bid in ("Bid1", "Bid2")  # Bid3 needs OCR: see the slow test below
         for loc in q.relevant
         if not any(
             c.bid_id == q.bid and matches(loc, c.file_name, c.text, c.page_start, c.page_end)
@@ -175,3 +177,34 @@ def test_every_gold_passage_exists_in_the_chunks(real_chunks: list[Chunk]) -> No
         )
     ]
     assert missing == []
+
+
+@pytest.mark.slow
+def test_every_unseen_bid_passage_exists_in_its_chunks() -> None:
+    """Bid3's RFP is a 70-page scan: parsing it runs OCR (about 2.5 minutes on a laptop)."""
+    from rfp_intel.ingestion.loader import load_bid_folder
+
+    config = load_fact_types(REPO_ROOT / "config" / "fact_types.yaml")
+    folder = load_bid_folder(BIDS_DIR / "Bid3", REPO_ROOT / "config" / "doc_types.yaml")
+    chunks = [c for d in folder.documents for c in chunk_document(d, extract_facts(d, config))]
+    gold = load_gold(GOLD)
+    missing = [
+        (q.id, loc.must_contain)
+        for q in gold.questions
+        if q.bid == "Bid3"
+        for loc in q.relevant
+        if not any(matches(loc, c.file_name, c.text, c.page_start, c.page_end) for c in chunks)
+    ]
+    assert missing == []
+
+
+def test_the_regression_gate_ignores_the_unseen_bid() -> None:
+    from rfp_intel.eval.retrieval import KNOWN
+
+    run = _run([1, 1, 1, 1])
+    unseen = [_result(f"u{i}", None, "unseen", 10.0) for i in range(4)]  # all missed
+    run.configs[0].questions.extend(unseen)
+    c = run.configs[0]
+    assert c.metric("recall@5") == pytest.approx(0.5) and c.metric("recall@5", KNOWN) == 1.0
+    base = Baseline(config="hybrid_facts", recall_at_5=0.95, mrr=0.95, git_commit="abc")
+    assert check_regression(run, base) == []

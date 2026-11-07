@@ -1,140 +1,331 @@
 # RFP Intelligence Platform
 
-Hybrid search and multi-agent field extraction over public bid documents. Given a bid folder
-(portal HTML page, RFP PDF, addenda, spec sheets, affidavits), it produces one cited JSON with
-20 fields and answers free-form questions with citations, or says the answer is not in the
-documents.
-
-> Status: phases 1 to 5 done: ingestion, the fact layer, hybrid search with incremental
-> indexing, the retrieval evaluation, and the multi-agent extraction graph with question
-> answering, all tested end to end with a scripted model. Not yet done: a run against the
-> live Claude API (no key during development), the per-bid JSON outputs, the Q&A log and the
-> example trace that come from such a run, the architecture diagram and the demo.
+Hybrid search and multi-agent extraction over public bid documents. Given a bid folder
+(portal HTML page, RFP PDF, addenda, spec sheets, affidavits), it produces one JSON record of
+20 fields, every value cited to a file, page and verbatim quote, with addendum changes
+applied. It also answers free-form questions with checked citations, or says the answer is not
+in the documents. It works with any LLM provider and runs on a free tier.
 
 ## Quick start
 
-Requires [uv](https://docs.astral.sh/uv/) and Python 3.12 or newer. Run every command from the
-repo root.
+Requires [uv](https://docs.astral.sh/uv/) and Python 3.12 or newer; Node 20+ for the web app.
+Run every command from the repo root.
 
 ```bash
 uv sync
-cp .env.example .env        # then set ANTHROPIC_API_KEY
-uv run rfp doctor           # shows config and the bid folders it can see
-uv run pytest               # unit tests: no API key, no model downloads
-uv run rfp index            # index every bid folder (first run downloads ~100 MB of models)
-uv run rfp search "When is the proposal due after the addendums?" --bid Bid1
-uv run pytest -m slow       # end-to-end retrieval tests with the real models
+cp .env.example .env                 # pick a provider, set its key (see "LLM providers")
+uv run rfp llm-check                 # one tiny call to confirm the model works
+uv run python main.py --bid data/bids/Bid1  # extraction: writes outputs/Bid1.json
+uv run python main.py --question "What is the submission deadline for Bid1 after all addendums?"
 ```
 
-| Command | What it does | Status |
-|---|---|---|
-| `rfp doctor` | Show configuration, check data directory and keys | done |
-| `rfp parse <bid> [--out f.json]` | Parse a bid folder; print type, title, date and issues per file | done |
-| `rfp facts <bid> [--type deadline] [--kind datetime]` | Extract and store typed facts; print the matching ones | done |
-| `rfp index [bid ...] [--force]` | Index bid folders incrementally; unchanged files are skipped | done |
-| `rfp search "<query>" [--bid] [--doc-type] [--addendum] [--config] [--json]` | Hybrid search; file, pages, chunk text and per-list ranks per hit | done |
-| `rfp extract <bid> [--out f.json] [--resume RUN_ID]` | Multi-agent extraction to `outputs/<bid>.json`; needs `ANTHROPIC_API_KEY` | done, untested live |
-| `rfp ask "<question>" [--bid] [--k] [--config]` | Cited answer or "Not found in documents."; appends to `outputs/qa_log.jsonl` | done, untested live |
-| `rfp eval retrieval [--config] [--check] [--update-baseline]` | Recall@k, MRR and latency per configuration; writes docs/eval/retrieval.md | done |
-| `rfp eval extraction` | Field accuracy and calibration per tier for `outputs/*.json`; writes docs/eval/extraction.md | done, needs outputs |
-| `rfp trace <run_id> [--out f.md]` | Render a run's spans as a tree | done |
-| `rfp diagram` | Write the agent graph as Mermaid | done |
-| `rfp-mcp [--http]` | MCP server with list_bids, search, facts and ask tools (`uv sync --extra mcp`) | done |
-| `rfp serve` | REST API: `POST /index`, `GET /search`, `POST /ask` | done |
+The web app and API:
+
+```bash
+cd web && npm ci && npm run build && cd ..
+uv run python main.py --serve        # http://localhost:8000: web app, API under /api, docs at /docs
+```
+
+Or everything in one container: `docker compose up` (builds the web app, serves both on :8000).
+
+`python main.py --bid PATH` accepts any folder of bid documents: a new, unseen bid needs no
+code change. The folder name becomes the bid id; it is indexed incrementally on first use.
+
+## What you can run
+
+| Command | What it does |
+|---|---|
+| `python main.py --bid PATH` / `rfp extract <bid or path> [--resume RUN_ID]` | Multi-agent extraction to `outputs/<bid>.json`; prints the record and validation tally |
+| `python main.py --question "..." [--bid-id Bid1]` / `rfp ask "..." [--bid]` | Cited answer or "Not found in documents."; appends to `outputs/qa_log.jsonl` |
+| `rfp deliverables` | Regenerate every submitted output: a record per bid, the Q&A log and report, the extraction evaluation, the example trace |
+| `rfp ask-batch eval/qa_questions.txt` | Answer a file of questions into the Q&A log (how `outputs/qa_log.jsonl` was made) |
+| `python main.py --serve` / `rfp serve` | REST API and web app |
+| `rfp index [bid ...] [--force]` | Index bid folders incrementally; unchanged files are skipped |
+| `rfp search "<query>" [--bid] [--doc-type] [--addendum] [--config] [--json]` | Hybrid search; file, pages, chunk text and per-list ranks per hit |
+| `rfp eval retrieval [--config] [--check]` | Recall@k, MRR and latency per configuration; writes docs/eval/retrieval.md |
+| `rfp eval extraction` | Field accuracy and confidence calibration for `outputs/*.json`; writes docs/eval/extraction.md |
+| `rfp compare Bid1 Bid2 [--no-summary] [--as-of DATE]` | Side-by-side report of several bids with their go / no-go and key differences; writes docs/comparison.md |
+| `rfp go-no-go <bid> [--as-of DATE]` | Go, no-go or review against the company profile in `config/company.yaml` (no model call) |
+| `rfp trace <run_id> [--out f.md]` | Render a run's spans as a tree, with full prompts and responses |
+| `rfp qa-report` | Render `outputs/qa_log.jsonl` as `docs/qa_log.md` |
+| `rfp parse <bid>` / `rfp facts <bid>` | Inspect parsing and the typed facts of a bid |
+| `rfp doctor` / `rfp llm-check` | Show configuration; test the model connection |
+| `rfp diagram` | Write the agent graph as Mermaid |
+| `rfp-mcp [--http]` | MCP server with list_bids, search, facts and ask tools (`uv sync --extra mcp`) |
+
+## Web app
+
+A React single-page app (`web/`: React 18, TypeScript, Vite, TanStack Query, Tailwind, Radix
+primitives), served by the API at `/` once built.
+
+- **Bids**: every bid folder with its due date, documents by type, validation tally and last
+  run; start an extraction (runs in the background, one at a time, with a notification when done).
+- **Bid record**: the 20 fields with status, confidence tier (hover for what the tier means),
+  and source chips that open the PDF at the cited page; expand a row for the verbatim quotes,
+  notes and normalized values. Tabs for addendum changes (a timeline of replaced, added and
+  clarified values), documents, and the validation report. Download the JSON.
+- **Search**: the retrieval engine on its own, with bid, document-type and configuration
+  filters held in the URL (shareable), query analysis (identifiers found, fact labels routed
+  to, synonym expansions), highlighted passages and each hit's rank in every retrieval list.
+- **Ask**: cited Q&A, scoped to one bid or all; each citation shows the quote and opens its
+  source. The five questions from the brief are one click away.
+- **Runs**: extraction jobs, and a trace viewer per run: a waterfall of every agent step with
+  its prompt, output, tokens, cost and errors.
+- **Compare**: pick two or more extracted bids for the side-by-side table, each bid's go / no-go,
+  and (one model call, opt-in) the key differences. Each bid also has a **Go / no-go** tab
+  listing every check with the value it read and its source.
+
+Light and dark themes, keyboard search (Ctrl/Cmd+K), loading, empty and error states on every
+view, responsive down to phone width. An API key, if the server requires one, is entered in
+Settings. Development: `uv run rfp serve` in one terminal, `cd web && npm run dev` in another
+(Vite proxies `/api` to port 8000). `npm test`, `npm run lint` and `npm run typecheck` run in CI.
+
+## REST API
+
+Interactive docs at `/docs`. The brief's example endpoints are served at the paths it names,
+and everything is also under `/api`:
+
+| Endpoint | Purpose |
+|---|---|
+| `POST /index` `{"path": "Bid1"}` | Index one bid folder (incremental) |
+| `GET /search?q=...&bid_id=...&doc_type=...&top_k=5&config=...` | Hybrid search with citations |
+| `POST /ask` `{"question": "...", "bid_id": null}` | Cited answer through the agent graph |
+| `GET /api/bids`, `GET /api/bids/{id}` | Bids, their documents and latest result summary |
+| `POST /api/bids/{id}/extract`, `GET /api/jobs/{job_id}` | Start an extraction run, poll it |
+| `GET /api/bids/{id}/result` | The latest extraction record |
+| `GET /api/bids/{id}/files/{path}` | A source document (HTML is served as plain text) |
+| `GET /api/runs/{run_id}/trace` | Every span of a run |
+| `GET /api/bids/{id}/go-no-go?as_of=` | Go / no-go against the company profile |
+| `GET /api/compare?bids=Bid1&bids=Bid2&summary=false` | Side-by-side comparison; `summary=true` adds the written differences |
+| `GET /health` | Version, provider, model |
+
+`X-API-Key` is required on every route except `/health` when `RFP_API_KEY` is set; request
+bodies are size-capped; paths from requests are resolved inside the data directory only.
+
+## Output format
+
+One file per bid, in the brief's shape, keyed by the brief's field names. Abridged from
+[outputs/Bid1.json](outputs/Bid1.json) (one source per field shown):
+
+```json
+{
+  "bid_id": "Bid1",
+  "fields": {
+    "Due Date": {
+      "key": "due_date",
+      "value": "2024-07-09 14:00 CDT",
+      "status": "found",
+      "sources": [{"file": "Addendum 2 RFP JA-207652 Student and Staff Computing Devices.pdf", "page": 1,
+                   "quote": "The new due date for this RFP will be July 9, 2024 at 2:00 PM CST."}],
+      "confidence": 0.95,
+      "tier": "A",
+      "normalized": {"date": "2024-07-09", "time": "14:00", "utc": "2024-07-09T19:00:00Z", "display": "July 9, 2024, 2:00 PM CDT"},
+      "notes": "Extended by Addendum 2 (original date: 2024-06-27 14:00). 'CST' is written for a date when CDT applies; read as local time in America/Chicago (UTC-05:00). ... Matches the portal's 07/09/2024 03:00 PM EDT."
+    },
+    "Bid Bond Requirement": {
+      "key": "bid_bond_requirement",
+      "value": null,
+      "status": "not_found",
+      "sources": [],
+      "confidence": 0.8,
+      "tier": "NF-1",
+      "notes": "Not found in documents. Bid bond requirement is referenced but not explicitly stated in the provided passages. Searched 4 queries (Bid Bond Requirement; bid bond required amount; bid security guarantee; performance bond insurance); 0 labelled facts; 2 passages reviewed."
+    }
+  },
+  "addendum_changes": [{"field": "due_date", "operation": "replace", "addendum_number": 2, "doc_date": "2024-06-27",
+                        "old_value": "27-JUN-2024 14:00:00", "new_value": "July 9, 2024 at 2:00 PM CST", "source": {"...": "..."}}],
+  "validation": {"passed": 16, "failed": 0, "not_found": 4, "conflicts": 0, "fields": 20, "retries": 10,
+                 "checks_failed": {}, "consistency_issues": []},
+  "usage": {"calls": 28, "input_tokens": 55044, "output_tokens": 20436, "cost_usd": 0.019138},
+  "errors": ["extract product_specs: LLMError: one call needs about 7757 tokens but the quota is 7500 per minute; ..."]
+}
+```
+
+- `status` is `found`, `not_found` (null value, after a search the validator accepted as
+  thorough), `conflict` (sources disagree and nothing explains it) or `failed` (the validator
+  rejected every attempt, or the model could not produce an answer; the notes say which).
+- Date fields use `YYYY-MM-DD HH:MM TZ`; the readable form is in `normalized.display`.
+- `validation` starts with the brief's `passed` / `failed` / `not_found`; the other counts
+  show retries, which checks failed, and cross-field consistency issues.
+- `errors` lists anything that went wrong without stopping the run (a timed-out batch, an
+  addendum the model could not read).
 
 ## Layout
 
 ```
+main.py           one-command entry: --bid PATH | --question "..." | --serve
 src/rfp_intel/
-  config.py       settings from env/.env only (models, paths, keys)
-  logs.py         structlog JSON logs carrying trace and span ids
-  telemetry.py    OpenTelemetry: JSONL span file per run, optional OTLP, PII redaction
-  security.py     path allow-list for anything a user can point at
-  cli.py          Typer CLI (`rfp ...`)
-  api/            FastAPI app, X-API-Key auth, request size cap
+  config.py       settings from env, .env and config/defaults.env (no model names in code)
   ingestion/      PDF/HTML parsing, cleaning, doc-type classification, tables
   facts/          typed facts at ingest: dates with IANA zones, money, ids, contacts
   search/         Qdrant dense + BM25 hybrid, identifier field, rerank, manifest
-  agents/         LangGraph orchestration, extraction groups, reconciliation, validator
+  agents/         the agent system (below)
+    graph.py        LangGraph wiring, run_extraction, run_question
+    state.py        shared state and the messages agents exchange (Pydantic)
+    services.py     what agents share: settings, search engine, model client, catalog
+    nodes/          one module per agent: orchestrator, ingest, reconcile, retrieve,
+                    extract, validate, report, answer
+    guarded.py      model calls that return errors as data and record the trace
+    ratelimit.py    client-side token pacing for per-minute quotas
+    providers.py    any OpenAI-compatible API; llm.py: the interface and Claude client
+    evidence.py, addenda.py, reconcile.py, validate.py, consistency.py, assemble.py,
+    confidence.py, prompts.py, outputs.py, qa.py
+  api/            FastAPI app, routes per resource, background extraction jobs
   eval/           retrieval and extraction evaluation
-config/           field definitions and fact-type cues (YAML)
+  telemetry.py    OpenTelemetry: one JSONL span file per run, optional OTLP, PII redaction
+web/              React web app
+config/           fields, fact types, doc types, synonyms (YAML), model defaults, prices
 data/bids/        the two provided bids
-docs/             architecture, design decisions, example trace, eval reports
-tests/            unit tests (CI runs them without keys or model downloads)
+docs/             architecture, example trace, eval reports, demo script
+outputs/          one JSON record per bid, and the Q&A log
+tests/            unit and end-to-end tests (no API key, no model downloads)
 ```
-
-## Observability
-
-Every run writes its spans to `traces/<run_id>.jsonl`. To browse traces in Arize Phoenix
-locally, install the `obs` extra, start Phoenix and point the exporter at it:
-
-```bash
-uv sync --extra obs
-uv run --with arize-phoenix python -m phoenix.server.main serve
-```
-
-Then set `OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:6006/v1/traces` in `.env`. Emails and
-phone numbers in span attributes are masked before export unless `RFP_TRACE_REDACT_PII=false`.
 
 ## LLM providers
 
-The agents talk to the model through one interface (`agents/llm.py`, `structured()`: a
-system prompt, a user prompt and a Pydantic schema in; a validated object and token usage
-out). Two clients implement it. `RFP_LLM_PROVIDER` names the provider; known names fill in
-the base URL and the key variable, and `uv run rfp llm-check` confirms the setup with one
-tiny call.
+The agents call the model through one interface (`structured()`: system prompt, user prompt
+and a Pydantic schema in; a validated object and token usage out). `RFP_LLM_PROVIDER` names
+the provider; known names fill in the base URL and the key variable.
 
 | `RFP_LLM_PROVIDER` | Key variable | Client |
 |---|---|---|
 | `anthropic` / `claude` (default) | `ANTHROPIC_API_KEY` | Anthropic SDK: native structured outputs, effort control, prompt caching |
-| `openai`, `groq`, `xai` / `grok`, `gemini`, `mistral`, `together`, `openrouter`, `deepseek` | `OPENAI_API_KEY`, `GROQ_API_KEY`, `XAI_API_KEY`, `GEMINI_API_KEY`, ... | OpenAI-compatible chat API over HTTP |
-| `azure` | `AZURE_OPENAI_API_KEY`, plus the deployment URL and api-version | same, with `api-key` auth |
+| `openai`, `groq`, `xai` / `grok`, `gemini`, `mistral`, `together`, `openrouter`, `deepseek` | `OPENAI_API_KEY`, `GROQ_API_KEY`, `XAI_API_KEY`, ... | OpenAI-compatible chat API over HTTP, no SDK |
+| `azure` | `AZURE_OPENAI_API_KEY`, plus deployment URL and api-version | same, with `api-key` auth |
 | `ollama`, `lmstudio`, `vllm` | none | same, against a local server |
 | any other name | `RFP_LLM_API_KEY` plus `RFP_LLM_BASE_URL` | same |
 
-Model names (`RFP_EXTRACT_MODEL`, `RFP_CHEAP_MODEL`) are the provider's own. `RFP_LLM_API_KEY`
-and `RFP_LLM_BASE_URL` override a preset when set.
+Model names live in `config/defaults.env` and are overridden in `.env` (`RFP_EXTRACT_MODEL`
+for extraction and Q&A, `RFP_CHEAP_MODEL` for addendum reading, query rewriting and the
+summary, `RFP_QA_MODEL` for question answering if it should differ); prices for cost tracking
+are in `config/llm_prices.yaml`. The generic client asks
+for `json_schema` output and falls back to `json_object` with the schema in the prompt; every
+answer is validated with one repair round; 429 and 5xx responses wait as long as the server's
+`retry-after` (or Groq's reset headers) says.
 
-The generic client asks for `response_format: json_schema`; a server that rejects it is
-retried with `json_object` and the schema in the prompt, and the choice is remembered per
-model. Every answer is validated against the schema with one repair round, transient errors
-retry with backoff, and truncation or a content filter raise a clear error. `.env.example`
-has ready-made lines for each provider. Cost tracking knows Claude's prices; give
-`RFP_LLM_PRICE_INPUT_PER_M` and `RFP_LLM_PRICE_OUTPUT_PER_M` for other models. Prompts are
-written to be model-agnostic, but the extraction prompts have only been exercised with a
-scripted model so far; expect to tune them for a given provider.
+**Free tiers.** The submitted outputs were produced with Groq's free tier
+(`openai/gpt-oss-120b` for extraction, `openai/gpt-oss-20b` for the cheap calls), which allows
+8,000 tokens per minute per model. These settings make that work:
 
-## Docker
-
-```bash
-docker compose up api                      # API on :8000, embedded index under a volume
-docker compose --profile qdrant up         # plus a Qdrant server; set RFP_QDRANT_URL=http://qdrant:6333
-docker compose run --rm api index          # any CLI command runs in the same image
+```
+RFP_LLM_TOKENS_PER_MINUTE=7500   # the client paces itself instead of hitting 429s
+RFP_LLM_MAX_CONCURRENCY=1        # one model call at a time
+RFP_LLM_MAX_PROMPT_TOKENS=3800   # evidence is fitted to this budget per call
+RFP_LLM_MAX_OUTPUT_TOKENS=3500   # reasoning models spend output tokens thinking
+RFP_EXTRACT_BATCH_SIZE=3         # fields per extraction call
+RFP_EXTRACT_EFFORT=low
 ```
 
-The image installs dependencies from the lock file and keeps models, the index and traces in
-the `/data` volume. Bid folders are mounted read-only from `./data/bids`.
+A paid tier needs none of them: the defaults run four batches of five fields in parallel.
+Free tiers also cap tokens per day (200k per model on Groq for these models); a call the
+quota cannot serve fails at once with the provider's message, and the run records it.
 
-## MCP server
+## Results of the live runs
 
-`uv sync --extra mcp && uv run rfp-mcp` starts a Model Context Protocol server over stdio
-with four tools: `list_bids`, `search`, `facts` and `ask`. Point Claude Desktop or any MCP
-client at it to query the index conversationally; `ask` needs `ANTHROPIC_API_KEY`.
+All outputs were produced on Groq's free tier on 2026-11-07. Exact provenance, because it
+matters for reading the numbers:
 
-## Documents
+| Output | Run | Models |
+|---|---|---|
+| [outputs/Bid1.json](outputs/Bid1.json) | `20261107T115231Z-fc0e65`, the current code | `openai/gpt-oss-120b`, cheap calls `openai/gpt-oss-20b` |
+| [outputs/Bid2.json](outputs/Bid2.json) | `20261107T113922Z-8930a9`, the current code | same |
+| [outputs/qa_log.jsonl](outputs/qa_log.jsonl), [docs/qa_log.md](docs/qa_log.md) | the current code, after the extractions above | `openai/gpt-oss-20b` (`RFP_QA_MODEL`, to stay within the 120b daily quota) |
+| [docs/trace_example.md](docs/trace_example.md), [docs/trace_example.jsonl](docs/trace_example.jsonl) | Bid2's run above | as above |
 
-- [docs/architecture.md](docs/architecture.md): system and agent-graph diagrams, a run step
-  by step, and where each requirement of the brief lives.
-- [docs/eval/retrieval.md](docs/eval/retrieval.md): the retrieval evaluation.
-- `docs/eval/extraction.md`, `outputs/<bid>.json`, `outputs/qa_log.jsonl` and
-  `docs/trace_example.md` are produced by the first live run.
+**Extraction accuracy** against `eval/extraction_gold.yaml` (hand-compiled expected values),
+from [docs/eval/extraction.md](docs/eval/extraction.md): **38 of 40 fields (95%)**, Bid1 90%,
+Bid2 100%. The first live runs, before the changes below, scored 31 of 40 (Bid1 75%, Bid2
+80%). Confidence tiers track accuracy: tier A 8 of 9 correct, B 22 of 23, every not-found tier
+(NF-1, NF-2) 7 of 7. With the unseen Bid3 included, 51 of 60 (85%); the per-tier table in the
+report covers all three. Bid1 costs $0.019 (28 model calls, 75k tokens); Bid2 $0.015 (18 calls,
+57k tokens). Bid1's two misses: Additional Documentation leaves out the M/WBE forms and the W-9,
+which are listed in an attachments table that retrieval does not rank into the field's top
+passages; Product names the student tablets (50,000) but not the Chromebook and laptop tiers.
+
+What the first runs showed, and what was changed because of it. `uv run rfp deliverables`
+regenerates every output: about 60-75k tokens per extraction and 80k for the 16 questions.
+That is more than one model's 200k daily quota on Groq's free tier, so spread it:
+`RFP_QA_MODEL=openai/gpt-oss-20b` draws the questions from that model's quota.
+
+- **Quotes failing on punctuation.** 11 of Bid1's fields were sent back on the first pass, most
+  because a quote differed from the source only in separators (`Solicitation Number:` for
+  `Solicitation Number |`) or used "..." to skip text. Quotes are now grounded word by word
+  and replaced by the exact source text (`validate.ground`); Bid2's run, after the change, sent
+  back 3 fields.
+- **An addendum date filed under the wrong field.** The addendum reader tagged Addendum 2's
+  new due date as a change to the contract term (Bid1's Term of Bid is wrong for this reason).
+  Statements that are already date changes are now kept out of other fields.
+- **Output truncation.** Reasoning models spend output tokens thinking; two batches hit the
+  2,500-token cap. The free-tier settings now allow 3,500.
+- **Q&A missing the decisive addendum.** "What is the deadline after all addendums?" first
+  came back not found: retrieval returned Addendum 1 ("does not anticipate extending") and not
+  Addendum 2. Q&A now always includes the chunks holding facts the question routes to, and the
+  extracted record's reconciled value, and answers it correctly with Addendum 2 and the portal.
+- **Quota handling.** A daily-quota 429 was retried four times before failing; a quota that
+  does not reset within 90 s, or a request larger than the per-minute limit, now fails
+  immediately with the provider's reason.
+- **Citations attached to the wrong passage.** gpt-oss-20b often copies a quote correctly but
+  gives the id of a neighbouring passage. A quote that is verbatim text of another passage the
+  model was shown is now pointed at that passage instead of being rejected (extraction and Q&A).
+- **Unverified absences reported as failures.** Bid2's contract term: the model said "not
+  stated" on every attempt with four labelled facts in view (campaign-finance reporting
+  periods), and the field ended as failed. It is now reported as not found at tier NF-2.
+- **Uncited sentences in answers.** Q&A answers are now statements with their own citations;
+  a sentence without a verified citation is removed.
+- **Field definitions.** Model_no now asks for the marketed model, not configuration codes
+  (Bid2 returned `CC7802`); Product Specification is a list, one item per specification. The
+  bid-bond definition asked for "not specified" as a value while the
+  validator (correctly) rejects a value no quote supports; definitions now ask for not_found
+  with an explanation. Affidavits and forms included for the bidder to sign now count as
+  required documents (Bid2's Additional Documentation was missed).
+
+- **Evidence that never reached the model** (found with an offline check that runs the real
+  retrieval and reports whether each expected value is in the extraction prompt). Bid1's W-9 is
+  drawn as vector outlines with no text layer; OCR now reads such pages as well as scans. The
+  per-field rerank pool grew from 20 to 30 candidates, and the Product, Term of Bid and Product
+  Specification definitions now say what to do when the documents give tiers, no term, or long
+  specification lists.
+
+**The unseen bid (Bid3).** Downloaded after the code was finished, run through it unchanged
+except for one capability the run proved missing (OCR):
+
+- Parsing: the 70-page RFP is a scan; with OCR it is typed `rfp` (it was `other` with no text),
+  titled "Request for Proposals (RFP)", dated August 16, 2024 from its text, 198 sections. Both
+  addenda are typed with their numbers and dates.
+- Dates, with no model: the due date resolves to 2024-09-06 13:00 from the RFP (no zone is
+  written, so none is assumed; noise such as a 1979 statute date is outranked); no pre-bid
+  meeting.
+- Addenda, by the model: Addendum 1 becomes a `replace` of the bid bond (10% bid security in
+  cash, a certified cashier's check or a bid bond) and an `add_requirement` for its signed
+  confirmation page; Addendum 2's approved substitute (HP Fortis 11" G10 Chromebook) is recorded
+  as a `replace` of the product specification, where `amend` would be more accurate since the
+  original model remains acceptable.
+- Retrieval: Recall@5 0.80 and MRR 0.68 with reranking (table under "Retrieval evaluation").
+- Extraction ([outputs/Bid3.json](outputs/Bid3.json), run `20261107T122843Z-a3e194`, on
+  `openai/gpt-oss-20b` because the 120b daily quota was spent on Bid1 and Bid2): **13 of 20
+  (65%)**, with nothing tuned on it. Right: the number, due date, term (12 months), the 10% bid
+  security from Addendum 1, the substitute HP Chromebook from Addendum 2, model, product and
+  quantity, contact, agency. Wrong: title, submission method and payment terms reported as not
+  found; delivery read as November 30 where the RFP says October 31; the cooperative contracts
+  (the retrieval vocabulary miss above); two of the required forms; the substitute's SKU. Most
+  Bid3 values carry tier C, the cap for text read by OCR, and its unverified absences tier NF-2,
+  so the record says where to look twice.
+
+**Q&A** ([docs/qa_log.md](docs/qa_log.md)): 16 questions over the three bids, including the five
+from the brief, answered with the current code on `openai/gpt-oss-20b`. 15 have cited answers
+and one is a correct "Not found in documents" (the incumbent's price). Every sentence carries
+its own verified quote; one sentence across the 16 was removed for lacking one. The brief's
+bond question, asked across all bids, first came back as "10% of the bid" without saying that
+only the unseen Bid3 sets one; the Q&A prompt now requires naming the bid in every statement
+when passages come from several, and the re-asked answer says Bid3 requires 10% bid security
+and Bid1's documents only refer to bond requirements "enumerated elsewhere".
 
 ## Design decisions
 
 ### Ingestion
 
-One parser per format (PyMuPDF for PDF, BeautifulSoup for HTML, a plain reader for `.txt`
-and `.md`) produces the same model: blocks (heading, paragraph, label-value, table) in reading
+One parser per format (PyMuPDF for PDF, BeautifulSoup for HTML, python-docx for Word,
+openpyxl for Excel, a plain reader for `.txt` and `.md`) produces the same model: blocks (heading, paragraph, label-value, table) in reading
 order, each with its page and section path, plus tables, page status and document metadata.
 
 - **Visual rows.** Lines that overlap vertically are one row; segments far apart are joined
@@ -157,6 +348,24 @@ order, each with its page and section path, plus tables, page status and documen
 - **Document date.** A date next to a cue such as "Issue Date" or "Publication" on the first
   pages, else the PDF creation date. "Due date" is not a cue: an addendum that moves the
   deadline must not take the new deadline as its own date.
+- **Scanned pages are read by OCR.** A PDF page with almost no text layer whose content is an
+  image (a scan, a fax, copier output) or vector outlines (text flattened into drawings, like
+  Bid1's W-9) is rendered at 200 DPI and read by RapidOCR (ONNX models
+  bundled with the package, CPU only, about 1.3 s per page). Each recognised line keeps its box,
+  converted to PDF points, so headers, rows, headings and sections are found as for any PDF.
+  Lines under 0.6 confidence are dropped. Chunks from OCR pages are flagged, and a value quoted
+  from them is capped at confidence tier C. `RFP_OCR=false` turns it off. The unseen bid's
+  70-page RFP is entirely scanned; without OCR it would be invisible.
+- **Tables on scanned pages are found from layout.** With no ruling lines to detect, a table is a
+  run of three or more rows split into segments whose starts line up in at least three shared
+  columns; a one-segment row starting right of the first column is a wrapped cell and is merged
+  into the row above. Two-column label / value rows are left to the row path, which keeps them
+  together already.
+- **Word and Excel attachments.** A `.docx` keeps body order, heading styles become sections,
+  tables stay tables (all on page 1, since Word has no fixed pages). In an `.xlsx`, each
+  worksheet is a "page" (the sheet name is in the page note and is the heading), its used range
+  a table, formulas read as their computed values; price sheets and fill-in forms are indexed
+  and citable like any PDF.
 - **Failures are reported, not fatal.** Unsupported files are skipped and listed, unreadable
   files are logged as errors, and pages without a text layer (scans, or text drawn as vector
   outlines like the W-9 in Bid1) are flagged as needing OCR.
@@ -250,11 +459,11 @@ with per-question ranks and misses.
 
 | Config | Recall@1 | Recall@5 | Recall@10 | MRR@10 | Median latency |
 |---|---|---|---|---|---|
-| `dense` | 0.438 | 0.760 | 0.854 | 0.578 | 8 ms |
-| `sparse` (BM25) | 0.438 | 0.729 | 0.875 | 0.563 | 7 ms |
-| `hybrid` (dense + BM25 + identifiers, RRF) | 0.469 | 0.792 | 0.906 | 0.638 | 17 ms |
+| `dense` | 0.438 | 0.760 | 0.854 | 0.579 | 4 ms |
+| `sparse` (BM25) | 0.438 | 0.729 | 0.875 | 0.564 | 7 ms |
+| `hybrid` (dense + BM25 + identifiers, RRF) | 0.500 | 0.792 | 0.906 | 0.645 | 11 ms |
 | `hybrid_facts` (default) | 0.635 | 0.854 | 0.896 | 0.755 | 26 ms |
-| `hybrid_facts_rerank`, bge-reranker-v2-m3-int8 | 0.698 | 0.927 | 0.958 | 0.823 | 6.3 s |
+| `hybrid_facts_rerank`, bge-reranker-v2-m3-int8 | 0.698 | 0.927 | 0.958 | 0.821 | 5.0 s |
 | `hybrid_facts_rerank`, ms-marco-MiniLM-L-12-v2 | 0.542 | 0.802 | 0.906 | 0.690 | 1.4 s |
 
 What the rows show:
@@ -262,7 +471,7 @@ What the rows show:
 - **Fusion beats either retriever alone**, and dense and BM25 fail on different questions:
   BM25 misses paraphrases ("more time to respond"), dense misses exact strings (the
   solicitation number).
-- **Fact routing is the largest single gain**: MRR 0.638 to 0.755. Restricting extra lists to
+- **Fact routing is the largest single gain**: MRR 0.645 to 0.755. Restricting extra lists to
   chunks holding deadline, bond or warranty facts lifts the right chunk above the boilerplate
   that mentions the same words. Bid2's warranty table goes from rank 8 to 1.
 - **The small reranker hurts.** MiniLM, trained on short web passages, drops below no reranking
@@ -280,9 +489,34 @@ What the rows show:
   0.03. The dev questions were written by the system's author, so they favour the
   vocabulary the system knows; the held-out rows are the more honest numbers.
 
-`eval/baseline.json` stores the default configuration's Recall@5 and MRR. Before merging a
-retrieval change, `uv run rfp eval retrieval --config hybrid_facts --check` fails if either
-fell by more than 0.05. CI does not run it, because it needs the models and an index.
+**An unseen bid.** To test generalization, a third bid was downloaded after the system was
+finished: [Delano Union School District RFP 2025-003](https://duesd.org/domain/199), a
+70-page RFP that is entirely a scan, plus two text addenda (one sets the bid security, one
+approves a substitute product). It ran through the unchanged pipeline (`data/bids/Bid3`),
+which is what showed OCR was needed. Ten questions about it were written afterwards (split
+`unseen`); nothing was tuned on them:
+
+| Config | Recall@1 | Recall@5 | Recall@10 | MRR@10 |
+|---|---|---|---|---|
+| `dense` | 0.200 | 0.300 | 0.400 | 0.233 |
+| `sparse` (BM25) | 0.100 | 0.500 | 0.700 | 0.237 |
+| `hybrid` | 0.200 | 0.400 | 0.600 | 0.287 |
+| `hybrid_facts` (default) | 0.200 | 0.700 | 0.800 | 0.448 |
+| `hybrid_facts_rerank` | 0.600 | 0.800 | 0.800 | 0.683 |
+
+The ordering of configurations holds, and fact routing and reranking matter more here than
+on the original bids: OCR text joins some words ("NOTICETOBIDDERS"), which hurts the dense
+model most, while labelled facts survive. Both misses are vocabulary: "which purchasing
+contracts can vendors propose under" did not reach the "NASPO, CMAS, WSCA, CALNET" sentence,
+and "do bidders have to return anything for the addenda" did not reach "this form must be
+signed and included with the RFP submittal". They are left unfixed on purpose; tuning on the
+unseen bid would make it seen.
+
+`eval/baseline.json` stores the default configuration's Recall@5 and MRR on the dev and
+held-out questions (the unseen bid is reported, not gated). `uv run rfp eval retrieval --config
+hybrid_facts --check` fails if either fell by more than 0.05. CI runs it in its own job: it
+indexes the committed bids with the real embedding models (cached between runs), runs the
+gate, and uploads the report as an artifact.
 
 ### Incremental indexing
 
@@ -291,105 +525,185 @@ document id, pipeline version and embedding model. `rfp index` re-processes a fi
 one of those changes, deletes the index entries of files that disappeared, and leaves other
 bids untouched. A file that fails to parse keeps its previous entry and is reported.
 
-### Agent building blocks (deterministic)
+### The multi-agent system
 
-The parts of the agent system that need no LLM are built and tested first; the LangGraph
-graph and prompts sit on top of them.
+One LangGraph `StateGraph` serves both modes; the planner routes a goal to extraction or to
+question answering. [docs/architecture.md](docs/architecture.md) has the diagrams.
 
-- **Fields** (`config/fields.yaml`): the 20 fields with their type, group (four extraction
-  groups run in parallel, plus the generated summary), description for the prompt, fact
-  labels and search queries. It is the one file to tune for a new kind of bid.
-- **Evidence per field** (`agents/evidence.py`): hybrid search for the field's queries plus
-  every chunk that holds a fact with the field's labels, so a typed candidate is never lost
-  to ranking. Evidence text stays in a store keyed by chunk id; graph state carries ids only.
-  The searches run are recorded: they are the proof behind "not found".
-- **Addendum reconciliation** (`agents/reconcile.py`): addenda become ordered change events
-  (replace, amend, confirm, clarify, add_requirement), applied in addendum order by a pure
-  function. Date fields need no LLM: deadline and pre-bid facts inside an addendum become
-  replace events. The portal page never overrides a document; it fills a missing time and
-  corroborates. A difference nothing explains is a conflict, not a silent choice. On the real
-  bids this yields Bid1's due date as July 9, 2024, 2:00 PM CDT (Addendum 2 replacing June 27,
-  matching the portal's 3:00 PM EDT) and Bid2's as June 10, 2024, 2:00 PM EDT (date from the
-  purchase-order RFP, time from the portal).
-- **Validator** (`agents/validate.py`): every quote must be verbatim text from the passage it
-  cites; the value must follow from the quotes by field type (identifiers as tokens, dates
-  that parse to a quoted date, no number that the quotes do not contain, list items covered
-  by quoted words); "not found" is accepted only after at least three searches and no
-  labelled facts. A failure returns a reason for the retry.
-- **Confidence** (`agents/confidence.py`): a decision table, not a formula. A: grounded and
-  two documents agree or an addendum set it (0.95). B: grounded, one source (0.85). C:
-  loosely grounded, OCR, or assembled from two sources (0.70). D: sources differ but an
-  addendum explains it (0.60). E: unexplained conflict (0.40). NF-1: not found after a
-  thorough search (0.80). NF-2: not found, search incomplete (0.50). The numbers label tiers;
-  they are not probabilities, and the tiers will be checked against the gold fields.
-- **LLM seam** (`agents/llm.py`): one `structured()` call returning a validated Pydantic
-  object and usage (tokens, cache reads, latency, cost). `AnthropicLLM` uses `messages.parse`
-  with the output schema, `output_config.effort`, a cached system prompt, retries on
-  transient errors and explicit errors for refusal, truncation and schema mismatch.
-  `ScriptedLLM` answers deterministically for tests.
+```
+START -> plan --(ask)-----> answer -> END
+         plan --(extract)-> ingest -> reconcile --(dispatch)--> retrieve x N --> extract x N --> validate
+         validate --(rejected fields, attempt <= max_retries)--> retrieve (with the reason) -> extract -> validate
+         validate --(all settled)--> report -> END
+```
 
-### Agent graph
+| Agent (brief) | Module | Responsibility and output |
+|---|---|---|
+| Orchestrator / Planner | `nodes/orchestrator.py` | Writes the execution plan (`PlanStep`s), routes extract vs ask, splits fields into batches and fans them out in parallel, sends rejected fields back with the reason, decides when to report |
+| Ingestion | `nodes/ingest.py` + `ingestion/` | Indexes the folder incrementally (new or changed files only) and lists documents with type, addendum number, date and pages |
+| Retrieval / Search | `nodes/retrieve.py` + `evidence.py` | Plans queries per field (name, configured queries, and on a retry new queries a cheap model writes from the validator's reason), searches with the hybrid engine, adds a search filtered to the field's preferred document types, pulls every chunk holding a labelled fact, reranks the pool with the cross-encoder; returns ranked evidence with citations |
+| Extraction (specialists) | `nodes/extract.py` | One structured call per batch of fields (the four groups are the specialists: identity and dates, commercial and legal, product and specs, parties and logistics); each value comes with verbatim quotes and passage ids |
+| Addendum Reconciliation | `nodes/reconcile.py` + `addenda.py`, `reconcile.py` | Date changes from facts with no model; other changes by one model call per addendum over passages found by searching inside that addendum; folds the events in addendum order; resolves the date fields; produces the change log |
+| Validator / Critic | `nodes/validate.py` + `validate.py`, `consistency.py` | Per field: cited, quotes verbatim, value supported by its quotes and well-formed for its type, "not found" justified by the search, model call succeeded. Across fields: dates in a consistent order. Failures go back for re-extraction with the reason |
+| Q&A / Report | `nodes/answer.py` + `qa.py`; `nodes/report.py` + `assemble.py` | Answers questions with checked citations; assembles the record, applies text changes, scores confidence, writes the summary and the JSON |
 
-`agents/graph.py` is a LangGraph `StateGraph`. The brief's roles map onto it like this:
+**Why LangGraph.** The brief's flow is a graph with a loop (validator back to retrieval), a
+fan-out (field batches in parallel) and a router (extract vs ask). LangGraph has these as
+first-class parts: `Send` fans out with a per-branch payload, `Command(goto=Send(...))` hands
+a task from the retrieval agent to the extraction agent, conditional edges express the retry
+loop and the router, typed shared state with reducers makes parallel writes safe, and a
+SQLite checkpointer makes a run resumable (`rfp extract --resume RUN_ID`). CrewAI and AutoGen
+centre on conversational agents that decide their own next step, which makes the retry limit
+and the cost of a run harder to bound; here the control flow is explicit and the agents are
+plain functions over the state, testable without the framework or a model.
 
-| Role | Where |
-|---|---|
-| Orchestrator / Planner | `plan` node (checks the index, lists documents, sets the group plan) and the two conditional edges that fan out and route retries |
-| Ingestion | `plan` indexes the folder when the manifest has nothing for the bid |
-| Retrieval / Search | the search engine, called as a tool by every extraction node |
-| Extraction | four `extract_group` nodes run in parallel, one `Send` and one structured LLM call per field group; `extract_field` retries one field with the validator's reason and the slower reranked retrieval |
-| Addendum Reconciliation | `reconcile`: date events from facts (no model), other events by one cached LLM call per addendum; the date fields are resolved here and never sent to the model |
-| Validator / Critic | `validate`: deterministic checks; a failed field loops back, at most `max_retries` (2) times |
-| Q&A / Report | `finalize` writes the JSON and the generated summary; `agents/qa.py` answers questions |
+**Shared state.** `RunState` (in `agents/state.py`) holds the mode, plan, documents, change
+events, resolved dates, evidence per field (chunk ids and the record of searches), drafts,
+validations, attempts, retries, usage, a log, errors and the final output. Evidence text lives
+in a store keyed by chunk id, so checkpoints and traces stay small. Messages between agents
+are Pydantic models (`PlanStep`, `ExtractionTask`, the outputs in `agents/outputs.py`), and
+every model response is requested with a JSON schema and validated.
 
-Design choices worth knowing:
+**Prompt design** (`agents/prompts.py`).
 
-- **Shared state is small.** State holds the plan, document list, events, drafts, validations,
-  attempts, usage and a log; evidence text lives in a store keyed by chunk id, fetched on
-  demand. Keys written by parallel branches have merge reducers, so no branch overwrites
-  another.
-- **Structured everywhere.** Every model response is a Pydantic schema (`agents/outputs.py`)
-  requested through the API's structured outputs; every node update is a typed dict.
-- **Resumable.** The graph compiles with a SQLite checkpointer keyed by run id;
-  `rfp extract --resume RUN_ID` continues or returns a finished run.
-- **Guardrails.** A found value with no verbatim quote never reaches the output; "not found"
-  is accepted only after a thorough search with no labelled facts; a field the validator
-  rejects on every attempt is reported as null with the reasons (tier X), never guessed.
-- **Q&A.** Retrieve, answer with quoted citations, check every quote against its passage.
-  Citations that are not verbatim are dropped, and an answer left without one becomes
-  "Not found in documents." rather than an unsupported claim.
-- **Cost.** Extraction is 4 group calls plus one per addendum (cached), one per retry and one
-  summary; the system prompt is cached by the API. Usage, latency and an estimated cost are
-  recorded per call, on the spans and in the result's `usage`.
-- **Errors.** Timeouts and rate limits retry with backoff; refusals, truncated output and
-  schema mismatches raise a clear error; one unreadable file never stops a run.
+- System prompts are constant per task (extraction, addendum events, query rewriting,
+  summary, Q&A), so providers that cache prompts can reuse them; everything that varies goes
+  in the user turn.
+- Each states the task, the rules that make the output checkable by code (copy quotes
+  verbatim, cite the passage id, return "not found" with a note rather than guess) and the
+  traps of procurement documents (a questions deadline is not the due date, a vendor's credit
+  terms are not the agency's payment terms, a bond-funded program is not a bid bond).
+- Inputs are labelled blocks with an `[id]` header (file, pages, document type, addendum
+  number), and candidate facts parsed at ingest are listed with their source sentence, so the
+  model chooses among normalized values instead of re-reading raw text.
+- A retry carries the validator's reason verbatim ("quote not found in its passage"), and new
+  passages found with rewritten queries.
+- A resolved date is given as a hint when the model is asked for the rest of a field (the
+  pre-bid meeting's place and whether attendance is mandatory), so the model never re-decides
+  a date the reconciler settled.
+- Evidence is fitted to a token budget, taking each field's best passages in turn so no field
+  is starved; a passage shared by several fields is paid for once.
+- Field definitions are data (`config/fields.yaml`), written about procurement in general,
+  never about these two bids.
+
+**Guardrails.** A value without a verbatim quote never reaches the output. "Not found" is
+accepted only after at least three searches and no labelled facts for the field, and the
+note says what was searched. A field rejected on every attempt is reported as `failed` with
+the reasons (tier X), never guessed; if every attempt said "not found" with the labelled facts
+in view, it is reported as not found at tier NF-2 (unverified), with that explanation. Q&A
+answers in statements, each with its own citations: a citation that does not reproduce its
+passage is dropped, a statement left without one is removed, and an answer with no statement
+left becomes "Not found in documents."
+
+**Errors.** No model failure stops a run. `GuardedLLM` turns a timeout, rate limit (after
+waiting as the server asks), invalid JSON after the repair round, refusal or truncation into
+data: an extraction draft carries the error and the validator sends it back for a retry; an
+addendum the model cannot read is skipped and listed in `errors`; a failed summary is marked
+failed; a Q&A answer says it could not answer. Empty retrieval skips the model call and is
+judged by the not-found rules. Parallel branches share one embedded index safely (its client
+calls are serialized).
+
+**Confidence** (`agents/confidence.py`) is a decision table, not a formula. A: grounded and
+two documents agree or an addendum set it (0.95). B: grounded, one source (0.85). C: loosely
+grounded, OCR, or assembled from two sources (0.70). D: sources differ but an addendum
+explains it (0.60). E: unexplained conflict, or a failed cross-field check (0.40). NF-1: not
+found after a thorough search (0.80). NF-2: not found, search incomplete (0.50). X: rejected
+(0.20). The numbers label tiers; `rfp eval extraction` reports accuracy per tier against the
+gold fields so a miscalibrated tier shows.
+
+**Cost.** For a paid tier, extraction is four batch calls, one per addendum (cached by
+document), one summary, and one call plus one cheap rewrite per retry. Usage, latency and an
+estimated cost are recorded per call, on the spans and in the record's `usage`.
+
+### Beyond extraction: comparison, go / no-go, semantic cache
+
+- **Bid comparison agent** (`agents/compare.py`). The side-by-side table is built from the
+  extraction records alone, so every cell is an extracted value with its tier and first
+  citation. One call to the cheap model writes the key differences from that table; a
+  difference naming a field that is not in the table is dropped, and a failed call leaves the
+  table and recommendations intact. Example: [docs/comparison.md](docs/comparison.md).
+- **Go / no-go** (`agents/gonogo.py`, profile in `config/company.yaml`). Eight checks: deadline
+  vs preparation time, manufacturer authorization, products we sell, installation services,
+  bid bond vs the bond we can post, delivery lead time, contract vehicles we hold, documents we
+  cannot supply. Each returns pass, fail or review with the value it read and that value's
+  citation. Any fail is a no-go; otherwise anything undecidable (a field not found, wording a
+  rule cannot read) is a review. These are rules, not a model call: a bid decision should be
+  repeatable and explainable, and it costs nothing. `--as-of` judges deadlines on another date.
+- **Semantic cache for questions** (`agents/qa_cache.py`). A question whose embedding (the
+  search engine's bge-small) has cosine similarity of at least `RFP_QA_CACHE_THRESHOLD` (0.95)
+  with an earlier one in the same scope gets the earlier answer without a model call. Numbers
+  and identifiers must match exactly, because "bid bond for Bid1" and "for Bid2" are
+  near-identical sentences to an embedding model. An entry is reused only under the same
+  fingerprint: the indexed files of the bids in scope, their extraction records, the answering
+  model and a cache version; re-indexing or re-extracting makes old answers miss. A hit is
+  marked in the answer (`cached_from`, `cache_similarity`) and in the trace (`qa.cache` span).
+  `RFP_QA_CACHE_THRESHOLD=0` turns it off.
+
+## Observability
+
+Every run writes its spans to `traces/<run_id>.jsonl`: one span per agent step with its
+input, output, timing and, for model calls, the model, prompt, response, tokens, cost and any
+error (prompts and outputs are clipped to `RFP_TRACE_MAX_CHARS`). Emails and phone numbers are
+masked before export unless `RFP_TRACE_REDACT_PII=false`. The web app's Runs page shows a
+trace as a waterfall; `rfp trace <run_id>` renders it as text. The API server writes one file
+per run too. To browse traces in Arize Phoenix or Langfuse, install the `obs` extra and set
+`OTEL_EXPORTER_OTLP_ENDPOINT` (for Phoenix: `http://localhost:6006/v1/traces`).
+
+## Docker
+
+```bash
+docker compose up                          # web app and API on :8000
+docker compose run --rm app extract Bid1   # any CLI command runs in the same image
+docker compose --profile qdrant up         # plus a Qdrant server; set RFP_QDRANT_URL=http://qdrant:6333
+```
+
+The image builds the web app in a Node stage, installs Python dependencies from the lock
+file, and keeps models, the index and traces in the `/data` volume. Bid folders are mounted
+read-only from `./data/bids`; records are written to `./outputs`.
+
+## MCP server
+
+`uv sync --extra mcp && uv run rfp-mcp` starts a Model Context Protocol server over stdio
+with four tools: `list_bids`, `search`, `facts` and `ask` (which runs the agent graph).
+
+## Documents
+
+- [docs/architecture.md](docs/architecture.md): system and agent-graph diagrams, a run step
+  by step, and where each requirement of the brief lives.
+- [docs/eval/retrieval.md](docs/eval/retrieval.md) and [docs/eval/extraction.md](docs/eval/extraction.md):
+  the evaluations.
+- [outputs/](outputs/): one JSON record per bid and `qa_log.jsonl`, the cited Q&A log
+  ([docs/qa_log.md](docs/qa_log.md) is the readable version, from `rfp qa-report`).
+- [docs/trace_example.md](docs/trace_example.md): one full extraction run's trace, rendered,
+  with complete prompts and responses for one call of each kind; the raw span file is
+  [docs/trace_example.jsonl](docs/trace_example.jsonl).
+- [docs/demo.md](docs/demo.md): the demo script.
 
 ## Assumptions and limitations
 
-- **No live run yet.** The agent graph and Q&A are tested end to end with a scripted model
-  and the real search stack, but have not been run against the Claude API. The first live
-  run will produce `outputs/<bid>.json`, `outputs/qa_log.jsonl` and `traces/<run_id>.jsonl`.
-- **Windows path length.** This repo's current location is deep enough that the Anthropic
-  SDK cannot be imported from `.venv`: one of its module files ends up past the 260-character
-  path limit. Clone or move the repo to a short path (for example `C:\dev\rfp-intelligence`)
-  or enable Windows long paths. Nothing outside the live Claude client imports the SDK;
-  the OpenAI-compatible provider needs no SDK, and Linux, Docker and CI are unaffected.
-- `AnthropicLLM` has not yet been run against the live API (no key during development); its
-  request shape is covered by tests with a fake client.
-
-- The embedded Qdrant store allows one process at a time; run the API or the CLI against
-  it, not both, or point both at a Qdrant server with `RFP_QDRANT_URL`.
-- Token counts are estimated at four characters per token, not with the model's tokenizer.
-- Models are cached in `~/.cache/rfp-intel/models` (override with `RFP_MODEL_CACHE_DIR`). A
-  cache inside a deeply nested repo on Windows breaks the 260-character path limit for the
-  reranker's files, which is why the cache is not under `var/`.
-
-- US month-first numeric dates are assumed ("06/10/2024" is June 10). Time-zone handling
-  covers US zones and UTC.
-
-- Two-column prose layouts are not detected; side-by-side columns would be merged into rows.
-  None of the bids seen so far use them.
-- OCR is not run yet; pages that need it are reported.
-- `.docx` and `.xlsx` attachments are skipped and reported.
-- PDF table detection costs about 0.15 s per page, so a 62-page RFP parses in about 10 s.
-  Indexing is incremental, so this cost is paid once per file.
+- **Provider used for the submitted outputs.** Groq's free tier with `openai/gpt-oss-120b` and
+  `openai/gpt-oss-20b` (see "Results of the live runs" for which output came from which run).
+  The Anthropic client is covered by tests with a fake client but has not been run against the
+  live API.
+- **Free-tier daily quotas.** Groq allows 200k tokens per day per model on these models; one
+  extraction uses about 60-75k, so three bids and the Q&A log need two models or two days. `qwen/qwen3.8-27b` was tried as a substitute and rejected:
+  it often returned values without the required quotes.
+- **Q&A checks that each sentence is cited, not that it is entailed.** Every sentence must
+  carry a citation that reproduces passage text, or it is removed; whether the sentence says
+  exactly what its quote says is left to the prompt's rules.
+- **Windows path length.** From a deeply nested folder the Anthropic SDK cannot be imported
+  (one of its module paths passes the 260-character limit). Use a short path or enable long
+  paths; the OpenAI-compatible client needs no SDK, and Linux, Docker and CI are unaffected.
+- The embedded Qdrant store allows one process at a time: run the API or the CLI against it,
+  not both, or point both at a Qdrant server with `RFP_QDRANT_URL`.
+- Extraction jobs started from the API run one at a time in the server process; the job list
+  is kept in SQLite, and a job cut off by a restart is marked failed rather than resumed (the
+  CLI's `--resume RUN_ID` resumes a run from its checkpoint).
+- Token counts for budgets and pacing are estimated at 3.5 characters per token, high on
+  purpose: tokenizers differ, and an underestimate turns into a provider's 413 or 429.
+- US month-first numeric dates are assumed ("06/10/2024" is June 10). Time-zone handling covers
+  US zones and UTC.
+- Two-column prose layouts are not detected. OCR text can join words that the scan sets
+  close together ("NOTICETOBIDDERS"), which costs keyword search a little on those pages.
+  Other attachment types (`.pptx`, images, archives) are skipped and reported.
+- Models are cached in `~/.cache/rfp-intel/models` (override with `RFP_MODEL_CACHE_DIR`).

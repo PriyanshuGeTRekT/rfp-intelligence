@@ -23,3 +23,52 @@ jobs:
         run: uv run mypy
       - name: Unit tests (no API key, no model downloads)
         run: uv run pytest --cov --cov-report=term-missing
+
+  retrieval-eval:
+    # Indexes the bids in data/bids with the real embedding models and fails if Recall@5 or MRR
+    # of the default configuration fell more than 0.05 below eval/baseline.json.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+      - name: System libraries for OCR (OpenCV)
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libgl1 libglib2.0-0
+      - name: Install
+        run: uv sync --locked
+      - name: Cache embedding models
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/rfp-intel/models
+          key: models-${{ hashFiles('config/defaults.env') }}
+      - name: Index the bids
+        run: uv run rfp index
+      - name: Retrieval evaluation with the regression gate
+        run: uv run rfp eval retrieval --config hybrid_facts --check --out-dir eval-report
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: retrieval-eval
+          path: eval-report/
+
+  web:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: web
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: web/package-lock.json
+      - run: npm ci
+      - name: Lint and type check
+        run: |
+          npm run lint
+          npm run typecheck
+      - run: npm test
+      - run: npm run build

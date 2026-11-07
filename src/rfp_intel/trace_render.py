@@ -23,8 +23,22 @@ def load_spans(path: Path) -> list[dict[str, Any]]:
     return spans
 
 
+def scrub_paths(text: str) -> str:
+    """Show paths under the working directory relative to it (traces from before paths were
+    stored relative still carry the absolute form, including the local user name)."""
+    cwd = str(Path.cwd())
+    # The path as written and JSON-escaped up to three times (JSON inside a JSON attribute):
+    # at level i every backslash is 2**i backslashes. Most escaped first.
+    for level in (3, 2, 1, 0):
+        sep = "\\" * (2**level)
+        form = cwd.replace("\\", sep)
+        text = text.replace(form + sep, "").replace(form + "/", "").replace(form, ".")
+    return text
+
+
 def _fmt(value: Any) -> str:
     text = json.dumps(value, ensure_ascii=False) if not isinstance(value, str) else value
+    text = scrub_paths(text)
     return text if len(text) <= MAX_VALUE else text[: MAX_VALUE - 3] + "..."
 
 
@@ -48,9 +62,19 @@ def render_trace(spans: list[dict[str, Any]]) -> str:
     roots = [s for s in spans if s.get("parent_span_id") not in ids]
     roots.sort(key=lambda s: s.get("start") or "")
 
-    llm_spans = [s for s in spans if "llm.cost_usd" in s.get("attributes", {})]
+    # Per-call costs only: the run's root span carries the total again.
+    llm_spans = [
+        s for s in spans if "llm.cost_usd" in s.get("attributes", {}) and s["name"] != "agent.run"
+    ]
     cost = sum(float(s["attributes"].get("llm.cost_usd", 0) or 0) for s in llm_spans)
-    run_id = next((s["resource"].get("rfp.run_id") for s in spans if s.get("resource")), "unknown")
+    run_id = next(
+        (
+            s.get("resource", {}).get("rfp.run_id") or s.get("attributes", {}).get("rfp.run_id")
+            for s in spans
+            if s.get("resource", {}).get("rfp.run_id") or s.get("attributes", {}).get("rfp.run_id")
+        ),
+        "unknown",
+    )
     total_ms = max((s.get("duration_ms") or 0) for s in roots) if roots else 0
 
     lines = [
@@ -84,4 +108,68 @@ def render_trace(spans: list[dict[str, Any]]) -> str:
     for root in roots:
         walk(root, 0)
     lines += ["```", ""]
+    lines += _full_calls(spans)
     return "\n".join(lines)
+
+
+FULL_CALL_KINDS = (
+    "agent.reconcile.addendum",
+    "agent.extract.",
+    "agent.retrieve.rewrite",
+    "agent.summary",
+    "agent.answer",
+)
+MAX_FULL = 6000
+
+
+def _full_calls(spans: list[dict[str, Any]]) -> list[str]:
+    """The first model call of each kind, with its prompt and answer in full (clipped at
+    MAX_FULL characters), so a reader sees exactly what an agent sent and received."""
+    out: list[str] = []
+    for kind in FULL_CALL_KINDS:
+        span = next(
+            (
+                s
+                for s in sorted(spans, key=lambda s: s.get("start") or "")
+                if s["name"].startswith(kind) and "llm.input" in s.get("attributes", {})
+            ),
+            None,
+        )
+        if span is None:
+            continue
+        a = span["attributes"]
+        if not out:
+            out += ["## Model calls in full", ""]
+        out += [
+            f"### {span['name']}",
+            "",
+            f"Model `{a.get('llm.model')}`, {a.get('llm.input_tokens', '?')} input and "
+            f"{a.get('llm.output_tokens', '?')} output tokens.",
+            "",
+            "Prompt (user turn):",
+            "",
+            "```text",
+            _clip(scrub_paths(str(a.get("llm.input", "")))),
+            "```",
+            "",
+            "Response:" if "llm.output" in a else "Error:",
+            "",
+            "```json" if "llm.output" in a else "```text",
+            _clip(_pretty(a.get("llm.output", a.get("llm.error", "")))),
+            "```",
+            "",
+        ]
+    return out
+
+
+def _pretty(value: Any) -> str:
+    try:
+        return json.dumps(json.loads(value), indent=2, ensure_ascii=False)
+    except (TypeError, ValueError):
+        return str(value)
+
+
+def _clip(text: str) -> str:
+    return (
+        text if len(text) <= MAX_FULL else text[:MAX_FULL] + f"\n... [{len(text) - MAX_FULL} more]"
+    )

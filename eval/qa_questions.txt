@@ -1,0 +1,26 @@
+# Questions for the sample Q&A log: `uv run rfp ask-batch eval/qa_questions.txt`.
+# One per line; "Bid | question" restricts a question to one bid.
+
+# The five from the brief
+What is the submission deadline for Bid1 after all addendums?
+Which affidavits are required for the Dell laptop bid?
+Compare the warranty requirements of both bids.
+Is a bid bond required, and if so, how much?
+What changed in Addendum 2 compared to the original RFP?
+
+# More fields and both bids
+What is the solicitation number of the Dell laptop bid?
+Bid1 | How must proposals be submitted, and are paper copies accepted?
+Bid2 | What processor, memory and storage must the laptops have?
+Bid1 | Is there a pre-proposal meeting, and is attendance mandatory?
+Bid2 | Who is the procurement contact, and how can they be reached?
+Bid1 | How long is the contract term, and can it be renewed?
+Bid2 | How soon after award must the laptops be delivered?
+
+# The unseen bid (Bid3: a scanned RFP read by OCR, and two addenda)
+Bid3 | Is bid security required, and how much?
+Bid3 | Which substitute product did an addendum approve?
+Bid3 | When are proposals due, and how must they be submitted?
+
+# Not in the documents: the answer must say so
+What price did the incumbent vendor charge last year?

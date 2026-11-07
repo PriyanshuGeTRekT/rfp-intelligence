@@ -12,3 +12,5 @@ tests
 *.md
 !README.md
 .env
+web/node_modules
+web/dist

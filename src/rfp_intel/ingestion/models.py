@@ -27,7 +27,8 @@ class BlockKind(StrEnum):
 
 class PageStatus(StrEnum):
     OK = "ok"
-    NO_TEXT_LAYER = "no_text_layer"  # images but no extractable text: scanned, needs OCR
+    NO_TEXT_LAYER = "no_text_layer"  # images or outlines, no extractable text: needs OCR
+    OCR = "ocr"  # no text layer; the text was read by OCR
     EMPTY = "empty"
     ERROR = "error"
 
@@ -79,7 +80,7 @@ class Section(BaseModel):
 class Issue(BaseModel):
     file_name: str
     page: int | None = None
-    severity: str  # "warning" | "error"
+    severity: str  # "info" | "warning" | "error"
     message: str
 
 

@@ -22,7 +22,7 @@ from pydantic import BaseModel
 
 from rfp_intel.facts.extract import split_sentences
 from rfp_intel.facts.models import Fact, FactKind
-from rfp_intel.ingestion.models import Block, BlockKind, ParsedDocument
+from rfp_intel.ingestion.models import Block, BlockKind, PageStatus, ParsedDocument
 from rfp_intel.search.models import Chunk, ChunkType, Span
 
 
@@ -291,6 +291,7 @@ def chunk_document(
     for f in facts:
         by_block.setdefault(f.block_index, []).append(f)
 
+    ocr_pages = {p.number for p in doc.pages if p.status is PageStatus.OCR}
     chunks: list[Chunk] = []
     for n, draft in enumerate(_drafts(doc, cfg)):
         spans = [Span(block_index=p.block_index, start=p.start, end=p.end) for p in draft.pieces]
@@ -340,6 +341,12 @@ def chunk_document(
                     and is_boilerplate(text)
                 ),
                 token_estimate=approx_tokens(text),
+                ocr=any(
+                    page in ocr_pages
+                    for page in range(
+                        min(p.page for p in draft.pieces), max(p.page for p in draft.pieces) + 1
+                    )
+                ),
             )
         )
     return chunks

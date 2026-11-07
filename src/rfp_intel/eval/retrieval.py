@@ -38,7 +38,7 @@ class GoldQuestion(BaseModel):
     question: str
     relevant: list[Locator]
     match: Literal["any", "all"] = "any"
-    split: Literal["dev", "heldout"] = "dev"
+    split: Literal["dev", "heldout", "unseen"] = "dev"
 
 
 class GoldSet(BaseModel):
@@ -77,7 +77,12 @@ class ConfigResult(BaseModel):
     questions: list[QuestionResult]
 
     def metric(self, name: str, split: str | None = None) -> float:
-        qs = [q for q in self.questions if split is None or q.split == split]
+        """`split`: one split, None for every question, or KNOWN for dev and held out."""
+        qs = [
+            q
+            for q in self.questions
+            if split is None or q.split == split or (split == KNOWN and q.split != "unseen")
+        ]
         if not qs:
             return 0.0
         if name == "mrr":
@@ -179,6 +184,7 @@ def _git_commit() -> str | None:
 # Report
 
 METRICS = ("recall@1", "recall@3", "recall@5", "recall@10", "mrr")
+KNOWN = "known"  # dev and held-out questions together
 
 
 def _row(c: ConfigResult, split: str | None) -> str:
@@ -188,8 +194,8 @@ def _row(c: ConfigResult, split: str | None) -> str:
 
 def render_markdown(run: EvalRun, descriptions: dict[str, str] | None = None) -> str:
     descriptions = descriptions or {}
-    dev = sum(1 for q in run.configs[0].questions if q.split == "dev")
-    held = run.question_count - dev
+    splits = [q.split for q in run.configs[0].questions]
+    dev, held, unseen = (splits.count(s) for s in ("dev", "heldout", "unseen"))
     header = (
         "| Config | Recall@1 | Recall@3 | Recall@5 | Recall@10 | MRR@10 | Median ms |\n"
         "|---|---|---|---|---|---|---|"
@@ -199,7 +205,9 @@ def render_markdown(run: EvalRun, descriptions: dict[str, str] | None = None) ->
         "# Retrieval evaluation",
         "",
         f"Run {run.created_at} at commit `{run.git_commit or 'unknown'}` on `{run.gold_file}`: "
-        f"{run.question_count} questions ({dev} dev, {held} held out), {scope}.",
+        f"{run.question_count} questions ({dev} dev, {held} held out"
+        + (f", {unseen} on an unseen bid" if unseen else "")
+        + f"), {scope}.",
         "Recall@k is the share of questions with a relevant passage in the top k (for `match: all` "
         "questions, the share of their passages found). MRR uses the first relevant hit within 10.",
         "",
@@ -214,6 +222,17 @@ def render_markdown(run: EvalRun, descriptions: dict[str, str] | None = None) ->
         *[_row(c, "heldout") for c in run.configs],
         "",
     ]
+    if unseen:
+        lines += [
+            "## Unseen bid only",
+            "",
+            "Questions on a bid folder added after the system was built (a scanned RFP read by "
+            "OCR, two addenda); nothing was tuned on it.",
+            "",
+            header,
+            *[_row(c, "unseen") for c in run.configs],
+            "",
+        ]
     if descriptions:
         lines += ["## Configurations", ""]
         lines += [f"- `{name}`: {text}" for name, text in descriptions.items()]
@@ -254,11 +273,13 @@ class Baseline(BaseModel):
 
 
 def baseline_from(run: EvalRun, config: str) -> Baseline:
+    """The baseline covers the bids the system was built against (dev and held-out questions);
+    the unseen bid is reported, not gated, so adding one never looks like a regression."""
     c = run.config(config)
     return Baseline(
         config=config,
-        recall_at_5=round(c.metric("recall@5"), 4),
-        mrr=round(c.metric("mrr"), 4),
+        recall_at_5=round(c.metric("recall@5", KNOWN), 4),
+        mrr=round(c.metric("mrr", KNOWN), 4),
         git_commit=run.git_commit,
     )
 
@@ -268,8 +289,8 @@ def check_regression(run: EvalRun, baseline: Baseline, tolerance: float = 0.05) 
     c = run.config(baseline.config)
     problems = []
     for name, now, then in (
-        ("recall@5", c.metric("recall@5"), baseline.recall_at_5),
-        ("mrr", c.metric("mrr"), baseline.mrr),
+        ("recall@5", c.metric("recall@5", KNOWN), baseline.recall_at_5),
+        ("mrr", c.metric("mrr", KNOWN), baseline.mrr),
     ):
         if now < then - tolerance:
             problems.append(f"{baseline.config} {name} fell from {then:.3f} to {now:.3f}")

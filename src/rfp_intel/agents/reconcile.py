@@ -134,12 +134,43 @@ def events_from_facts(facts: Sequence[Fact]) -> list[ChangeEvent]:
     return events
 
 
+def drop_restated_dates(
+    model_events: Sequence[ChangeEvent], date_events: Sequence[ChangeEvent]
+) -> list[ChangeEvent]:
+    """Model events for statements that are already date events.
+
+    A sentence such as "The new due date for this RFP will be July 9, 2024" belongs to the date
+    field the fact layer resolved. A model reading the addendum may also file it under another
+    field (seen live: as a change to the contract term), so a model event whose quote contains
+    the date text of a date event from the same file is dropped."""
+
+    def flat(text: str) -> str:
+        return " ".join(text.split()).casefold()
+
+    dated = [(e.file_name, flat(e.new_text or "")) for e in date_events if e.new_text]
+    return [
+        e
+        for e in model_events
+        if not any(f == e.file_name and raw and raw in flat(e.quote) for f, raw in dated)
+    ]
+
+
 # ---------------------------------------------------------------------------------------------
 # Date fields
 
 
 def format_datetime(v: dict[str, Any]) -> str:
-    """ "July 9, 2024, 2:00 PM CDT" from a normalized datetime value."""
+    """The output format: "2024-07-09 14:00 CDT", or "2024-07-09" without a time."""
+    out = v.get("date") or ""
+    if v.get("time"):
+        t = time.fromisoformat(v["time"])
+        zone = v.get("tz_effective") or v.get("tz_text")
+        out += f" {t:%H:%M}" + (f" {zone}" if zone else "")
+    return out
+
+
+def display_datetime(v: dict[str, Any]) -> str:
+    """ "July 9, 2024, 2:00 PM CDT", for people (kept in `normalized.display`)."""
     parts: list[str] = []
     if v.get("date"):
         d = date.fromisoformat(v["date"])
@@ -162,6 +193,12 @@ def _same_moment(a: dict[str, Any], b: dict[str, Any]) -> bool | None:
     if a.get("time") and b.get("time"):
         return bool(a["time"] == b["time"]) if not (a.get("iana") and b.get("iana")) else None
     return None
+
+
+def _is_later(new: dict[str, Any], old: dict[str, Any]) -> bool:
+    if new.get("utc") and old.get("utc"):
+        return bool(new["utc"] > old["utc"])
+    return bool((new.get("date") or "") > (old.get("date") or ""))
 
 
 def _assemble(base: dict[str, Any], filler: dict[str, Any]) -> dict[str, Any]:
@@ -235,6 +272,12 @@ def resolve_datetime(
             sources.append(e.source())
             continue
         changes.append(_change(field, e.operation, e, current_text, e.new_text))
+        if current is not None:
+            verb = "Extended" if _is_later(e.normalized, current) else "Changed"
+            notes.append(
+                f"{verb} by Addendum {e.addendum_number or '(unnumbered)'} "
+                f"(original date: {format_datetime(current)})."
+            )
         current, current_text = dict(e.normalized), e.new_text
         sources = [e.source()]
         ev.set_by_addendum = True
@@ -275,7 +318,7 @@ def resolve_datetime(
     return Resolution(
         field=field,
         value=format_datetime(current),
-        normalized=current,
+        normalized={**current, "display": display_datetime(current)},
         sources=_dedupe(sources),
         changes=changes,
         notes=_dedupe_notes(notes),

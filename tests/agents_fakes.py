@@ -15,7 +15,9 @@ from rfp_intel.agents.outputs import (
     EventOut,
     EventsOut,
     GroupDraftOut,
+    QueriesOut,
     QuoteOut,
+    StatementOut,
     SummaryOut,
 )
 from rfp_intel.agents.validate import norm
@@ -125,8 +127,19 @@ def summary(system: str, user: str) -> BaseModel:
     )
 
 
+def rewrite(system: str, user: str) -> BaseModel:
+    return QueriesOut(queries=["delivery days after award", "delivery schedule"])
+
+
 def make_llm() -> ScriptedLLM:
-    return ScriptedLLM({"GroupDraftOut": Extractor(), "EventsOut": events, "SummaryOut": summary})
+    return ScriptedLLM(
+        {
+            "GroupDraftOut": Extractor(),
+            "EventsOut": events,
+            "SummaryOut": summary,
+            "QueriesOut": rewrite,
+        }
+    )
 
 
 def answering(verbatim: bool) -> ScriptedLLM:
@@ -136,8 +149,12 @@ def answering(verbatim: bool) -> ScriptedLLM:
         eid = _find(quote, blocks) or next(iter(blocks))
         return AnswerOut(
             found=True,
-            answer="Delivery is required within 45 days of award.",
-            citations=[CitationOut(evidence_id=eid, quote=quote)],
+            statements=[
+                StatementOut(
+                    text="Delivery is required within 45 days of award.",
+                    citations=[CitationOut(evidence_id=eid, quote=quote)],
+                )
+            ],
         )
 
     return ScriptedLLM({"AnswerOut": respond})

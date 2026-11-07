@@ -8,6 +8,8 @@ import pytest
 from rfp_intel.config import Settings
 from rfp_intel.telemetry import build_tracer_provider, new_run_id, redact_text
 
+from .conftest import DEFAULTS_ENV
+
 
 def _run_two_spans(settings: Settings, run_id: str) -> list[dict[str, Any]]:
     provider = build_tracer_provider(settings, run_id)
@@ -43,7 +45,7 @@ def test_redaction_masks_pii_in_attributes_and_events(settings: Settings) -> Non
 
 
 def test_redaction_can_be_turned_off(tmp_path: Path) -> None:
-    raw = Settings(_env_file=None, traces_dir=tmp_path, trace_redact_pii=False)  # type: ignore[call-arg]
+    raw = Settings(_env_file=DEFAULTS_ENV, traces_dir=tmp_path, trace_redact_pii=False)  # type: ignore[call-arg]
     spans = _run_two_spans(raw, "run-3")
     search = next(s for s in spans if s["name"] == "search")
     assert "buyer@dallasisd.org" in search["attributes"]["contact"]
@@ -71,3 +73,25 @@ def test_run_id_is_sortable_and_unique() -> None:
     a, b = new_run_id(), new_run_id()
     assert re.fullmatch(r"\d{8}T\d{6}Z-[0-9a-f]{6}", a)
     assert a != b
+
+
+def test_server_tracing_writes_one_file_per_run(tmp_path: Path) -> None:
+    from opentelemetry.sdk.trace import TracerProvider
+
+    from rfp_intel.telemetry import RunFileSpanProcessor
+
+    settings = Settings(_env_file=DEFAULTS_ENV, traces_dir=tmp_path)  # type: ignore[call-arg]
+    provider = TracerProvider()
+    provider.add_span_processor(RunFileSpanProcessor(settings))
+    tracer = provider.get_tracer("t")
+    with (
+        tracer.start_as_current_span("agent.run", attributes={"rfp.run_id": "run-a"}),
+        tracer.start_as_current_span("agent.extract"),
+    ):
+        pass
+    with tracer.start_as_current_span("search", attributes={"search.query": "a@b.com"}):
+        pass
+    run = [json.loads(line) for line in (tmp_path / "run-a.jsonl").read_text().splitlines()]
+    assert [s["name"] for s in run] == ["agent.extract", "agent.run"]
+    api = (tmp_path / "api.jsonl").read_text()
+    assert '"search"' in api and "a@b.com" not in api  # redacted

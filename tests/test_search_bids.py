@@ -12,7 +12,7 @@ import pytest
 from rfp_intel.config import Settings
 from rfp_intel.search.runtime import Runtime, open_runtime
 
-from .conftest import BIDS_DIR, REPO_ROOT
+from .conftest import BIDS_DIR, DEFAULTS_ENV, REPO_ROOT
 
 pytestmark = pytest.mark.slow
 
@@ -24,7 +24,7 @@ def runtime(tmp_path_factory: pytest.TempPathFactory) -> Iterator[Runtime]:
     for bid in ("Bid1", "Bid2"):
         shutil.copytree(BIDS_DIR / bid, data / bid)
     settings = Settings(
-        _env_file=None,  # type: ignore[call-arg]
+        _env_file=DEFAULTS_ENV,  # type: ignore[call-arg]
         data_dir=data,
         state_dir=tmp / "var",
         config_dir=REPO_ROOT / "config",

@@ -14,7 +14,7 @@ from typing import Self
 from pydantic import BaseModel
 
 # Bump when parsing, fact extraction or chunking changes what an indexed file would contain.
-PIPELINE_VERSION = 1
+PIPELINE_VERSION = 3  # 2: OCR reads vector-outline pages; 3: tables on OCR pages
 
 _SCHEMA = """
 CREATE TABLE IF NOT EXISTS manifest (

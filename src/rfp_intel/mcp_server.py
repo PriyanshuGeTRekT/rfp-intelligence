@@ -9,8 +9,9 @@ from typing import Any
 
 from mcp.server.mcpserver import MCPServer
 
+from rfp_intel.agents.graph import run_question
 from rfp_intel.agents.llm import LLM, llm_from_settings
-from rfp_intel.agents.qa import answer
+from rfp_intel.agents.services import Services
 from rfp_intel.config import Settings, get_settings
 from rfp_intel.facts.models import FactKind
 from rfp_intel.facts.store import FactStore
@@ -93,14 +94,13 @@ def build_server(
 
     @server.tool(
         description="Answer a question from the documents with verbatim citations, or say "
-        "it is not found. Calls the configured Claude model."
+        "it is not found. Runs the agent graph with the configured model."
     )
     def ask(question: str, bid_id: str | None = None) -> dict[str, Any]:
         if state["llm"] is None:
             state["llm"] = llm_from_settings(settings)
-        result = answer(
-            rt().engine(), state["llm"], settings.extract_model, question, bid_id=bid_id
-        )
+        services = Services.build(settings, rt(), state["llm"], settings.outputs_dir)
+        result, _ = run_question(services, question, bid_id=bid_id)
         return result.model_dump(mode="json")
 
     return server

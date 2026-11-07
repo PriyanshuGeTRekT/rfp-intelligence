@@ -1,7 +1,10 @@
 """OpenTelemetry tracing.
 
 Spans always go to `traces/<run_id>.jsonl`; the submitted example trace is rendered from
-that file. When `OTEL_EXPORTER_OTLP_ENDPOINT` is set and the `obs` extra is installed, the
+that file. A CLI process is one run. The API server runs many, so it routes spans by trace:
+every span of a trace whose root carries `rfp.run_id` goes to that run's file, and spans of
+plain API calls (a search) go to `traces/api.jsonl`. When `OTEL_EXPORTER_OTLP_ENDPOINT` is set
+and the `obs` extra is installed, the
 same spans also go to Phoenix or Langfuse over OTLP. With redaction on, emails and phone
 numbers in span attributes are masked before any exporter sees them.
 """
@@ -15,9 +18,10 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
+from opentelemetry import context as otel_context
 from opentelemetry import trace
 from opentelemetry.sdk.resources import Resource
-from opentelemetry.sdk.trace import Event, ReadableSpan, TracerProvider
+from opentelemetry.sdk.trace import Event, ReadableSpan, Span, SpanProcessor, TracerProvider
 from opentelemetry.sdk.trace.export import (
     BatchSpanProcessor,
     SimpleSpanProcessor,
@@ -180,6 +184,56 @@ def build_tracer_provider(settings: Settings, run_id: str) -> TracerProvider:
         otlp = _otlp_exporter(settings.otlp_endpoint)
         if otlp is not None:
             provider.add_span_processor(BatchSpanProcessor(wrap(otlp)))
+    return provider
+
+
+class RunFileSpanProcessor(SpanProcessor):
+    """Write each finished span to the JSONL file of the run its trace belongs to."""
+
+    def __init__(self, settings: Settings) -> None:
+        self.settings = settings
+        self._runs: dict[int, str] = {}  # trace id -> run id
+        self._exporters: dict[str, SpanExporter] = {}
+        self._lock = threading.Lock()
+
+    def on_start(self, span: Span, parent_context: otel_context.Context | None = None) -> None:
+        run_id = (span.attributes or {}).get("rfp.run_id")
+        if run_id and span.parent is None:
+            with self._lock:
+                self._runs[span.context.trace_id] = str(run_id)
+
+    def _exporter(self, name: str) -> SpanExporter:
+        with self._lock:
+            if name not in self._exporters:
+                jsonl = JsonlSpanExporter(self.settings.traces_dir / f"{name}.jsonl")
+                self._exporters[name] = (
+                    RedactingSpanExporter(jsonl) if self.settings.trace_redact_pii else jsonl
+                )
+            return self._exporters[name]
+
+    def on_end(self, span: ReadableSpan) -> None:
+        trace_id = span.context.trace_id if span.context else 0
+        with self._lock:
+            name = self._runs.get(trace_id, "api")
+            if span.parent is None:
+                self._runs.pop(trace_id, None)
+        self._exporter(name).export([span])
+
+    def shutdown(self) -> None:
+        return None
+
+    def force_flush(self, timeout_millis: int = 30000) -> bool:
+        return True
+
+
+def setup_server_tracing(settings: Settings) -> TracerProvider:
+    """Install the global provider for a long-running server (API, MCP): one file per run."""
+    provider = TracerProvider(resource=Resource.create({"service.name": SERVICE_NAME}))
+    provider.add_span_processor(RunFileSpanProcessor(settings))
+    if settings.otlp_endpoint and (otlp := _otlp_exporter(settings.otlp_endpoint)) is not None:
+        exporter = RedactingSpanExporter(otlp) if settings.trace_redact_pii else otlp
+        provider.add_span_processor(BatchSpanProcessor(exporter))
+    trace.set_tracer_provider(provider)
     return provider
 
 

@@ -1,0 +1,10 @@
+# USD per million tokens: [input, output]. Used only to report cost per call and per run.
+# Cache reads are billed at 0.1x input and cache writes at 1.25x input where providers cache.
+# Add the models you use; RFP_LLM_PRICE_INPUT_PER_M / _OUTPUT_PER_M price one ad hoc.
+prices:
+  claude-opus-5-5: [4.0, 20.0]
+  claude-sonnet-5-5: [2.0, 10.0]
+  claude-haiku-5-5: [0.10, 0.50]
+  claude-fable-5-1: [10.0, 50.0]
+  openai/gpt-oss-120b: [0.15, 0.60]
+  openai/gpt-oss-20b: [0.075, 0.30]

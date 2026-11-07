@@ -1,10 +1,18 @@
 """Prompts. The system prompts are constant per task so the API can cache them; everything
-that varies (passages, candidates, field list) goes in the user turn."""
+that varies (passages, candidates, field list) goes in the user turn.
+
+Design, in short: each prompt states the task, the rules that make the output checkable
+(quote verbatim, cite the passage id, say "not found" rather than guess), and the traps seen
+in procurement documents (a questions deadline is not the due date). Inputs are labelled
+blocks with [id] headers so citations can be checked by code. Evidence is fitted to a token
+budget, so a small context window or a free-tier quota still works.
+"""
 
 from collections.abc import Sequence
 
 from rfp_intel.agents.evidence import EvidenceItem, FactCandidate
 from rfp_intel.agents.fields import FieldSpec
+from rfp_intel.agents.llm import estimate_tokens
 
 EXTRACT_SYSTEM = """You extract fields from public procurement documents (RFPs, addenda, \
 purchase-order solicitations, portal pages, quotes, affidavits) for a bid-tracking system.
@@ -47,7 +55,14 @@ unchanged, "clarify" when it explains a requirement without changing the value;
 
 Only list events supported by an exact quote. Questions and answers count: an answer that \
 sets or changes a requirement is an event. Do not list events for fields the addendum does not \
-touch."""
+touch. Changes to dates (the due date, the questions deadline, the pre-bid meeting) are recorded \
+separately: do not list them under any field."""
+
+REWRITE_SYSTEM = """You write search queries for a hybrid (keyword and semantic) search engine \
+over procurement documents. A field could not be extracted from the passages found so far; \
+the reason is given. Write two to four short, different queries (three to eight words each) \
+that would find the passage stating this field: use the words such documents use (synonyms, \
+section names, form names), not the same words again. Return only the queries."""
 
 SUMMARY_SYSTEM = """You write a short summary of a procurement bid for a sales team, from the \
 extracted fields given. Three to six plain sentences: who is buying what (with quantities when \
@@ -62,12 +77,22 @@ Each passage starts with an [id] header giving its bid, file, pages and document
 Rules:
 1. Answer from the passages alone. If they do not contain the answer, set found to false and \
 say that the documents do not state it. Never guess.
-2. Cite every fact in the answer: each citation is the passage id and an exact quote copied \
-from it. Quotes must be verbatim.
+2. Answer as statements, one sentence each, and give every statement its own citations: the \
+passage id and an exact quote copied from it that states what the sentence says. Quotes must \
+be verbatim. A statement whose citations do not check out is removed from the answer.
 3. Later addenda override earlier documents; say so when an addendum changed something. \
 Portal pages corroborate but do not override documents.
 4. Be concise and specific: dates with time and zone, amounts, identifiers as written. When a \
-question compares bids, answer per bid."""
+question compares bids, answer per bid.
+5. A "Reconciled values" block, when present, lists values the system extracted with every \
+addendum applied. Use it to tell which statement is final (for example, which due date \
+stands), and still cite the passages that state the facts.
+6. State requirements only as the passages state them. A reference to requirements "noted \
+elsewhere" or "if applicable" is not itself a requirement: say what the passage says, not \
+more.
+7. When the passages come from more than one bid, name the bid in every statement ("In Bid3, \
+..."), and never present one bid's facts as the answer for the bids as a whole. If only some \
+bids state the answer, say which do and that the others' documents do not."""
 
 
 def passages_block(items: Sequence[EvidenceItem], *, with_bid: bool = False) -> str:
@@ -101,13 +126,52 @@ def candidates_block(candidates: Sequence[FactCandidate]) -> str:
     return "\n".join(lines)
 
 
-def field_block(spec: FieldSpec) -> str:
+def field_block(spec: FieldSpec, hint: str | None = None) -> str:
     kind = {
         "list": "list of items",
         "datetime": "date and time with zone",
         "identifier": "identifier",
     }.get(spec.type, "text")
-    return f"- {spec.key} ({spec.name}; {kind}): {spec.description}"
+    line = f"- {spec.key} ({spec.name}; {kind}): {spec.description}"
+    if hint:
+        line += (
+            f" Already resolved from the documents and addenda: {hint}. Keep that date and "
+            "time; add what the passages say about place and attendance."
+        )
+    return line
+
+
+def fit_passages(
+    passages: dict[str, list[EvidenceItem]], budget_tokens: int
+) -> dict[str, list[EvidenceItem]]:
+    """Keep each field's best passages within a token budget, taking them in turn (best of
+    every field first, then second best, ...) so no field is starved. A passage shared by
+    several fields is paid for once."""
+    kept: dict[str, list[EvidenceItem]] = {key: [] for key in passages}
+    included: set[str] = set()
+    used = 0
+    depth = max((len(items) for items in passages.values()), default=0)
+    for i in range(depth):
+        for key, items in passages.items():
+            if i >= len(items):
+                continue
+            item = items[i]
+            if item.evidence_id not in included:
+                cost = estimate_tokens(item.text) + 30  # header and separator
+                if used + cost > budget_tokens:
+                    continue
+                used += cost
+                included.add(item.evidence_id)
+            kept[key].append(item)
+    return kept
+
+
+def rewrite_user(spec: FieldSpec, reason: str, tried: Sequence[str]) -> str:
+    return (
+        f"Field: {spec.name}: {spec.description}\n"
+        f"Why the last attempt failed: {reason}\n"
+        f"Queries already tried: {'; '.join(tried)}"
+    )
 
 
 def extraction_user(
@@ -115,8 +179,10 @@ def extraction_user(
     passages: dict[str, list[EvidenceItem]],
     candidates: dict[str, list[FactCandidate]],
     retry_reasons: dict[str, str] | None = None,
+    hints: dict[str, str] | None = None,
 ) -> str:
-    out = ["Fields to extract:", *[field_block(f) for f in fields], ""]
+    hints = hints or {}
+    out = ["Fields to extract:", *[field_block(f, hints.get(f.key)) for f in fields], ""]
     if retry_reasons:
         out += [RETRY_NOTE.format(field=k, reason=v) for k, v in retry_reasons.items()] + [""]
     seen: dict[str, EvidenceItem] = {}
@@ -148,5 +214,8 @@ def summary_user(values: dict[str, str]) -> str:
     return "Extracted fields:\n" + "\n".join(f"- {k}: {v}" for k, v in values.items())
 
 
-def qa_user(question: str, items: Sequence[EvidenceItem]) -> str:
-    return f"Question: {question}\n\nPassages:\n\n{passages_block(items, with_bid=True)}"
+def qa_user(question: str, items: Sequence[EvidenceItem], reconciled: Sequence[str] = ()) -> str:
+    known = ""
+    if reconciled:
+        known = "Reconciled values:\n" + "\n".join(f"- {r}" for r in reconciled) + "\n\n"
+    return f"Question: {question}\n\n{known}Passages:\n\n{passages_block(items, with_bid=True)}"
