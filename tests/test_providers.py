@@ -1,0 +1,195 @@
+"""The OpenAI-compatible client against a mock HTTP server."""
+
+import json
+from typing import Any
+
+import httpx
+import pytest
+from pydantic import BaseModel, SecretStr
+
+from rfp_intel.agents import providers
+from rfp_intel.agents.llm import PRICES, AnthropicLLM, LLMError, llm_from_settings
+from rfp_intel.agents.providers import OpenAICompatibleLLM
+from rfp_intel.config import Settings
+
+
+class Answer(BaseModel):
+    text: str
+    count: int
+
+
+def _reply(content: str, finish: str = "stop", cached: int = 0) -> dict[str, Any]:
+    return {
+        "choices": [
+            {"message": {"role": "assistant", "content": content}, "finish_reason": finish}
+        ],
+        "usage": {
+            "prompt_tokens": 1000,
+            "completion_tokens": 50,
+            "prompt_tokens_details": {"cached_tokens": cached},
+        },
+    }
+
+
+class Server:
+    """A scripted OpenAI-compatible endpoint; each entry is a status or a reply body."""
+
+    def __init__(self, script: list[Any]) -> None:
+        self.script = script
+        self.requests: list[httpx.Request] = []
+
+    def handler(self, request: httpx.Request) -> httpx.Response:
+        self.requests.append(request)
+        step = self.script.pop(0)
+        if isinstance(step, int):
+            return httpx.Response(step, json={"error": {"message": f"status {step}"}})
+        if isinstance(step, Exception):
+            raise step
+        return httpx.Response(200, json=step)
+
+    def body(self, i: int = -1) -> dict[str, Any]:
+        return dict(json.loads(self.requests[i].content))
+
+
+def _client(server: Server, **kw: Any) -> OpenAICompatibleLLM:
+    return OpenAICompatibleLLM(
+        "sk-test",
+        base_url="https://llm.example/v1",
+        transport=httpx.MockTransport(server.handler),
+        **kw,
+    )
+
+
+@pytest.fixture(autouse=True)
+def _no_sleep(monkeypatch: pytest.MonkeyPatch) -> None:
+    monkeypatch.setattr(providers.time, "sleep", lambda s: None)
+
+
+def test_json_schema_request_and_usage() -> None:
+    server = Server([_reply('{"text": "ok", "count": 2}', cached=400)])
+    out, usage = _client(server).structured(
+        system="sys", user="q", schema=Answer, model="m", effort="high"
+    )
+    assert out == Answer(text="ok", count=2)
+    req = server.requests[0]
+    assert (
+        req.url.path == "/v1/chat/completions" and req.headers["authorization"] == "Bearer sk-test"
+    )
+    body = server.body()
+    assert body["response_format"]["type"] == "json_schema"
+    assert (
+        body["response_format"]["json_schema"]["schema"]["properties"]["count"]["type"] == "integer"
+    )
+    assert body["messages"][0] == {"role": "system", "content": "sys"}
+    assert "temperature" not in body and "reasoning_effort" not in body
+    assert (usage.calls, usage.input_tokens, usage.cache_read_tokens, usage.output_tokens) == (
+        1,
+        600,
+        400,
+        50,
+    )
+
+
+def test_falls_back_to_json_object_and_remembers_it() -> None:
+    server = Server([400, _reply('{"text": "a", "count": 1}'), _reply('{"text": "b", "count": 2}')])
+    client = _client(server)
+    first, _ = client.structured(system="sys", user="q", schema=Answer, model="m")
+    assert first.text == "a"
+    fallback = server.body(1)
+    assert fallback["response_format"] == {"type": "json_object"}
+    assert (
+        "JSON Schema" in fallback["messages"][0]["content"]
+        and '"count"' in fallback["messages"][0]["content"]
+    )
+    second, _ = client.structured(system="sys", user="q2", schema=Answer, model="m")
+    assert second.text == "b" and len(server.requests) == 3  # no 400 round trip the second time
+    assert server.body(2)["response_format"] == {"type": "json_object"}
+
+
+def test_invalid_answer_gets_one_repair_then_fails() -> None:
+    server = Server([_reply('```json\n{"text": "x"}\n```'), _reply('{"text": "x", "count": 3}')])
+    out, usage = _client(server).structured(system="s", user="q", schema=Answer, model="m")
+    assert out.count == 3 and usage.calls == 2
+    assert "not valid for the required schema" in server.body(1)["messages"][1]["content"]
+
+    bad = Server([_reply("not json"), _reply("still not json")])
+    with pytest.raises(LLMError, match="repair attempt"):
+        _client(bad).structured(system="s", user="q", schema=Answer, model="m")
+
+
+def test_transient_errors_retry_then_give_up() -> None:
+    server = Server([429, httpx.ConnectError("boom"), _reply('{"text": "ok", "count": 1}')])
+    out, _ = _client(server).structured(system="s", user="q", schema=Answer, model="m")
+    assert out.text == "ok" and len(server.requests) == 3
+    with pytest.raises(LLMError, match="gave up"):
+        _client(Server([503, 503, 503])).structured(system="s", user="q", schema=Answer, model="m")
+    with pytest.raises(LLMError, match="provider returned 401"):
+        _client(Server([401])).structured(system="s", user="q", schema=Answer, model="m")
+
+
+def test_truncation_and_content_filter_are_errors() -> None:
+    with pytest.raises(LLMError, match="truncated"):
+        _client(Server([_reply("{", finish="length")])).structured(
+            system="s", user="q", schema=Answer, model="m"
+        )
+    with pytest.raises(LLMError, match="declined"):
+        _client(Server([_reply("", finish="content_filter")])).structured(
+            system="s", user="q", schema=Answer, model="m"
+        )
+
+
+def test_azure_style_auth_query_and_reasoning_effort() -> None:
+    server = Server([_reply('{"text": "ok", "count": 1}')])
+    client = OpenAICompatibleLLM(
+        "azkey",
+        base_url="https://res.openai.azure.com/openai/deployments/dep",
+        auth_style="api-key",
+        extra_query={"api-version": "2024-10-21"},
+        send_reasoning_effort=True,
+        transport=httpx.MockTransport(server.handler),
+    )
+    client.structured(system="s", user="q", schema=Answer, model="dep", effort="xhigh")
+    req = server.requests[0]
+    assert req.headers["api-key"] == "azkey" and "authorization" not in req.headers
+    assert req.url.params["api-version"] == "2024-10-21"
+    assert server.body()["reasoning_effort"] == "high"
+
+
+def _settings(**kw: Any) -> Settings:
+    values: dict[str, Any] = {"anthropic_api_key": None, "llm_api_key": None, **kw}
+    return Settings(_env_file=None, **values)  # type: ignore[call-arg]
+
+
+def test_provider_switch(monkeypatch: pytest.MonkeyPatch) -> None:
+    for var in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY", "RFP_LLM_API_KEY"):
+        monkeypatch.delenv(var, raising=False)
+    with pytest.raises(LLMError, match="ANTHROPIC_API_KEY"):
+        llm_from_settings(_settings())
+    with pytest.raises(LLMError, match="RFP_LLM_API_KEY"):
+        llm_from_settings(_settings(llm_provider="openai"))
+
+    openai = llm_from_settings(
+        _settings(llm_provider="openai", llm_api_key=SecretStr("k"), extract_model="gpt-x",
+                  llm_price_input_per_m=1.0, llm_price_output_per_m=4.0)
+    )  # fmt: skip
+    assert isinstance(openai, OpenAICompatibleLLM) and PRICES["gpt-x"] == (1.0, 4.0)
+
+    ollama = llm_from_settings(
+        _settings(
+            llm_provider="openai",
+            llm_base_url="http://localhost:11434/v1",
+            extract_model="llama3.1",
+        )
+    )
+    assert isinstance(ollama, OpenAICompatibleLLM)  # local servers need no key
+
+    anthropic_via_generic_key = _settings(llm_api_key=SecretStr("sk-ant"))
+    monkeypatch.setattr(AnthropicLLM, "__init__", lambda self, key, **kw: None)
+    assert isinstance(llm_from_settings(anthropic_via_generic_key), AnthropicLLM)
+
+
+def test_any_provider_satisfies_the_llm_protocol() -> None:
+    def make() -> OpenAICompatibleLLM:
+        return _client(Server([]))
+
+    assert hasattr(make(), "structured")

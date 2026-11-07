@@ -76,6 +76,26 @@ uv run --with arize-phoenix python -m phoenix.server.main serve
 Then set `OTEL_EXPORTER_OTLP_ENDPOINT=http://localhost:6006/v1/traces` in `.env`. Emails and
 phone numbers in span attributes are masked before export unless `RFP_TRACE_REDACT_PII=false`.
 
+## LLM providers
+
+The agents talk to the model through one interface (`agents/llm.py`, `structured()`: a
+system prompt, a user prompt and a Pydantic schema in; a validated object and token usage
+out). Two clients implement it, chosen by `RFP_LLM_PROVIDER`:
+
+| Provider | Setting | Covers |
+|---|---|---|
+| `anthropic` (default) | `ANTHROPIC_API_KEY` | Claude via the Anthropic SDK: native structured outputs, effort control, prompt caching |
+| `openai` | `RFP_LLM_BASE_URL`, `RFP_LLM_API_KEY`, model names | Any OpenAI-compatible chat API: OpenAI, Azure OpenAI (`RFP_LLM_AUTH_STYLE=api-key` plus `RFP_LLM_EXTRA_QUERY` for the api-version), Groq, Mistral, Together, OpenRouter, Ollama and vLLM (local servers need no key) |
+
+The generic client asks for `response_format: json_schema`; a server that rejects it is
+retried with `json_object` and the schema in the prompt, and the choice is remembered per
+model. Every answer is validated against the schema with one repair round, transient errors
+retry with backoff, and truncation or a content filter raise a clear error. `.env.example`
+has ready-made lines for each provider. Cost tracking knows Claude's prices; give
+`RFP_LLM_PRICE_INPUT_PER_M` and `RFP_LLM_PRICE_OUTPUT_PER_M` for other models. Prompts are
+written to be model-agnostic, but the extraction prompts have only been exercised with a
+scripted model so far; expect to tune them for a given provider.
+
 ## Docker
 
 ```bash
@@ -344,8 +364,8 @@ Design choices worth knowing:
 - **Windows path length.** This repo's current location is deep enough that the Anthropic
   SDK cannot be imported from `.venv`: one of its module files ends up past the 260-character
   path limit. Clone or move the repo to a short path (for example `C:\dev\rfp-intelligence`)
-  or enable Windows long paths. Nothing outside the live Claude client imports the SDK, and
-  Linux and CI are unaffected.
+  or enable Windows long paths. Nothing outside the live Claude client imports the SDK;
+  the OpenAI-compatible provider needs no SDK, and Linux, Docker and CI are unaffected.
 - `AnthropicLLM` has not yet been run against the live API (no key during development); its
   request shape is covered by tests with a fake client.
 

@@ -44,7 +44,12 @@ def doctor() -> None:
         "bid folders": ", ".join(bids) or "none",
         "state_dir": str(s.state_dir),
         "traces_dir": str(s.traces_dir),
-        "ANTHROPIC_API_KEY": "set" if s.anthropic_api_key else "not set",
+        "LLM provider": (
+            f"anthropic (ANTHROPIC_API_KEY {'set' if s.anthropic_api_key else 'not set'})"
+            if s.llm_provider == "anthropic"
+            else f"openai-compatible at {s.llm_base_url} "
+            f"(RFP_LLM_API_KEY {'set' if s.llm_api_key else 'not set'})"
+        ),
         "extract / cheap model": f"{s.extract_model} / {s.cheap_model}",
         "embed / sparse / rerank": f"{s.embed_model} / {s.sparse_model} / {s.rerank_model}",
         "API key auth": "on" if s.api_key else "off",
