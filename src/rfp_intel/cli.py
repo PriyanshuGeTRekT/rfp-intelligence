@@ -32,6 +32,44 @@ def _todo(what: str) -> None:
     raise typer.Exit(code=2)
 
 
+def _provider_summary() -> str:
+    from rfp_intel.agents.llm import LLMError
+    from rfp_intel.agents.providers import resolve_provider
+
+    try:
+        r = resolve_provider(get_settings())
+    except LLMError as exc:
+        return f"NOT READY: {exc}"
+    where = f" at {r.base_url}" if r.base_url else ""
+    return f"{r.name}{where} (key from {r.key_source})"
+
+
+@app.command(name="llm-check")
+def llm_check() -> None:
+    """Make one tiny model call to confirm the configured provider, key and model work."""
+    from rfp_intel.agents.llm import LLMError, llm_from_settings
+    from rfp_intel.agents.providers import check_llm, resolve_provider
+
+    s = get_settings()
+    try:
+        resolved = resolve_provider(s)
+        llm = llm_from_settings(s)
+        for model in dict.fromkeys([s.cheap_model, s.extract_model]):
+            r = check_llm(llm, model)
+            verdict = "ok" if r["ok"] else f"unexpected reply {r['reply']}"
+            typer.echo(
+                f"{resolved.name} {model}: {verdict}"
+                f" in {r['latency_ms']} ms, {r['input_tokens']} in / {r['output_tokens']} out "
+                f"tokens, ${r['cost_usd']:.5f}, structured output via {r['structured_output_mode']}"
+            )
+    except LLMError as exc:
+        typer.echo(f"FAILED: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+    except Exception as exc:  # the provider's own errors: show them, do not hide them
+        typer.echo(f"FAILED: {type(exc).__name__}: {exc}", err=True)
+        raise typer.Exit(code=1) from exc
+
+
 @app.command()
 def doctor() -> None:
     """Show configuration and check that the data directory and keys are in place."""
@@ -44,12 +82,7 @@ def doctor() -> None:
         "bid folders": ", ".join(bids) or "none",
         "state_dir": str(s.state_dir),
         "traces_dir": str(s.traces_dir),
-        "LLM provider": (
-            f"anthropic (ANTHROPIC_API_KEY {'set' if s.anthropic_api_key else 'not set'})"
-            if s.llm_provider == "anthropic"
-            else f"openai-compatible at {s.llm_base_url} "
-            f"(RFP_LLM_API_KEY {'set' if s.llm_api_key else 'not set'})"
-        ),
+        "LLM provider": _provider_summary(),
         "extract / cheap model": f"{s.extract_model} / {s.cheap_model}",
         "embed / sparse / rerank": f"{s.embed_model} / {s.sparse_model} / {s.rerank_model}",
         "API key auth": "on" if s.api_key else "off",

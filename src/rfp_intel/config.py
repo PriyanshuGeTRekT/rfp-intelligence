@@ -28,19 +28,18 @@ class Settings(BaseSettings):
     traces_dir: Path = Path("traces")
     config_dir: Path = Path("config")
 
-    # LLM provider: "anthropic" uses the Anthropic SDK; "openai" uses any OpenAI-compatible
-    # chat API (OpenAI, Azure OpenAI, Groq, Mistral, Together, OpenRouter, Ollama, vLLM, ...).
-    llm_provider: Literal["anthropic", "openai"] = "anthropic"
+    # LLM provider. "anthropic"/"claude" uses the Anthropic SDK. Any other name uses the
+    # OpenAI-compatible chat API: a known preset (openai, azure, groq, xai/grok, gemini,
+    # mistral, together, openrouter, deepseek, ollama, lmstudio, vllm) fills in the base URL
+    # and the key variable; any other service works with RFP_LLM_BASE_URL set explicitly.
+    llm_provider: str = "anthropic"
     anthropic_api_key: SecretStr | None = Field(
         default=None,
         validation_alias=AliasChoices("ANTHROPIC_API_KEY", "RFP_ANTHROPIC_API_KEY"),
     )
-    llm_api_key: SecretStr | None = Field(
-        default=None,
-        validation_alias=AliasChoices("RFP_LLM_API_KEY", "OPENAI_API_KEY"),
-    )
-    llm_base_url: str = "https://api.openai.com/v1"
-    llm_auth_style: Literal["bearer", "api-key"] = "bearer"  # Azure OpenAI uses "api-key"
+    llm_api_key: SecretStr | None = None  # overrides the preset's key variable
+    llm_base_url: str | None = None  # overrides the preset's base URL
+    llm_auth_style: Literal["bearer", "api-key"] | None = None  # preset default; Azure: api-key
     llm_extra_query: dict[str, str] = Field(default_factory=dict)  # Azure: {"api-version": ...}
     llm_send_reasoning_effort: bool = False  # only for servers that accept reasoning_effort
     # Price per million tokens for the configured models when the built-in table lacks them.

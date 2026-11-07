@@ -80,12 +80,20 @@ phone numbers in span attributes are masked before export unless `RFP_TRACE_REDA
 
 The agents talk to the model through one interface (`agents/llm.py`, `structured()`: a
 system prompt, a user prompt and a Pydantic schema in; a validated object and token usage
-out). Two clients implement it, chosen by `RFP_LLM_PROVIDER`:
+out). Two clients implement it. `RFP_LLM_PROVIDER` names the provider; known names fill in
+the base URL and the key variable, and `uv run rfp llm-check` confirms the setup with one
+tiny call.
 
-| Provider | Setting | Covers |
+| `RFP_LLM_PROVIDER` | Key variable | Client |
 |---|---|---|
-| `anthropic` (default) | `ANTHROPIC_API_KEY` | Claude via the Anthropic SDK: native structured outputs, effort control, prompt caching |
-| `openai` | `RFP_LLM_BASE_URL`, `RFP_LLM_API_KEY`, model names | Any OpenAI-compatible chat API: OpenAI, Azure OpenAI (`RFP_LLM_AUTH_STYLE=api-key` plus `RFP_LLM_EXTRA_QUERY` for the api-version), Groq, Mistral, Together, OpenRouter, Ollama and vLLM (local servers need no key) |
+| `anthropic` / `claude` (default) | `ANTHROPIC_API_KEY` | Anthropic SDK: native structured outputs, effort control, prompt caching |
+| `openai`, `groq`, `xai` / `grok`, `gemini`, `mistral`, `together`, `openrouter`, `deepseek` | `OPENAI_API_KEY`, `GROQ_API_KEY`, `XAI_API_KEY`, `GEMINI_API_KEY`, ... | OpenAI-compatible chat API over HTTP |
+| `azure` | `AZURE_OPENAI_API_KEY`, plus the deployment URL and api-version | same, with `api-key` auth |
+| `ollama`, `lmstudio`, `vllm` | none | same, against a local server |
+| any other name | `RFP_LLM_API_KEY` plus `RFP_LLM_BASE_URL` | same |
+
+Model names (`RFP_EXTRACT_MODEL`, `RFP_CHEAP_MODEL`) are the provider's own. `RFP_LLM_API_KEY`
+and `RFP_LLM_BASE_URL` override a preset when set.
 
 The generic client asks for `response_format: json_schema`; a server that rejects it is
 retried with `json_object` and the schema in the prompt, and the choice is remembered per

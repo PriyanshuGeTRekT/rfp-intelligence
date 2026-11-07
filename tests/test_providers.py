@@ -193,3 +193,72 @@ def test_any_provider_satisfies_the_llm_protocol() -> None:
         return _client(Server([]))
 
     assert hasattr(make(), "structured")
+
+
+def test_presets_aliases_and_key_lookup(monkeypatch: pytest.MonkeyPatch) -> None:
+    from rfp_intel.agents.providers import PRESETS, check_llm, resolve_provider
+
+    for var in ("ANTHROPIC_API_KEY", "OPENAI_API_KEY", "GROQ_API_KEY", "XAI_API_KEY"):
+        monkeypatch.delenv(var, raising=False)
+
+    # a named provider fills in its base URL; the key comes from its usual variable
+    monkeypatch.setenv("GROQ_API_KEY", "gsk-test")
+    groq = resolve_provider(_settings(llm_provider="groq"))
+    assert (groq.kind, groq.base_url, groq.key, groq.key_source) == (
+        "openai", "https://api.groq.com/openai/v1", "gsk-test", "GROQ_API_KEY",
+    )  # fmt: skip
+
+    # aliases: "grok" is xAI, "claude" is anthropic; case does not matter
+    monkeypatch.setenv("XAI_API_KEY", "xai-test")
+    grok = resolve_provider(_settings(llm_provider="Grok"))
+    assert grok.name == "xai" and grok.base_url == PRESETS["xai"].base_url
+    claude = resolve_provider(_settings(llm_provider="claude", anthropic_api_key=SecretStr("a")))
+    assert claude.kind == "anthropic" and claude.key_source == "ANTHROPIC_API_KEY"
+
+    # RFP_LLM_API_KEY beats the provider variable; RFP_LLM_BASE_URL beats the preset
+    both = resolve_provider(
+        _settings(
+            llm_provider="groq", llm_api_key=SecretStr("mine"), llm_base_url="https://proxy/v1"
+        )
+    )
+    assert (both.key, both.key_source, both.base_url) == (
+        "mine",
+        "RFP_LLM_API_KEY",
+        "https://proxy/v1",
+    )
+
+    # a missing key names the variable to set
+    monkeypatch.delenv("GROQ_API_KEY")
+    with pytest.raises(LLMError, match="GROQ_API_KEY"):
+        resolve_provider(_settings(llm_provider="groq"))
+
+    # unknown providers work with an explicit base URL; azure needs one and uses api-key auth
+    with pytest.raises(LLMError, match="RFP_LLM_BASE_URL"):
+        resolve_provider(_settings(llm_provider="some-new-service"))
+    custom = resolve_provider(
+        _settings(
+            llm_provider="some-new-service",
+            llm_base_url="https://llm.corp/v1",
+            llm_api_key=SecretStr("k"),
+        )
+    )
+    assert custom.kind == "openai" and custom.auth_style == "bearer"
+    with pytest.raises(LLMError, match="api-version"):
+        resolve_provider(_settings(llm_provider="azure", llm_api_key=SecretStr("k")))
+    azure = resolve_provider(
+        _settings(
+            llm_provider="azure",
+            llm_api_key=SecretStr("k"),
+            llm_base_url="https://r.openai.azure.com/openai/deployments/d",
+        )
+    )
+    assert azure.auth_style == "api-key"
+
+    # local servers need no key
+    assert resolve_provider(_settings(llm_provider="ollama")).key is None
+    assert resolve_provider(_settings(llm_provider="lmstudio")).kind == "openai"
+
+    # the check call reports a usable setup
+    server = Server([_reply('{"ok": true, "word": "ready"}')])
+    report = check_llm(_client(server), "m")
+    assert report["ok"] and report["structured_output_mode"] == "json_schema"

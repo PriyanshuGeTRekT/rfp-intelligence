@@ -211,32 +211,19 @@ def register_price(model: str, input_per_m: float | None, output_per_m: float | 
         PRICES[model] = (input_per_m, output_per_m)
 
 
-NO_KEY_MESSAGE = (
-    "No LLM API key is configured. For Claude set ANTHROPIC_API_KEY; for any OpenAI-compatible "
-    "provider set RFP_LLM_PROVIDER=openai, RFP_LLM_BASE_URL and RFP_LLM_API_KEY (see "
-    ".env.example). Extraction and question answering call the model; indexing and search do not."
-)
-
-
 def llm_from_settings(settings: Any) -> LLM:
-    """The configured provider's client, or a clear error when no key is configured."""
+    """The configured provider's client, or a clear error naming what is missing."""
+    from rfp_intel.agents.providers import OpenAICompatibleLLM, resolve_provider
+
     for model in (settings.extract_model, settings.cheap_model):
         register_price(model, settings.llm_price_input_per_m, settings.llm_price_output_per_m)
-    if settings.llm_provider == "openai":
-        from rfp_intel.agents.providers import OpenAICompatibleLLM
-
-        key = settings.llm_api_key.get_secret_value() if settings.llm_api_key else ""
-        local = any(h in settings.llm_base_url for h in ("localhost", "127.0.0.1", "host.docker"))
-        if not key and not local:
-            raise LLMError(NO_KEY_MESSAGE)
-        return OpenAICompatibleLLM(
-            key or "none",
-            base_url=settings.llm_base_url,
-            auth_style=settings.llm_auth_style,
-            extra_query=settings.llm_extra_query,
-            send_reasoning_effort=settings.llm_send_reasoning_effort,
-        )
-    key_obj = settings.anthropic_api_key or settings.llm_api_key
-    if key_obj is None:
-        raise LLMError(NO_KEY_MESSAGE)
-    return AnthropicLLM(key_obj.get_secret_value())
+    resolved = resolve_provider(settings)
+    if resolved.kind == "anthropic":
+        return AnthropicLLM(resolved.key or "")
+    return OpenAICompatibleLLM(
+        resolved.key or "none",
+        base_url=resolved.base_url or "",
+        auth_style=resolved.auth_style,
+        extra_query=settings.llm_extra_query,
+        send_reasoning_effort=settings.llm_send_reasoning_effort,
+    )
