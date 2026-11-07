@@ -19,6 +19,8 @@ from fastapi import APIRouter, Depends, FastAPI, Header, HTTPException, Query, R
 from fastapi.responses import JSONResponse
 
 from rfp_intel import __version__
+from rfp_intel.agents.llm import LLM, LLMError, llm_from_settings
+from rfp_intel.agents.qa import QAResult, answer
 from rfp_intel.api.schemas import AskRequest, Health, IndexRequest
 from rfp_intel.config import Settings, get_settings
 from rfp_intel.logs import get_logger
@@ -33,11 +35,17 @@ RuntimeFactory = Callable[[Settings], Runtime]
 
 
 class _Services:
-    def __init__(self, settings: Settings, factory: RuntimeFactory) -> None:
+    def __init__(self, settings: Settings, factory: RuntimeFactory, llm: LLM | None) -> None:
         self.settings = settings
         self.factory = factory
         self.lock = threading.Lock()
         self._runtime: Runtime | None = None
+        self._llm = llm
+
+    def llm(self) -> LLM:
+        if self._llm is None:
+            self._llm = llm_from_settings(self.settings)
+        return self._llm
 
     def runtime(self) -> Runtime:
         if self._runtime is None:
@@ -123,15 +131,36 @@ def search(
 
 
 @router.post("/ask")
-def ask(body: AskRequest) -> dict[str, str]:
-    raise HTTPException(status_code=501, detail="question answering is not implemented yet")
+def ask(body: AskRequest, request: Request) -> QAResult:
+    """Answer a question with verbatim citations, or "Not found in documents"."""
+    if body.config not in NAMED_CONFIGS:
+        raise HTTPException(
+            status_code=422, detail=f"config must be one of {sorted(NAMED_CONFIGS)}"
+        )
+    services = _services(request)
+    try:
+        llm = services.llm()
+    except LLMError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    with services.lock:
+        return answer(
+            services.runtime().engine(),
+            llm,
+            services.settings.extract_model,
+            body.question,
+            bid_id=body.bid_id,
+            k=body.k,
+            config=body.config,
+        )
 
 
 def create_app(
-    settings: Settings | None = None, runtime_factory: RuntimeFactory | None = None
+    settings: Settings | None = None,
+    runtime_factory: RuntimeFactory | None = None,
+    llm: LLM | None = None,
 ) -> FastAPI:
     settings = settings or get_settings()
-    services = _Services(settings, runtime_factory or (lambda s: open_runtime(s)))
+    services = _Services(settings, runtime_factory or (lambda s: open_runtime(s)), llm)
 
     @asynccontextmanager
     async def lifespan(_: FastAPI) -> AsyncIterator[None]:

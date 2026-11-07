@@ -59,6 +59,8 @@ class SearchBackend(Protocol):
 
     def fetch(self, chunk_ids: Sequence[str]) -> dict[str, dict[str, Any]]: ...
 
+    def scroll_document(self, doc_id: str) -> list[dict[str, Any]]: ...
+
     def count(self, filters: Filters | None = None) -> int: ...
 
     def close(self) -> None: ...
@@ -236,6 +238,22 @@ class QdrantBackend:
             with_payload=["chunk_id"],
         )
         return [str((p.payload or {})["chunk_id"]) for p in points]
+
+    def scroll_document(self, doc_id: str) -> list[dict[str, Any]]:
+        """All chunk payloads of one document."""
+        out: list[dict[str, Any]] = []
+        offset = None
+        while True:
+            points, offset = self.client.scroll(
+                self.collection,
+                scroll_filter=_filter(Filters(doc_id=doc_id)),
+                limit=256,
+                offset=offset,
+                with_payload=True,
+            )
+            out.extend(dict(p.payload or {}) for p in points)
+            if offset is None:
+                return out
 
     def fetch(self, chunk_ids: Sequence[str]) -> dict[str, dict[str, Any]]:
         if not chunk_ids:

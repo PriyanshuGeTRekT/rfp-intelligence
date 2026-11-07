@@ -203,3 +203,14 @@ class AnthropicLLM:
                 raise LLMError("the response did not match the output schema")
             return parsed, usage
         raise LLMError(f"gave up after {self.max_attempts} attempts: {last}")
+
+
+def llm_from_settings(settings: Any) -> LLM:
+    """The live client, or a clear error when no key is configured."""
+    key = settings.anthropic_api_key
+    if key is None:
+        raise LLMError(
+            "ANTHROPIC_API_KEY is not set. Put it in .env (see .env.example); extraction and "
+            "question answering call Claude, while indexing and search do not."
+        )
+    return AnthropicLLM(key.get_secret_value())

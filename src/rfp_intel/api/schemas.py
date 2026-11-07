@@ -10,6 +10,8 @@ class IndexRequest(BaseModel):
 class AskRequest(BaseModel):
     question: str = Field(min_length=3, max_length=2000)
     bid_id: str | None = None
+    k: int = Field(default=8, ge=1, le=20)
+    config: str = "hybrid_facts"
 
 
 class Health(BaseModel):

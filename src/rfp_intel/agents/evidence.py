@@ -10,7 +10,7 @@ checkpoints and traces stay small. The record of what was searched is kept per f
 the proof behind "not found".
 """
 
-from collections.abc import Sequence
+from collections.abc import Callable, Sequence
 from typing import Any
 
 from pydantic import BaseModel, Field
@@ -29,6 +29,7 @@ MIN_QUERIES_FOR_ABSENCE = 3
 
 class EvidenceItem(BaseModel):
     evidence_id: str  # the chunk id
+    bid_id: str = ""
     file: str
     page_start: int
     page_end: int
@@ -37,14 +38,16 @@ class EvidenceItem(BaseModel):
     section: str = ""
     text: str
 
-    def header(self) -> str:
-        pages = (
-            str(self.page_start)
-            if self.page_start == self.page_end
-            else f"{self.page_start}-{self.page_end}"
-        )
+    @property
+    def pages(self) -> str:
+        if self.page_start == self.page_end:
+            return str(self.page_start)
+        return f"{self.page_start}-{self.page_end}"
+
+    def header(self, *, with_bid: bool = False) -> str:
         add = f", addendum {self.addendum_number}" if self.addendum_number is not None else ""
-        return f"[{self.evidence_id}] {self.file} p{pages} ({self.doc_type}{add})"
+        bid = f"bid {self.bid_id}, " if with_bid and self.bid_id else ""
+        return f"[{self.evidence_id}] {bid}{self.file} p{self.pages} ({self.doc_type}{add})"
 
 
 class FactCandidate(BaseModel):
@@ -79,17 +82,32 @@ class FieldEvidence(BaseModel):
         )
 
 
+Loader = Callable[[Sequence[str]], dict[str, dict[str, Any]]]
+
+
 class EvidenceStore:
-    def __init__(self) -> None:
+    """Evidence text by chunk id. With a loader (the backend's fetch), ids that were gathered
+    in an earlier process, such as a resumed run, are fetched on first use."""
+
+    def __init__(self, loader: Loader | None = None) -> None:
         self._items: dict[str, EvidenceItem] = {}
+        self._loader = loader
 
     def add(self, item: EvidenceItem) -> None:
         self._items.setdefault(item.evidence_id, item)
 
+    def _load(self, ids: Sequence[str]) -> None:
+        missing = [i for i in ids if i not in self._items]
+        if missing and self._loader is not None:
+            for payload in self._loader(missing).values():
+                self.add(_item(payload))
+
     def get(self, evidence_id: str) -> EvidenceItem | None:
+        self._load([evidence_id])
         return self._items.get(evidence_id)
 
     def many(self, ids: Sequence[str]) -> list[EvidenceItem]:
+        self._load(ids)
         return [self._items[i] for i in ids if i in self._items]
 
     def __len__(self) -> int:
@@ -99,6 +117,7 @@ class EvidenceStore:
 def _item(payload: dict[str, Any]) -> EvidenceItem:
     return EvidenceItem(
         evidence_id=payload["chunk_id"],
+        bid_id=payload.get("bid_id", ""),
         file=payload["file_name"],
         page_start=payload["page_start"],
         page_end=payload["page_end"],

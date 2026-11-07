@@ -232,16 +232,99 @@ def extract(
     resume: Annotated[str | None, typer.Option(help="Resume a previous run id")] = None,
 ) -> None:
     """Run the multi-agent extraction and write one cited JSON for the bid."""
-    _todo("extract")
+    from rfp_intel.agents.evidence import EvidenceStore
+    from rfp_intel.agents.fields import load_fields
+    from rfp_intel.agents.graph import Services, run_extraction
+    from rfp_intel.agents.llm import LLMError, llm_from_settings
+    from rfp_intel.search.runtime import open_runtime
+    from rfp_intel.telemetry import setup_tracing
+
+    s = get_settings()
+    folder = _bid_folder(bid)
+    try:
+        llm = llm_from_settings(s)
+    except LLMError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    _, run_id = setup_tracing(s, run_id=resume)
+    out_dir = out.parent if out is not None else Path("outputs")
+    with open_runtime(s) as rt:
+        services = Services(
+            settings=s,
+            engine=rt.engine(),
+            indexer=rt.indexer(),
+            llm=llm,
+            catalog=load_fields(s.config_dir / "fields.yaml"),
+            store=EvidenceStore(loader=rt.backend.fetch),
+            out_dir=out_dir,
+        )
+        result, _state = run_extraction(
+            services,
+            folder.name,
+            run_id=run_id,
+            resume=resume is not None,
+            checkpoint_path=s.state_dir / "checkpoints.sqlite",
+        )
+    if out is not None and out.name != f"{folder.name}.json":
+        out.write_text(result.model_dump_json(indent=2), encoding="utf-8")
+    width = max(len(k) for k in result.fields)
+    for key, fr in result.fields.items():
+        value = ", ".join(fr.value) if isinstance(fr.value, list) else (fr.value or "null")
+        typer.echo(f"{key:<{width}}  [{fr.tier:<4} {fr.confidence:.2f}]  {value[:90]}")
+    v = result.validation
+    typer.echo(
+        f"\n{v.fields} fields: {v.passed_first_time} passed first time, "
+        f"{v.passed_after_retry} after retry, {v.failed} failed; {v.retries} retries; "
+        f"{len(result.addendum_changes)} addendum changes"
+    )
+    u = result.usage
+    typer.echo(
+        f"{int(u.get('calls', 0))} LLM calls, {int(u.get('input_tokens', 0))} in / "
+        f"{int(u.get('output_tokens', 0))} out tokens, ${u.get('cost_usd', 0):.4f}"
+    )
+    typer.echo(
+        f"wrote {out_dir / (folder.name + '.json')}; trace {s.traces_dir / (run_id + '.jsonl')}"
+    )
 
 
 @app.command()
 def ask(
     question: str,
     bid: Annotated[str | None, typer.Option(help="Restrict to one bid")] = None,
+    k: Annotated[int, typer.Option(help="Passages to read")] = 8,
+    config: Annotated[str, typer.Option(help="Retrieval configuration")] = DEFAULT_CONFIG,
+    log_path: Annotated[Path, typer.Option(help="Append the cited answer here")] = Path(
+        "outputs/qa_log.jsonl"
+    ),
+    no_log: Annotated[bool, typer.Option("--no-log", help="Do not append to the log")] = False,
 ) -> None:
     """Answer a question with citations, or say it is not in the documents."""
-    _todo("ask")
+    from rfp_intel.agents.llm import LLMError, llm_from_settings
+    from rfp_intel.agents.qa import answer
+    from rfp_intel.search.models import NAMED_CONFIGS
+    from rfp_intel.search.runtime import open_runtime
+    from rfp_intel.telemetry import setup_tracing
+
+    s = get_settings()
+    try:
+        llm = llm_from_settings(s)
+    except LLMError as exc:
+        typer.echo(str(exc), err=True)
+        raise typer.Exit(code=1) from exc
+    setup_tracing(s)
+    with open_runtime(s, load_reranker=NAMED_CONFIGS[config].rerank) as rt:
+        result = answer(rt.engine(), llm, s.extract_model, question, bid_id=bid, k=k, config=config)
+    typer.echo(result.answer)
+    for c in result.citations:
+        typer.echo(f'  [{c.bid_id}] {c.file} p{c.page}: "{c.quote}"')
+    typer.echo(
+        f"({result.passages_reviewed} passages, {result.dropped_citations} citations dropped, "
+        f"${result.usage.get('cost_usd', 0):.4f})"
+    )
+    if not no_log:
+        log_path.parent.mkdir(parents=True, exist_ok=True)
+        with log_path.open("a", encoding="utf-8") as fh:
+            fh.write(result.model_dump_json() + "\n")
 
 
 CONFIG_DESCRIPTIONS = {

@@ -5,9 +5,11 @@ Hybrid search and multi-agent field extraction over public bid documents. Given 
 20 fields and answers free-form questions with citations, or says the answer is not in the
 documents.
 
-> Status: phases 1 to 4 and 5a done: ingestion, the fact layer, hybrid search with incremental
-> indexing, CLI and REST API, the retrieval evaluation, and the deterministic agent building
-> blocks. The LangGraph agent graph, prompts and question answering (5b) are next.
+> Status: phases 1 to 5 done: ingestion, the fact layer, hybrid search with incremental
+> indexing, the retrieval evaluation, and the multi-agent extraction graph with question
+> answering, all tested end to end with a scripted model. Not yet done: a run against the
+> live Claude API (no key during development), the per-bid JSON outputs, the Q&A log and the
+> example trace that come from such a run, the architecture diagram and the demo.
 
 ## Quick start
 
@@ -31,10 +33,10 @@ uv run pytest -m slow       # end-to-end retrieval tests with the real models
 | `rfp facts <bid> [--type deadline] [--kind datetime]` | Extract and store typed facts; print the matching ones | done |
 | `rfp index [bid ...] [--force]` | Index bid folders incrementally; unchanged files are skipped | done |
 | `rfp search "<query>" [--bid] [--doc-type] [--addendum] [--config] [--json]` | Hybrid search; file, pages, chunk text and per-list ranks per hit | done |
-| `rfp extract <bid>` | Multi-agent extraction to one cited JSON | phase 5 |
-| `rfp ask "<question>"` | Cited answer or "not found in documents" | phase 6 |
+| `rfp extract <bid> [--out f.json] [--resume RUN_ID]` | Multi-agent extraction to `outputs/<bid>.json`; needs `ANTHROPIC_API_KEY` | done, untested live |
+| `rfp ask "<question>" [--bid] [--k] [--config]` | Cited answer or "Not found in documents."; appends to `outputs/qa_log.jsonl` | done, untested live |
 | `rfp eval retrieval [--config] [--check] [--update-baseline]` | Recall@k, MRR and latency per configuration; writes docs/eval/retrieval.md | done |
-| `rfp serve` | REST API: `POST /index`, `GET /search` live; `POST /ask` in phase 6 | done |
+| `rfp serve` | REST API: `POST /index`, `GET /search`, `POST /ask` | done |
 
 ## Layout
 
@@ -269,8 +271,47 @@ graph and prompts sit on top of them.
   transient errors and explicit errors for refusal, truncation and schema mismatch.
   `ScriptedLLM` answers deterministically for tests.
 
+### Agent graph
+
+`agents/graph.py` is a LangGraph `StateGraph`. The brief's roles map onto it like this:
+
+| Role | Where |
+|---|---|
+| Orchestrator / Planner | `plan` node (checks the index, lists documents, sets the group plan) and the two conditional edges that fan out and route retries |
+| Ingestion | `plan` indexes the folder when the manifest has nothing for the bid |
+| Retrieval / Search | the search engine, called as a tool by every extraction node |
+| Extraction | four `extract_group` nodes run in parallel, one `Send` and one structured LLM call per field group; `extract_field` retries one field with the validator's reason and the slower reranked retrieval |
+| Addendum Reconciliation | `reconcile`: date events from facts (no model), other events by one cached LLM call per addendum; the date fields are resolved here and never sent to the model |
+| Validator / Critic | `validate`: deterministic checks; a failed field loops back, at most `max_retries` (2) times |
+| Q&A / Report | `finalize` writes the JSON and the generated summary; `agents/qa.py` answers questions |
+
+Design choices worth knowing:
+
+- **Shared state is small.** State holds the plan, document list, events, drafts, validations,
+  attempts, usage and a log; evidence text lives in a store keyed by chunk id, fetched on
+  demand. Keys written by parallel branches have merge reducers, so no branch overwrites
+  another.
+- **Structured everywhere.** Every model response is a Pydantic schema (`agents/outputs.py`)
+  requested through the API's structured outputs; every node update is a typed dict.
+- **Resumable.** The graph compiles with a SQLite checkpointer keyed by run id;
+  `rfp extract --resume RUN_ID` continues or returns a finished run.
+- **Guardrails.** A found value with no verbatim quote never reaches the output; "not found"
+  is accepted only after a thorough search with no labelled facts; a field the validator
+  rejects on every attempt is reported as null with the reasons (tier X), never guessed.
+- **Q&A.** Retrieve, answer with quoted citations, check every quote against its passage.
+  Citations that are not verbatim are dropped, and an answer left without one becomes
+  "Not found in documents." rather than an unsupported claim.
+- **Cost.** Extraction is 4 group calls plus one per addendum (cached), one per retry and one
+  summary; the system prompt is cached by the API. Usage, latency and an estimated cost are
+  recorded per call, on the spans and in the result's `usage`.
+- **Errors.** Timeouts and rate limits retry with backoff; refusals, truncated output and
+  schema mismatches raise a clear error; one unreadable file never stops a run.
+
 ## Assumptions and limitations
 
+- **No live run yet.** The agent graph and Q&A are tested end to end with a scripted model
+  and the real search stack, but have not been run against the Claude API. The first live
+  run will produce `outputs/<bid>.json`, `outputs/qa_log.jsonl` and `traces/<run_id>.jsonl`.
 - **Windows path length.** This repo's current location is deep enough that the Anthropic
   SDK cannot be imported from `.venv`: one of its module files ends up past the 260-character
   path limit. Clone or move the repo to a short path (for example `C:\dev\rfp-intelligence`)
