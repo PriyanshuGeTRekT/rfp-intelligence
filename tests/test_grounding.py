@@ -127,3 +127,17 @@ def test_a_form_can_be_cited_by_its_document_title() -> None:
         "Attachment N - Contract Affidavit",
         "title A. AUTHORITY",  # only "document title" is a label; this one is rejected
     ]
+
+
+def test_a_copied_passage_header_grounds_as_its_title() -> None:
+    # gpt-oss-120b cited a form by copying the whole header line the passage starts with.
+    store = EvidenceStore()
+    store.add(EvidenceItem(evidence_id="e1", file="Contract_Affidavit.pdf", page_start=1,
+                           page_end=1, doc_type="affidavit", text="A. AUTHORITY I hereby affirm",
+                           title="Attachment N - Contract Affidavit"))  # fmt: skip
+    header = '[e1] Contract_Affidavit.pdf p1 (affidavit; document title "Attachment N - Contract Affidavit")'
+    draft = FieldDraft(field="additional_documentation", status="found",
+                       value=["Contract Affidavit"], quotes=[Quote(evidence_id="e1", text=header)])  # fmt: skip
+    assert [q.text for q in ground_draft(draft, store).quotes] == [
+        "Attachment N - Contract Affidavit"
+    ]

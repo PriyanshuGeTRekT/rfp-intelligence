@@ -31,9 +31,11 @@ from rfp_intel.search.models import DEFAULT_CONFIG, SearchConfig
 PER_QUERY = 5
 MAX_ITEMS = 10
 POOL = 30  # candidates pooled across queries before the per-field rerank
-# Signature templates (affidavits, forms) are legal boilerplate that rarely states a bid's own
-# terms, but their contract language scores well; fields that do not ask for them demote them.
-SIGNATURE_DOC_TYPES = ("affidavit", "form")
+# Document types that rarely state the solicitation's own requirements but score well against
+# them: signature templates (affidavits, forms) are legal boilerplate, and spec sheets are
+# often a vendor's quote with its own terms of sale, financing, install options and sales
+# contact. A field demotes the ones it does not ask for in `doc_types`.
+DEMOTABLE_DOC_TYPES = ("affidavit", "form", "specs")
 PER_DOCUMENT = 2  # chunks a document keeps in the first pass of the ranking (see diversify)
 MAX_FACT_CHUNKS = 4  # fact-bearing chunks added to the pool (ahead of it when not reranking)
 MIN_QUERIES_FOR_ABSENCE = 3
@@ -212,7 +214,7 @@ def gather(
     # model anyway as a candidate fact.
     ids = list(dict.fromkeys([*fact_chunks, *pool]))
     if rerank:
-        demote = () if set(spec.doc_types) & set(SIGNATURE_DOC_TYPES) else SIGNATURE_DOC_TYPES
+        demote = tuple(t for t in DEMOTABLE_DOC_TYPES if t not in spec.doc_types)
         topic = f"{spec.name}: {spec.description}"
         # A list of many kinds of item (forms, affidavits, certificates) is not one topic: its
         # chunks are scored against each of the field's own queries too, keeping the best.

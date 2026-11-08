@@ -22,6 +22,7 @@ from rfp_intel.agents.reconcile import (
     format_datetime,
     resolve_datetime,
 )
+from rfp_intel.agents.schema import FieldResult
 from rfp_intel.agents.validate import FieldDraft, Quote, validate
 from rfp_intel.config import Settings
 from rfp_intel.facts.datetimes import find_datetimes
@@ -553,3 +554,13 @@ def test_model_events_restating_a_date_change_are_dropped() -> None:
     )
     other = _event("add_requirement", "Signed Addendum 2", 2)
     assert drop_restated_dates([misfiled, other], [date_event]) == [other]
+
+
+def test_values_use_plain_spaces_and_hyphens() -> None:
+    nbsp, nb_hyphen = chr(0x00A0), chr(0x2011)
+    fr = FieldResult(key="bid_summary", value=f"due June{nbsp}10, a 3{nb_hyphen}year warranty",
+                     status="found", confidence=0.9, tier="B")  # fmt: skip
+    assert fr.value == "due June 10, a 3-year warranty"
+    items = FieldResult(key="model_no", value=[f"Dock{nbsp}WD22TB4"], status="found",
+                        confidence=0.9, tier="B")  # fmt: skip
+    assert items.value == ["Dock WD22TB4"]

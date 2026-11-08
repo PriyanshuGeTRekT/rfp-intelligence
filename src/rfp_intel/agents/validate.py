@@ -162,8 +162,12 @@ def ground_in(
     pointed at the passage that holds it.
 
     A quote of a document's title often keeps the header's label (`document title "MERCURY
-    AFFIDAVIT"`); it grounds as the title alone when the quote as given does not."""
-    variants = dict.fromkeys([quote, _TITLE_LABEL_RE.sub("", quote, count=1)])
+    AFFIDAVIT"`) or copies the whole passage header; it grounds as the title alone when the
+    quote as given does not."""
+    titled = _QUOTED_TITLE_RE.search(quote)
+    variants = dict.fromkeys(
+        [quote, _TITLE_LABEL_RE.sub("", quote, count=1), *([titled.group(1)] if titled else [])]
+    )
     for evidence_id in dict.fromkeys([cited, *shown]):
         item = store.get(evidence_id)
         if item is None:
@@ -175,6 +179,7 @@ def ground_in(
 
 
 _TITLE_LABEL_RE = re.compile(r"^\W*document\s+title\b\W*", re.IGNORECASE)
+_QUOTED_TITLE_RE = re.compile(r'document\s+title\s+"([^"]+)"', re.IGNORECASE)
 
 
 def ground_draft(

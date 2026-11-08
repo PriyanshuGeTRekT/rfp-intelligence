@@ -12,7 +12,7 @@ a validation tally whose first three counts are the brief's passed / failed / no
 from datetime import date
 from typing import Any, Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 FieldStatus = Literal["found", "not_found", "conflict", "failed"]
 NOT_FOUND = "Not found in documents."
@@ -27,6 +27,24 @@ class Source(BaseModel):
     evidence_id: str | None = None
 
 
+# Models write non-breaking spaces and hyphens ("June 10" with U+00A0, "3-year" with U+2011);
+# in a value they only stop readers and searches from matching the text. Quotes keep the
+# source's own characters.
+_PLAIN = str.maketrans(
+    {
+        chr(0x00A0): " ",  # no-break space
+        chr(0x202F): " ",  # narrow no-break space
+        chr(0x2009): " ",  # thin space
+        chr(0x2010): "-",  # hyphen
+        chr(0x2011): "-",  # non-breaking hyphen
+    }
+)
+
+
+def plain_text(text: str) -> str:
+    return text.translate(_PLAIN)
+
+
 class FieldResult(BaseModel):
     key: str
     value: str | list[str] | None
@@ -36,6 +54,15 @@ class FieldResult(BaseModel):
     tier: str
     normalized: dict[str, Any] | None = None
     notes: str | None = None
+
+    @field_validator("value")
+    @classmethod
+    def _plain(cls, v: str | list[str] | None) -> str | list[str] | None:
+        if isinstance(v, str):
+            return plain_text(v)
+        if isinstance(v, list):
+            return [plain_text(item) for item in v]
+        return v
 
 
 class AddendumChange(BaseModel):

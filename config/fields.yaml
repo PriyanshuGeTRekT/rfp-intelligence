@@ -164,9 +164,10 @@ fields:
     description: >-
       Manufacturer model names and numbers the documents require or quote, as the
       manufacturer markets them (a product line and number, for example a laptop or a dock
-      model), one item per product. Not part numbers, SKUs or configuration codes. Return
-      not_found when the agency lets vendors propose models.
-    fact_kinds: [identifier]
+      model), one item per product. Not part numbers, SKUs, item or
+      catalog numbers (codes labelled "SI#", "Item #" or "Cat. No."), or configuration codes,
+      even when such a code appears next to the model name. Return not_found when the agency
+      lets vendors propose models.
     queries: [model number, product model required, brand and model]
     doc_types: [specs]
 
@@ -228,8 +229,9 @@ fields:
     type: text
     reconcile: true
     description: >-
-      Installation, deployment, imaging, tagging or other on-site services required, or that
-      none are required.
+      Installation, deployment, imaging, tagging or other on-site services the solicitation
+      requires, or that none are required. A factory-install or configuration option listed in
+      a vendor's quote or product sheet is not an installation requirement.
     queries: [installation deployment services, white glove imaging asset tagging, setup configuration services]
 
   - key: delivery_date

@@ -249,7 +249,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Only through the State's eMaryland Marketplace Advantage (eMMA) e-Procurement system; bids not accepted by email, fax, U",
+      "value": "Electronic submission via the State's eMaryland Marketplace Advantage (eMMA) e-Procurement system; bids will not be acce",
       "reason": "all patterns present"
     },
     {
@@ -259,7 +259,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Fixed Price; proposals must remain valid for at least 90 days after the due date",
+      "value": "Fixed Price; proposals must be valid for at least 90 days after the due date",
       "reason": "all patterns present"
     },
     {
@@ -289,18 +289,18 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Invoices must be emailed to STOaccountspayable@treasurer.state.md.us and submitted within 10 days of equipment delivery",
+      "value": "Invoices shall be submitted within 10 days of delivering the equipment",
       "reason": "all patterns present"
     },
     {
       "bid_id": "Bid2",
       "field": "additional_documentation",
       "passed": false,
-      "tier": "A",
-      "confidence": 0.95,
-      "status": "found",
-      "value": "Mercury Affidavit ; Contract Affidavit",
-      "reason": "missing items ['warrant']"
+      "tier": "X",
+      "confidence": 0.2,
+      "status": "failed",
+      "value": null,
+      "reason": "expected a value, got null"
     },
     {
       "bid_id": "Bid2",
@@ -335,12 +335,12 @@
     {
       "bid_id": "Bid2",
       "field": "model_no",
-      "passed": false,
+      "passed": true,
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "CC7802 ; WD22TB4",
-      "reason": "missing items ['Latitude 5550']"
+      "value": "Dell Latitude 5550 ; WD22TB4",
+      "reason": "all items present"
     },
     {
       "bid_id": "Bid2",
@@ -359,15 +359,15 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "30 Dell Latitude 5550 laptops; 30 Dell Thunderbolt 4 Dock – WD22TB4",
+      "value": "Dell Latitude 5550 (Qty: 30); Dell Thunderbolt 4 Dock – WD22TB4 (Qty: 30)",
       "reason": "all patterns present"
     },
     {
       "bid_id": "Bid2",
       "field": "contact_info",
       "passed": true,
-      "tier": "A",
-      "confidence": 0.95,
+      "tier": "B",
+      "confidence": 0.85,
       "status": "found",
       "value": "Tamaira Hawkins, Phone: 410-260-7533, Email: thawkins@treasurer.state.md.us",
       "reason": "all patterns present"
@@ -385,12 +385,12 @@
     {
       "bid_id": "Bid2",
       "field": "product_specification",
-      "passed": true,
-      "tier": "A",
-      "confidence": 0.95,
+      "passed": false,
+      "tier": "B",
+      "confidence": 0.85,
       "status": "found",
       "value": "Intel Core Ultra 5 125U processor (12 MB cache, 12 cores, 14 threads, up to 4.3 GHz Turbo) ; 16 GB: 2 x 8 GB, DDR5, 5600",
-      "reason": "all patterns present"
+      "reason": "missing ['3[- ]year']"
     },
     {
       "bid_id": "Bid2",
@@ -399,7 +399,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "The State of Maryland Treasurer's Office (bid #E20P4600040) is buying 30 Dell Latitude 5550 laptops (model CC7802) and 3",
+      "value": "The State of Maryland Treasurer's Office is inviting bids for 30 Dell Latitude 5550 laptops and 30 Dell Thunderbolt 4 Do",
       "reason": "all patterns present"
     },
     {
