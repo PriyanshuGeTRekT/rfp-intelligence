@@ -85,7 +85,7 @@
           "value": "2024-06-10 14:00 CDT",
           "status": "found",
           "tier": "A",
-          "source": "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html, p. 1"
+          "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 2"
         },
         "Bid2": {
           "value": "(not found)",
@@ -106,7 +106,7 @@
       "name": "Bid Submission Type",
       "cells": {
         "Bid1": {
-          "value": "Electronic submission via the iSupplier portal (https://www.dallasisd.org/domain/143); manual submission in a sealed envelope with one (1) original hard copy...",
+          "value": "Electronic submission via iSupplier portal https://www.dallasisd.org/domain/143; manual sealed hard copy (one original) delivered to Procurement Services Dep...",
           "status": "found",
           "tier": "B",
           "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 9"
@@ -130,7 +130,7 @@
       "name": "Term of Bid",
       "cells": {
         "Bid1": {
-          "value": "Initial term of 3 years with two one-year renewal options, not to exceed a total of 5 years.",
+          "value": "Three-year initial term with two successive one-year renewal options, not to exceed a total of five years.",
           "status": "found",
           "tier": "B",
           "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 2"
@@ -178,10 +178,10 @@
       "name": "Payment Terms",
       "cells": {
         "Bid1": {
-          "value": "within 10 days of receiving payment from the district",
-          "status": "found",
-          "tier": "B",
-          "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 51"
+          "value": "(not found)",
+          "status": "not_found",
+          "tier": "NF-2",
+          "source": null
         },
         "Bid2": {
           "value": "Invoices must be emailed to STOaccountspayable@treasurer.state.md.us and submitted within 10 days of equipment delivery",
@@ -202,7 +202,7 @@
       "name": "Contract or Cooperative to use",
       "cells": {
         "Bid1": {
-          "value": "Educational Purchasing Cooperative of North Texas (EPCNT); Central Texas Purchasing Alliance (CTPA)",
+          "value": "Educational Purchasing Cooperative of North Texas (EPCNT) Interlocal Agreement Rider; Central Texas Purchasing Alliance (CTPA) Interlocal Agreement - Coopera...",
           "status": "found",
           "tier": "B",
           "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 19"
@@ -226,7 +226,7 @@
       "name": "Any Additional Documentation Required",
       "cells": {
         "Bid1": {
-          "value": "INTERLOCAL AGREEMENT (\"Rider\") CONSENT FORM; FORM 1295 - CERTIFICATE OF INTERESTED PARTIES; Non-warranty options can be submitted as an attachment.; Signed a...",
+          "value": "INTERLOCAL AGREEMENT (\"Rider\") CONSENT FORM; MWBE Forms; W9 Form; Punch Out Process - OPTIONAL; 1295 form; Non-warranty options can be submitted as an attach...",
           "status": "found",
           "tier": "A",
           "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 19"
@@ -250,10 +250,10 @@
       "name": "Product",
       "cells": {
         "Bid1": {
-          "value": "Tier 1 Small Student Chromebook Laptop (Touch) – 50,000; Tier 2 Large Student Chromebook Laptop (Non‑Touch) – 50,000; Student Tablet – 50,000",
-          "status": "found",
-          "tier": "B",
-          "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 34"
+          "value": "(not found)",
+          "status": "not_found",
+          "tier": "NF-1",
+          "source": null
         },
         "Bid2": {
           "value": "30 Dell Latitude 5550 laptops; 30 Dell Thunderbolt 4 Dock – WD22TB4",
@@ -322,7 +322,7 @@
       "name": "MFG for Registration",
       "cells": {
         "Bid1": {
-          "value": "Original Equipment Manufacturer (OEM)",
+          "value": "OEM",
           "status": "found",
           "tier": "B",
           "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 3"
@@ -346,10 +346,10 @@
       "name": "Product Specification",
       "cells": {
         "Bid1": {
-          "value": "Windows Device – Screen Resolution 1920-1080 Non-Touch, Windows Device – Memory Minimum 16GB RAM DDR5, Windows Device – Storage 256 GB NVMe SSD, Windows Devi...",
+          "value": "Intel i5 CPU, 14th Gen or equivalent., Memory: Minimum 16GB DDR5 RAM, Storage: 512 GB NVMe SSD, Display: Minimum 13\" diagonal screen, Warranty: 3-year minimu...",
           "status": "found",
           "tier": "A",
-          "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 5"
+          "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 6"
         },
         "Bid2": {
           "value": "Intel Core Ultra 5 125U processor (12 MB cache, 12 cores, 14 threads, up to 4.3 GHz Turbo); 16 GB: 2 x 8 GB, DDR5, 5600 MT/s (5200 MT/s with 13th Gen Intel C...",
@@ -394,7 +394,7 @@
       "name": "contact_info",
       "cells": {
         "Bid1": {
-          "value": "Procurement Services; Phone: 972-925-3700; Email: ProcurementCS@dallasisd.org",
+          "value": "Procurement Services, Phone: 972-925-3700, Email: ProcurementCS@dallasisd.org",
           "status": "found",
           "tier": "B",
           "source": "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html, p. 1"
@@ -418,7 +418,7 @@
       "name": "Installation",
       "cells": {
         "Bid1": {
-          "value": "White glove deployment services including asset decaling, asset reporting, etching, and delivery to varied locations are required., All deliveries and deploy...",
+          "value": "White glove deployment services including asset decaling, asset reporting, etching, and delivery are required., All deliveries and deployments must incorpora...",
           "status": "found",
           "tier": "A",
           "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 3"
@@ -466,7 +466,7 @@
       "name": "Bid Summary",
       "cells": {
         "Bid1": {
-          "value": "The Dallas Independent School District is inviting bids to supply 50,000 Tier 1 Small Student Chromebook Laptops (Touch), 50,000 Tier 2 Large Student Chromeb...",
+          "value": "Dallas Independent School District is inviting bids for student and staff computing devices featuring Intel i5, i7, Celeron, or A13 processors with specified...",
           "status": "found",
           "tier": "B",
           "source": "Addendum 2 RFP JA-207652 Student and Staff Computing Devices.pdf, p. 1"
@@ -486,75 +486,83 @@
       }
     }
   ],
-  "summary": "Bid1 (JA-207652) targets a large volume of student and staff devices with a longer 3-year term and cooperative procurement; Bid2 (#E20P4600040) is a fixed-price offer under a state master contract with a short 12-month term; Bid3 (2025-003) has the latest deadline and a bid security requirement but lacks many product details. The main distinctions lie in due dates, submission methods, contractual terms, required bond, payment, and delivery schedules, as well as the specific device offerings and documentation needs. These differences should guide which bid aligns best with procurement timing, financial terms, and device requirements.",
+  "summary": "Bid2 has the earliest deadline and the most detailed product specifications, making it the most attractive for timely procurement. It also imposes strict submission and contract requirements, but offers a fixed-price, 90‑day validity term, which could simplify budgeting. Bid1 offers a longer term with broader cooperative agreements and white‑glove deployment, but lacks a clear delivery date and has no bond requirement. Bid3 requires a bid bond, provides a single product model, and sets a firm delivery date, but offers the shortest term and minimal documentation.",
   "differences": [
     {
+      "field": "bid_number",
+      "statement": "Bid1 uses JA-207652, Bid2 uses #E20P4600040, and Bid3 uses 2025-003."
+    },
+    {
+      "field": "title",
+      "statement": "Bid1's title is 'Student and Staff Computing Devices'; Bid2's is 'Dell Laptops w/Extended Warranty'; Bid3 has no title."
+    },
+    {
       "field": "due_date",
-      "statement": "Bid1 due date is July 9, 2024; Bid2 is June 10, 2024, earlier; Bid3 is September 6, 2024, latest."
+      "statement": "Bid2's due date (2024-06-10 14:00 EDT) is earlier than Bid1 (2024-07-09 14:00 CDT) and Bid3 (2024-09-06 13:00)."
     },
     {
       "field": "pre_bid_meeting",
-      "statement": "Bid1 has a pre-bid meeting on June 10, 2024; Bid2 and Bid3 do not specify a pre-bid meeting."
+      "statement": "Only Bid1 offers a pre-bid meeting scheduled for 2024-06-10 14:00 CDT; Bid2 and Bid3 have none."
     },
     {
       "field": "bid_submission_type",
-      "statement": "Bid1 allows electronic submission via iSupplier portal plus manual sealed envelope; Bid2 requires submission only through eMMA; Bid3 mandates sealed envelope by September 6."
+      "statement": "Bid1 allows electronic submission via iSupplier portal plus a manual sealed hard copy; Bid2 requires submission exclusively through eMMA; Bid3 requires proposals in a sealed envelope by 1:00 PM on September 6, 2024."
     },
     {
       "field": "term_of_bid",
-      "statement": "Bid1 offers a 3-year term with two one-year renewals up to 5 years; Bid2 provides fixed price with 90-day validity; Bid3 offers a 12-month term."
+      "statement": "Bid1 offers a three-year initial term with two one-year renewals up to five years; Bid2 is a fixed-price bid valid for at least 90 days after the due date; Bid3 offers a twelve-month term."
     },
     {
       "field": "bid_bond_requirement",
-      "statement": "Bid3 requires a 10% bid security in cash or a bid bond; Bid1 and Bid2 have no specified bid bond requirement."
+      "statement": "Only Bid3 requires a 10% bid security in cash, cashier’s check, or bid bond; Bid1 and Bid2 have no bond requirement."
     },
     {
       "field": "payment_terms",
-      "statement": "Bid1 requires payment within 10 days of receiving payment from the district; Bid2 requires invoices within 10 days of delivery; Bid3 has no payment terms stated."
+      "statement": "Bid2 mandates invoices emailed to the specified address and submitted within 10 days of delivery; Bid1 and Bid3 have no payment terms listed."
     },
     {
       "field": "contract_or_cooperative",
-      "statement": "Bid1 is under EPCNT/CTPA cooperatives; Bid2 is under the Desktop, Laptop and Tablet Master Contract; Bid3 has no cooperative listed."
+      "statement": "Bid1 involves the EPCNT Interlocal Agreement Rider and the CTPA Interlocal Agreement; Bid2 references the Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007; Bid3 has no contract information."
     },
     {
       "field": "additional_documentation",
-      "statement": "Bid1 requires multiple forms including INTERLOCAL AGREEMENT and certificates; Bid2 requires Mercury Affidavit and Contract Affidavit; Bid3 has no additional documentation specified."
+      "statement": "Bid1 requires INTERLOCAL AGREEMENT CONSENT FORM, MWBE Forms, W9, optional Punch Out Process, 1295 form, and optional non-warranty options; Bid2 requires Mercury Affidavit and Contract Affidavit; Bid3 has no documentation requirements listed."
     },
     {
       "field": "product",
-      "statement": "Bid1 requests 150,000 devices (50,000 each of three types); Bid2 requests 30 Dell Latitude laptops and 30 docks; Bid3 has no product listed."
+      "statement": "Bid2 specifies 30 Dell Latitude 5550 laptops and 30 Dell Thunderbolt 4 Dock – WD22TB4; Bid1 and Bid3 have no product listed."
     },
     {
       "field": "model_no",
-      "statement": "Bid1 has no model specified; Bid2 specifies CC7802 and WD22TB4; Bid3 specifies Dell Chrome 3120 Chromebook."
+      "statement": "Bid2 lists model numbers CC7802 and WD22TB4; Bid3 lists Dell Chrome 3120 Chromebook; Bid1 lists no model numbers."
     },
     {
       "field": "part_no",
-      "statement": "Bid2 lists numerous part numbers; Bid1 and Bid3 have none."
+      "statement": "Bid2 lists multiple part numbers (210-BLYZ, 379-BFNZ, etc.); Bid1 and Bid3 list none."
     },
     {
       "field": "mfg_for_registration",
-      "statement": "Bid1 OEM; Bid2 Dell; Bid3 Dell."
+      "statement": "Bid1 uses OEM for registration; Bid2 and Bid3 use Dell."
     },
     {
       "field": "product_specification",
-      "statement": "Bid1 lists Windows devices with specific specs; Bid2 specifies Intel Core Ultra 5 and related specs; Bid3 lists HP Fortis 11-inch Chromebook specs."
+      "statement": "Bid1 specifies Intel i5 14th Gen CPUs, 16GB DDR5 RAM, 512GB NVMe SSD, 13” display, and 3-year warranty; Bid2 specifies Intel Core Ultra 5 125U, 16GB DDR5, etc.; Bid3 specifies HP Fortis 11-inch G10 Chromebook with Intel N100 3.40 GHz."
     },
     {
       "field": "company_name",
-      "statement": "Bid1 Dallas Independent School District; Bid2 State of Maryland Treasurer's Office; Bid3 Delano Union School District."
+      "statement": "Bid1 is from Dallas Independent School District; Bid2 from State of Maryland Treasurer's Office; Bid3 from Delano Union School District."
     },
     {
       "field": "contact_info",
-      "statement": "Bid1 provides procurement contact details; Bid2 provides contact details; Bid3 has no contact info."
+      "statement": "Bid1 contact is Procurement Services at 972-925-3700, ProcurementCS@dallasisd.org; Bid2 contact is Tamaira Hawkins at 410-260-7533, thawkins@treasurer.state.md.us; Bid3 has no contact information."
     },
     {
       "field": "installation",
-      "statement": "Bid1 requires white glove deployment services; Bid2 requires all deliveries and deployment; Bid3 has no installation requirement listed."
+      "statement": "Bid1 requires white glove deployment services, asset detailing, reporting, etching, and delivery; Bid2 and Bid3 have no installation requirements listed."
     },
     {
       "field": "delivery_date",
-      "statement": "Bid1 has no specified delivery date; Bid2 requires delivery within 45 days of award; Bid3 specifies delivery on October 31, 2024."
+      "statement": "Bid2 requires delivery within 45 days of award; Bid3 specifies delivery by October 31, 2024; Bid1 has no delivery date listed."
     }
   ],
   "recommendations": [
@@ -594,7 +602,7 @@
           "verdict": "review",
           "detail": "No manufacturer is named.",
           "field": "mfg_for_registration",
-          "value": "Original Equipment Manufacturer (OEM)",
+          "value": "OEM",
           "sources": [
             {
               "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
@@ -609,34 +617,17 @@
         {
           "name": "Products",
           "verdict": "pass",
-          "detail": "We sell these: laptop, chromebook, tablet, device.",
+          "detail": "We sell these: chromebook, device.",
           "field": "product",
-          "value": "Tier 1 Small Student Chromebook Laptop (Touch) – 50,000; Tier 2 Large Student Chromebook Laptop (Non‑Touch) – 50,000; Student Tablet – 50,000",
-          "sources": [
-            {
-              "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-              "page": 34,
-              "quote": "15.01 Tier 1 Small | 50,000 | Each\nStudent Chromebook Laptop (Touch)",
-              "doc_type": "rfp",
-              "addendum_number": null,
-              "evidence_id": "32fe36c7661b9a2a0ee115bd"
-            },
-            {
-              "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-              "page": 34,
-              "quote": "15.02 Tier 2 Large | 50,000 | Each\nStudent Chromebook Laptop (Non- Touch)",
-              "doc_type": "rfp",
-              "addendum_number": null,
-              "evidence_id": "32fe36c7661b9a2a0ee115bd"
-            }
-          ]
+          "value": "",
+          "sources": []
         },
         {
           "name": "Installation",
           "verdict": "pass",
           "detail": "Services are required; we provide them.",
           "field": "installation",
-          "value": "White glove deployment services including asset decaling, asset reporting, etching, and delivery to varied locations are required., All deliveries and deployments must incorporate white glove services, which include asset decaling, asset reporting, etching, and delivery to varied locations.; Only la",
+          "value": "White glove deployment services including asset decaling, asset reporting, etching, and delivery are required., All deliveries and deployments must incorporate white glove services, which include asset decaling, asset reporting, etching, and delivery to varied locations.; Only laptops require etchin",
           "sources": [
             {
               "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
@@ -677,7 +668,7 @@
           "verdict": "pass",
           "detail": "Uses EPCNT, which we hold.",
           "field": "contract_or_cooperative",
-          "value": "Educational Purchasing Cooperative of North Texas (EPCNT); Central Texas Purchasing Alliance (CTPA)",
+          "value": "Educational Purchasing Cooperative of North Texas (EPCNT) Interlocal Agreement Rider; Central Texas Purchasing Alliance (CTPA) Interlocal Agreement - Cooperative",
           "sources": [
             {
               "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
@@ -702,7 +693,7 @@
           "verdict": "pass",
           "detail": "We can supply every listed document.",
           "field": "additional_documentation",
-          "value": "INTERLOCAL AGREEMENT (\"Rider\") CONSENT FORM; FORM 1295 - CERTIFICATE OF INTERESTED PARTIES; Non-warranty options can be submitted as an attachment.; Signed acknowledgement and return/submission of this addendum with the proposal.",
+          "value": "INTERLOCAL AGREEMENT (\"Rider\") CONSENT FORM; MWBE Forms; W9 Form; Punch Out Process - OPTIONAL; 1295 form; Non-warranty options can be submitted as an attachment.; Signed acknowledgement and return/submission of this addendum with the proposal.",
           "sources": [
             {
               "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
@@ -713,12 +704,12 @@
               "evidence_id": "59e98dc466b373e6ba7176b1"
             },
             {
-              "file": "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf",
-              "page": 4,
-              "quote": "FORM 1295 - CERTIFICATE OF INTERESTED PARTIES",
-              "doc_type": "addendum",
-              "addendum_number": 1,
-              "evidence_id": "124bf404766fa76cd95b1436"
+              "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
+              "page": 33,
+              "quote": "MWBE Forms | File | MWBE Forms must be completed and attached regardless if you are MWBE status",
+              "doc_type": "rfp",
+              "addendum_number": null,
+              "evidence_id": "16ea0b44a0e1f7759a213412"
             }
           ]
         }
@@ -1001,12 +992,12 @@
   ],
   "usage": {
     "calls": 1,
-    "input_tokens": 1392,
-    "output_tokens": 1989,
+    "input_tokens": 1359,
+    "output_tokens": 3102,
     "cache_read_tokens": 0,
     "cache_write_tokens": 0,
-    "latency_ms": 2446.0,
-    "cost_usd": 0.000701
+    "latency_ms": 3681.7,
+    "cost_usd": 0.001033
   },
   "error": null
 }

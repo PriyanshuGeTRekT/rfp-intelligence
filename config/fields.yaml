@@ -114,7 +114,9 @@ fields:
     type: text
     description: >-
       When and how the agency pays the vendor (Net days, invoicing rules, prompt payment).
-      Not the vendor's own credit terms, and not subcontractor payment rules.
+      Not the vendor's own credit terms, and not subcontractor payment rules: how soon the
+      vendor must pay its subcontractors after the agency pays it is not a payment term. When
+      the documents state no agency payment term, return not_found.
     fact_types: [payment_invoice]
     queries: [payment terms net days, invoice submission payment, prompt payment]
 
@@ -135,7 +137,8 @@ fields:
     reconcile: true
     description: >-
       Forms, affidavits, certifications, references and acknowledgements that must be
-      submitted with the response or on award, including signed addenda. An affidavit or form
+      submitted with the response or on award, including signed addenda and certificates to be
+      presented on award (warranty, insurance). An affidavit or form
       included in the solicitation for the bidder to complete and sign is required even when
       no sentence lists it: name it by its document title (shown in the passage header, and
       quotable) rather than by a section heading or a phrase inside the form.

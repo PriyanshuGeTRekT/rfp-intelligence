@@ -75,3 +75,12 @@ def test_evidence_reach_reports_what_the_prompts_contain(
     assert reach["bid_number"].reached and reach["bid_number"].passages > 0
     assert reach["part_no"].asked and reach["part_no"].missing == ["NOT-IN-ANY-DOCUMENT"]
     assert not reach["bid_summary"].asked  # written from the record, never asked of the model
+
+
+def test_rerank_with_several_queries_keeps_each_chunks_best_score(runtime: Runtime) -> None:
+    engine = runtime.engine()
+    ids = [h.chunk_id for h in engine.search("delivery warehouse", bid_id="BidA", k=10).hits]
+    one = dict(engine.rerank("delivery warehouse", ids))
+    other = dict(engine.rerank("quotes due", ids))
+    both = dict(engine.rerank(["delivery warehouse", "quotes due"], ids))
+    assert both == {c: max(one[c], other[c]) for c in ids}

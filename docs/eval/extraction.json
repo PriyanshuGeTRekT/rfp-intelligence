@@ -49,7 +49,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Electronic submission via the iSupplier portal (https://www.dallasisd.org/domain/143); manual submission in a sealed env",
+      "value": "Electronic submission via iSupplier portal https://www.dallasisd.org/domain/143; manual sealed hard copy (one original) ",
       "reason": "a pattern matched"
     },
     {
@@ -59,7 +59,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Initial term of 3 years with two one-year renewal options, not to exceed a total of 5 years.",
+      "value": "Three-year initial term with two successive one-year renewal options, not to exceed a total of five years.",
       "reason": "all patterns present"
     },
     {
@@ -85,22 +85,22 @@
     {
       "bid_id": "Bid1",
       "field": "payment_terms",
-      "passed": false,
-      "tier": "B",
-      "confidence": 0.85,
-      "status": "found",
-      "value": "within 10 days of receiving payment from the district",
-      "reason": "expected absent, got a value"
+      "passed": true,
+      "tier": "NF-2",
+      "confidence": 0.5,
+      "status": "not_found",
+      "value": null,
+      "reason": "absent, as expected"
     },
     {
       "bid_id": "Bid1",
       "field": "additional_documentation",
-      "passed": false,
+      "passed": true,
       "tier": "A",
       "confidence": 0.95,
       "status": "found",
-      "value": "INTERLOCAL AGREEMENT (\"Rider\") CONSENT FORM ; FORM 1295 - CERTIFICATE OF INTERESTED PARTIES ; Non-warranty options can b",
-      "reason": "missing items ['M/?WBE|minority', 'W-?9']"
+      "value": "INTERLOCAL AGREEMENT (\"Rider\") CONSENT FORM ; MWBE Forms ; W9 Form ; Punch Out Process - OPTIONAL ; 1295 form ; Non-warr",
+      "reason": "all items present"
     },
     {
       "bid_id": "Bid1",
@@ -109,7 +109,7 @@
       "tier": "A",
       "confidence": 0.95,
       "status": "found",
-      "value": "White glove deployment services including asset decaling, asset reporting, etching, and delivery to varied locations are",
+      "value": "White glove deployment services including asset decaling, asset reporting, etching, and delivery are required., All deli",
       "reason": "all patterns present"
     },
     {
@@ -119,7 +119,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Original Equipment Manufacturer (OEM)",
+      "value": "OEM",
       "reason": "found, but states the absence"
     },
     {
@@ -129,7 +129,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Educational Purchasing Cooperative of North Texas (EPCNT); Central Texas Purchasing Alliance (CTPA)",
+      "value": "Educational Purchasing Cooperative of North Texas (EPCNT) Interlocal Agreement Rider; Central Texas Purchasing Alliance ",
       "reason": "found, but states the absence"
     },
     {
@@ -155,12 +155,12 @@
     {
       "bid_id": "Bid1",
       "field": "product",
-      "passed": true,
-      "tier": "B",
-      "confidence": 0.85,
-      "status": "found",
-      "value": "Tier 1 Small Student Chromebook Laptop (Touch) – 50,000; Tier 2 Large Student Chromebook Laptop (Non‑Touch) – 50,000; St",
-      "reason": "all patterns present"
+      "passed": false,
+      "tier": "NF-1",
+      "confidence": 0.8,
+      "status": "not_found",
+      "value": null,
+      "reason": "expected a value, got null"
     },
     {
       "bid_id": "Bid1",
@@ -169,7 +169,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Procurement Services; Phone: 972-925-3700; Email: ProcurementCS@dallasisd.org",
+      "value": "Procurement Services, Phone: 972-925-3700, Email: ProcurementCS@dallasisd.org",
       "reason": "a pattern matched"
     },
     {
@@ -189,7 +189,7 @@
       "tier": "A",
       "confidence": 0.95,
       "status": "found",
-      "value": "Windows Device – Screen Resolution 1920-1080 Non-Touch, Windows Device – Memory Minimum 16GB RAM DDR5, Windows Device – ",
+      "value": "Intel i5 CPU, 14th Gen or equivalent., Memory: Minimum 16GB DDR5 RAM, Storage: 512 GB NVMe SSD, Display: Minimum 13\" dia",
       "reason": "all patterns present"
     },
     {
@@ -199,7 +199,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "The Dallas Independent School District is inviting bids to supply 50,000 Tier 1 Small Student Chromebook Laptops (Touch)",
+      "value": "Dallas Independent School District is inviting bids for student and staff computing devices featuring Intel i5, i7, Cele",
       "reason": "all patterns present"
     },
     {

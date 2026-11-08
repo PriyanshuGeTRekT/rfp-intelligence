@@ -213,7 +213,10 @@ def gather(
     ids = list(dict.fromkeys([*fact_chunks, *pool]))
     if rerank:
         demote = () if set(spec.doc_types) & set(SIGNATURE_DOC_TYPES) else SIGNATURE_DOC_TYPES
-        query = f"{spec.name}: {spec.description}"
+        topic = f"{spec.name}: {spec.description}"
+        # A list of many kinds of item (forms, affidavits, certificates) is not one topic: its
+        # chunks are scored against each of the field's own queries too, keeping the best.
+        query: str | list[str] = [topic, *spec.queries] if spec.diverse else topic
         ids = [c for c, _ in engine.rerank(query, ids, demote_doc_types=demote)]
     if spec.diverse:
         files = {c: str(p["file_name"]) for c, p in engine.backend.fetch(ids).items()}

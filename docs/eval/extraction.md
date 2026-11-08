@@ -1,10 +1,10 @@
 # Extraction evaluation
 
-Results from `outputs` scored against `eval/extraction_gold.yaml`: 60 fields, accuracy 81.7%.
+Results from `outputs` scored against `eval/extraction_gold.yaml`: 60 fields, accuracy 83.3%.
 
 | Bid | Accuracy |
 |---|---|
-| Bid1 | 90.0% |
+| Bid1 | 95.0% |
 | Bid2 | 90.0% |
 | Bid3 | 65.0% |
 
@@ -14,11 +14,11 @@ A well-ordered table has accuracy falling as the tier falls. Tiers with few fiel
 
 | Tier | Fields | Correct | Accuracy |
 |---|---|---|---|
-| A | 8 | 6 | 75% |
-| B | 26 | 24 | 92% |
+| A | 8 | 7 | 88% |
+| B | 24 | 23 | 96% |
 | C | 10 | 10 | 100% |
-| NF-1 | 11 | 8 | 73% |
-| NF-2 | 2 | 1 | 50% |
+| NF-1 | 12 | 8 | 67% |
+| NF-2 | 3 | 2 | 67% |
 | X | 3 | 0 | 0% |
 
 ## Per field
@@ -29,22 +29,22 @@ A well-ordered table has accuracy falling as the tier falls. Tiers with few fiel
 | Bid1 | title | yes | B | found | Student and Staff Computing Devices | all patterns present |
 | Bid1 | due_date | yes | A | found | 2024-07-09 14:00 CDT | instant matches |
 | Bid1 | pre_bid_meeting | yes | A | found | 2024-06-10 14:00 CDT | instant matches |
-| Bid1 | bid_submission_type | yes | B | found | Electronic submission via the iSupplier portal (https://www. | a pattern matched |
-| Bid1 | term_of_bid | yes | B | found | Initial term of 3 years with two one-year renewal options, n | all patterns present |
+| Bid1 | bid_submission_type | yes | B | found | Electronic submission via iSupplier portal https://www.dalla | a pattern matched |
+| Bid1 | term_of_bid | yes | B | found | Three-year initial term with two successive one-year renewal | all patterns present |
 | Bid1 | bid_bond_requirement | yes | NF-1 | not_found | null | absent, as expected |
 | Bid1 | delivery_date | yes | NF-2 | not_found | null | absent, as expected |
-| Bid1 | payment_terms | NO | B | found | within 10 days of receiving payment from the district | expected absent, got a value |
-| Bid1 | additional_documentation | NO | A | found | INTERLOCAL AGREEMENT ("Rider") CONSENT FORM ; FORM 1295 - CE | missing items ['M/?WBE|minority', 'W-?9'] |
+| Bid1 | payment_terms | yes | NF-2 | not_found | null | absent, as expected |
+| Bid1 | additional_documentation | yes | A | found | INTERLOCAL AGREEMENT ("Rider") CONSENT FORM ; MWBE Forms ; W | all items present |
 | Bid1 | installation | yes | A | found | White glove deployment services including asset decaling, as | all patterns present |
-| Bid1 | mfg_for_registration | yes | B | found | Original Equipment Manufacturer (OEM) | found, but states the absence |
-| Bid1 | contract_or_cooperative | yes | B | found | Educational Purchasing Cooperative of North Texas (EPCNT); C | found, but states the absence |
+| Bid1 | mfg_for_registration | yes | B | found | OEM | found, but states the absence |
+| Bid1 | contract_or_cooperative | yes | B | found | Educational Purchasing Cooperative of North Texas (EPCNT) In | found, but states the absence |
 | Bid1 | model_no | yes | NF-1 | not_found | null | absent, as expected |
 | Bid1 | part_no | yes | NF-1 | not_found | null | absent, as expected |
-| Bid1 | product | yes | B | found | Tier 1 Small Student Chromebook Laptop (Touch) – 50,000; Tie | all patterns present |
-| Bid1 | contact_info | yes | B | found | Procurement Services; Phone: 972-925-3700; Email: Procuremen | a pattern matched |
+| Bid1 | product | NO | NF-1 | not_found | null | expected a value, got null |
+| Bid1 | contact_info | yes | B | found | Procurement Services, Phone: 972-925-3700, Email: Procuremen | a pattern matched |
 | Bid1 | company_name | yes | B | found | Dallas Independent School District | all patterns present |
-| Bid1 | product_specification | yes | A | found | Windows Device – Screen Resolution 1920-1080 Non-Touch, Wind | all patterns present |
-| Bid1 | bid_summary | yes | B | found | The Dallas Independent School District is inviting bids to s | all patterns present |
+| Bid1 | product_specification | yes | A | found | Intel i5 CPU, 14th Gen or equivalent., Memory: Minimum 16GB  | all patterns present |
+| Bid1 | bid_summary | yes | B | found | Dallas Independent School District is inviting bids for stud | all patterns present |
 | Bid2 | bid_number | yes | B | found | #E20P4600040 | a pattern matched |
 | Bid2 | title | yes | B | found | Dell Laptops w/Extended Warranty | all patterns present |
 | Bid2 | due_date | yes | C | found | 2024-06-10 14:00 EDT | instant matches |
