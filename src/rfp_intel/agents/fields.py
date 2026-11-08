@@ -24,6 +24,7 @@ class FieldSpec(BaseModel):
     doc_types: list[str] = Field(default_factory=list)  # searched once more, filtered to these
     reconcile: bool = False
     enrich: bool = False  # reconciled date fields the model still describes (place, mandatory)
+    diverse: bool = False  # items come from many documents: spread the evidence across them
 
 
 class FieldCatalog(BaseModel):

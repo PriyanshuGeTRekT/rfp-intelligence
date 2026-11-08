@@ -31,7 +31,11 @@ from rfp_intel.search.models import DEFAULT_CONFIG, SearchConfig
 PER_QUERY = 5
 MAX_ITEMS = 10
 POOL = 30  # candidates pooled across queries before the per-field rerank
-MAX_FACT_CHUNKS = 4  # fact-bearing chunks kept ahead of the ranked ones
+# Signature templates (affidavits, forms) are legal boilerplate that rarely states a bid's own
+# terms, but their contract language scores well; fields that do not ask for them demote them.
+SIGNATURE_DOC_TYPES = ("affidavit", "form")
+PER_DOCUMENT = 2  # chunks a document keeps in the first pass of the ranking (see diversify)
+MAX_FACT_CHUNKS = 4  # fact-bearing chunks added to the pool (ahead of it when not reranking)
 MIN_QUERIES_FOR_ABSENCE = 3
 
 
@@ -155,6 +159,20 @@ def _candidate(f: Fact) -> FactCandidate:
     )  # fmt: skip
 
 
+def diversify(ranked: Sequence[str], files: dict[str, str]) -> list[str]:
+    """The ranking with each document's chunks past its first PER_DOCUMENT moved after every
+    other document's top ones, order otherwise kept. A long affidavit can fill a field's whole
+    budget with its own clauses; this keeps room for the next document's best passage."""
+    seen: dict[str, int] = {}
+    first: list[str] = []
+    rest: list[str] = []
+    for chunk_id in ranked:
+        file = files.get(chunk_id, chunk_id)
+        seen[file] = seen.get(file, 0) + 1
+        (first if seen[file] <= PER_DOCUMENT else rest).append(chunk_id)
+    return first + rest
+
+
 def gather(
     engine: SearchEngine,
     facts: FactStore,
@@ -188,9 +206,19 @@ def gather(
         [f.fact_id for f in typed], Filters(bid_id=bid_id), limit=MAX_ITEMS
     )[:MAX_FACT_CHUNKS]
     pool = sorted(ranked, key=lambda c: (ranked[c][0], -ranked[c][1]))[:POOL]
+    # Chunks holding a labelled fact join the pool. Reranked, they are ordered by relevance like
+    # the rest: a fact of the right kind can sit in an unrelated clause (a "24 months" filing
+    # period in an affidavit, for the contract term), and its value and sentence reach the
+    # model anyway as a candidate fact.
+    ids = list(dict.fromkeys([*fact_chunks, *pool]))
     if rerank:
-        pool = [c for c, _ in engine.rerank(f"{spec.name}: {spec.description}", pool)]
-    ids = list(dict.fromkeys([*fact_chunks, *pool]))[:MAX_ITEMS]
+        demote = () if set(spec.doc_types) & set(SIGNATURE_DOC_TYPES) else SIGNATURE_DOC_TYPES
+        query = f"{spec.name}: {spec.description}"
+        ids = [c for c, _ in engine.rerank(query, ids, demote_doc_types=demote)]
+    if spec.diverse:
+        files = {c: str(p["file_name"]) for c, p in engine.backend.fetch(ids).items()}
+        ids = diversify(ids, files)
+    ids = ids[:MAX_ITEMS]
     for payload in engine.backend.fetch(ids).values():
         store.add(_item(payload))
     described = [*queries, *(f"{q} (in {', '.join(t)})" for q, t in searches if t)]

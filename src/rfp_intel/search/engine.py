@@ -16,7 +16,7 @@ explained.
 """
 
 import time
-from collections.abc import Sequence
+from collections.abc import Collection, Sequence
 from dataclasses import dataclass, field
 from typing import Any
 
@@ -40,6 +40,7 @@ tracer = trace.get_tracer(__name__)
 
 IDENTIFIER_WEIGHT = 2.0  # an exact id match is strong evidence; it outweighs one fuzzy list
 RERANK_BOILERPLATE_MARGIN = 2.0  # cross-encoder logits; subtract this for form scaffolding
+RERANK_DEMOTED_TYPE_MARGIN = 2.0  # and this for document types a caller asks to demote
 
 
 class SearchEngine:
@@ -159,9 +160,13 @@ class SearchEngine:
         """What the engine reads into a query: identifiers, fact labels it routes to, synonyms."""
         return analyze(query, self.fact_config, self.synonyms, expand=True)
 
-    def rerank(self, query: str, chunk_ids: Sequence[str]) -> list[tuple[str, float]]:
+    def rerank(
+        self, query: str, chunk_ids: Sequence[str], demote_doc_types: Collection[str] = ()
+    ) -> list[tuple[str, float]]:
         """Order already-retrieved chunks by the cross-encoder against one query, for callers
-        that pool candidates from several searches. Without a reranker the order is kept."""
+        that pool candidates from several searches. Without a reranker the order is kept.
+        Chunks of a type in `demote_doc_types` lose a fixed margin: they stay in the ranking
+        and still lead when nothing else comes close."""
         payloads = self.backend.fetch(chunk_ids)
         present = [c for c in chunk_ids if c in payloads]
         if self.reranker is None or not present:
@@ -172,6 +177,8 @@ class SearchEngine:
             for i, c in enumerate(present):
                 if payloads[c].get("is_boilerplate"):
                     scores[i] -= RERANK_BOILERPLATE_MARGIN
+                if payloads[c].get("doc_type") in demote_doc_types:
+                    scores[i] -= RERANK_DEMOTED_TYPE_MARGIN
             ranked = sorted(zip(present, scores, strict=True), key=lambda x: x[1], reverse=True)
             span.set_attribute("search.query", query)
             span.set_attribute("search.reranked", len(ranked))

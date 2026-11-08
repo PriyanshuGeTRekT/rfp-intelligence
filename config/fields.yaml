@@ -13,6 +13,8 @@
 # reconcile      true when addenda can change the value (change events are applied)
 # enrich         for a date the reconciler resolves: the model still extracts the rest of the
 #                value (place, attendance) with the resolved date given as a hint
+# diverse        the items come from many documents (forms, affidavits): no document fills
+#                the evidence with more than two chunks before every other has its best ones
 #
 # Keep descriptions about procurement in general. Never put a bid's own values here.
 
@@ -139,6 +141,7 @@ fields:
       quotable) rather than by a section heading or a phrase inside the form.
     queries: [forms required with proposal, affidavits certifications to submit, acknowledge addendum signed, references required, attachments to complete and attach to the submission]
     doc_types: [affidavit, form]
+    diverse: true
 
   - key: product
     name: Product

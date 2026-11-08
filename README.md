@@ -44,6 +44,7 @@ code change. The folder name becomes the bid id; it is indexed incrementally on 
 | `rfp search "<query>" [--bid] [--doc-type] [--addendum] [--config] [--json]` | Hybrid search; file, pages, chunk text and per-list ranks per hit |
 | `rfp eval retrieval [--config] [--check]` | Recall@k, MRR and latency per configuration; writes docs/eval/retrieval.md |
 | `rfp eval extraction` | Field accuracy and confidence calibration for `outputs/*.json`; writes docs/eval/extraction.md |
+| `rfp eval evidence [--bid]` | Whether each expected value reaches the extraction prompt, with a scripted model (no API calls); writes docs/eval/evidence.md |
 | `rfp compare Bid1 Bid2 [--no-summary] [--as-of DATE]` | Side-by-side report of several bids with their go / no-go and key differences; writes docs/comparison.md |
 | `rfp go-no-go <bid> [--as-of DATE]` | Go, no-go or review against the company profile in `config/company.yaml` (no model call) |
 | `rfp trace <run_id> [--out f.md]` | Render a run's spans as a tree, with full prompts and responses |
@@ -171,7 +172,7 @@ src/rfp_intel/
     evidence.py, addenda.py, reconcile.py, validate.py, consistency.py, assemble.py,
     confidence.py, prompts.py, outputs.py, qa.py
   api/            FastAPI app, routes per resource, background extraction jobs
-  eval/           retrieval and extraction evaluation
+  eval/           retrieval, extraction and evidence-reach evaluation
   telemetry.py    OpenTelemetry: one JSONL span file per run, optional OTLP, PII redaction
 web/              React web app
 config/           fields, fact types, doc types, synonyms (YAML), model defaults, prices
@@ -317,6 +318,28 @@ That is more than one model's 200k daily quota on Groq's free tier, so spread it
 - **A vendor's terms read as the solicitation's.** Term of Bid now asks for the validity period
   the solicitation requires, not one printed in a vendor quote in the folder, and the extraction
   prompt lists this next to the other look-alike traps.
+
+**Tuned with evidence reach** (2026-11-08). On the free tier an extraction prompt holds about
+3,800 tokens for three fields, so each field gets three or four passages; whether the right one
+is among them decides more than the model does. `uv run rfp eval evidence` runs the graph with
+a scripted model and reports, for every gold rule, whether its expected text reached the prompt
+([docs/eval/evidence.md](docs/eval/evidence.md)). It went from 47 to **50 of 54** fields:
+
+- **Fact chunks are reranked with the rest.** Chunks holding a labelled fact used to go ahead
+  of the reranked pool unconditionally. For Bid2's Term of Bid that put a "24 months" filing
+  period from the Contract Affidavit first, a third of the field's budget. The fact itself still
+  reaches the model as a candidate.
+- **Signature templates are demoted.** Affidavits and forms are legal boilerplate whose contract
+  language scores well with the cross-encoder; fields that do not ask for them subtract a margin
+  (they stay in the ranking). Bid2's 90-day validity clause moved from fifth to second.
+- **Lists that span documents are spread across them.** For Additional Documentation
+  (`diverse: true` in `config/fields.yaml`), no document places a third chunk before every other
+  document has placed its best two; seven Contract Affidavit clauses had pushed the Mercury
+  Affidavit out. Applied to every field, this cost Bid2's warranty term, so it is per field.
+
+Still missing from the prompt: Bid1's W-9 (its row in the attachments table ranks 21st after
+reranking; blending in search rank would undo the reranker's gains elsewhere) and three Bid3
+fields, which were left untuned so Bid3 stays an unseen test. Retrieval metrics are unchanged.
 
 **The unseen bid (Bid3).** Downloaded after the code was finished, run through it unchanged
 except for one capability the run proved missing (OCR):
@@ -482,8 +505,8 @@ the reasons measured below.
 
 ### Retrieval evaluation
 
-`eval/retrieval_gold.yaml` holds 32 questions over both bids, 26 dev and 6 held out (written
-after the system and never used for tuning). Each expected passage is a locator (file,
+`eval/retrieval_gold.yaml` holds 42 questions: 32 over the two provided bids, 26 dev and 6
+held out (written after the system and never used for tuning), and 10 about the unseen Bid3. Each expected passage is a locator (file,
 phrase it must contain, optional pages) rather than a chunk id, so labels survive
 re-chunking, and a unit test fails if any locator matches no chunk. Each question is searched
 within its own bid. `uv run rfp eval retrieval` writes [docs/eval/retrieval.md](docs/eval/retrieval.md)
@@ -702,8 +725,8 @@ with four tools: `list_bids`, `search`, `facts` and `ask` (which runs the agent 
 
 - [docs/architecture.md](docs/architecture.md): system and agent-graph diagrams, a run step
   by step, and where each requirement of the brief lives.
-- [docs/eval/retrieval.md](docs/eval/retrieval.md) and [docs/eval/extraction.md](docs/eval/extraction.md):
-  the evaluations.
+- [docs/eval/retrieval.md](docs/eval/retrieval.md), [docs/eval/extraction.md](docs/eval/extraction.md)
+  and [docs/eval/evidence.md](docs/eval/evidence.md): the evaluations.
 - [outputs/](outputs/): one JSON record per bid and `qa_log.jsonl`, the cited Q&A log
   ([docs/qa_log.md](docs/qa_log.md) is the readable version, from `rfp qa-report`).
 - [docs/trace_example.md](docs/trace_example.md): one full extraction run's trace, rendered,

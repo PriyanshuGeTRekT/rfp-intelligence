@@ -423,7 +423,11 @@ def _ask_all(items: list[tuple[str, str | None]], *, log_path: Path | None) -> N
 @app.command(name="eval")
 def eval_(
     suite: Annotated[
-        str, typer.Argument(help="retrieval (extraction comes with the agents)")
+        str,
+        typer.Argument(
+            help="retrieval; extraction (scores outputs/); evidence (do expected values "
+            "reach the extraction prompt? no API calls)"
+        ),
     ] = "retrieval",
     gold: Annotated[Path, typer.Option(help="Gold questions")] = Path("eval/retrieval_gold.yaml"),
     configs: Annotated[
@@ -443,8 +447,12 @@ def eval_(
     update_baseline: Annotated[
         bool, typer.Option(help="Write this run as the new baseline")
     ] = False,
+    bids: Annotated[
+        list[str] | None, typer.Option("--bid", help="evidence: bids to check; all by default")
+    ] = None,
 ) -> None:
-    """Run the retrieval evaluation and write docs/eval/retrieval.md and .json."""
+    """Run an evaluation: retrieval (docs/eval/retrieval.md), extraction (scores the records
+    in outputs/, docs/eval/extraction.md) or evidence (docs/eval/evidence.md)."""
     from rfp_intel.eval.retrieval import (
         baseline_from,
         check_regression,
@@ -464,8 +472,13 @@ def eval_(
             out_dir,
         )
         return
+    if suite == "evidence":
+        extraction_gold = Path("eval/extraction_gold.yaml")
+        _eval_evidence(gold if gold != Path("eval/retrieval_gold.yaml") else extraction_gold,
+                       out_dir, bids)  # fmt: skip
+        return
     if suite != "retrieval":
-        typer.echo("suite must be retrieval or extraction", err=True)
+        typer.echo("suite must be retrieval, extraction or evidence", err=True)
         raise typer.Exit(code=1)
     names = configs or list(NAMED_CONFIGS)
     unknown = [n for n in names if n not in NAMED_CONFIGS]
@@ -513,6 +526,25 @@ def eval_(
         if problems:
             raise typer.Exit(code=1)
         typer.echo("no regression against the baseline")
+
+
+def _eval_evidence(gold: Path, out_dir: Path, bids: list[str] | None) -> None:
+    from rfp_intel.eval.evidence import evidence_reach, render_reach_markdown
+    from rfp_intel.eval.extraction import load_extraction_gold
+    from rfp_intel.search.runtime import open_runtime
+
+    gold_set = load_extraction_gold(gold)
+    s = get_settings()
+    with open_runtime(s) as rt:
+        results = evidence_reach(s, rt, gold_set, bids or list(gold_set.bids))
+    out_dir.mkdir(parents=True, exist_ok=True)
+    (out_dir / "evidence.md").write_text(render_reach_markdown(results), encoding="utf-8")
+    asked = [r for r in results if r.asked]
+    for r in asked:
+        if not r.reached:
+            typer.echo(f"  NOT IN PROMPT {r.bid_id} {r.field}: {r.missing}")
+    typer.echo(f"{sum(r.reached for r in asked)} of {len(asked)} fields reach the prompt")
+    typer.echo(f"report: {out_dir / 'evidence.md'}")
 
 
 def _eval_extraction(gold: Path, out_dir: Path, results: Path | None = None) -> None:
