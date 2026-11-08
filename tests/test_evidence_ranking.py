@@ -8,7 +8,7 @@ import pytest
 
 from rfp_intel.agents.evidence import diversify
 from rfp_intel.config import Settings
-from rfp_intel.eval.evidence import evidence_reach, missing_patterns
+from rfp_intel.eval.evidence import evidence_reach, evidence_text, missing_patterns
 from rfp_intel.eval.extraction import ExtractionGold, Rule
 from rfp_intel.search.runtime import Runtime
 
@@ -84,3 +84,13 @@ def test_rerank_with_several_queries_keeps_each_chunks_best_score(runtime: Runti
     other = dict(engine.rerank("quotes due", ids))
     both = dict(engine.rerank(["delivery warehouse", "quotes due"], ids))
     assert both == {c: max(one[c], other[c]) for c in ids}
+
+
+def test_evidence_text_ignores_definitions_and_headers() -> None:
+    prompt = (
+        "Fields to extract:\n- additional_documentation (...): forms, warranty certificates\n\n"
+        'Passages:\n\n[e1] portal.html p1 (bid_page; document title "Laptops w/Extended Warranty")\n'
+        "Submit the Mercury Affidavit."
+    )
+    text = evidence_text(prompt)
+    assert "Mercury Affidavit" in text and "arrant" not in text

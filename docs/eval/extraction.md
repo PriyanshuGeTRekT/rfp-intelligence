@@ -4,8 +4,8 @@ Results from `outputs` scored against `eval/extraction_gold.yaml`: 60 fields, ac
 
 | Bid | Accuracy |
 |---|---|
-| Bid1 | 95.0% |
-| Bid2 | 90.0% |
+| Bid1 | 90.0% |
+| Bid2 | 95.0% |
 | Bid3 | 65.0% |
 
 ## Calibration: accuracy per confidence tier
@@ -14,10 +14,10 @@ A well-ordered table has accuracy falling as the tier falls. Tiers with few fiel
 
 | Tier | Fields | Correct | Accuracy |
 |---|---|---|---|
-| A | 5 | 5 | 100% |
-| B | 26 | 25 | 96% |
+| A | 8 | 7 | 88% |
+| B | 24 | 23 | 96% |
 | C | 10 | 10 | 100% |
-| NF-1 | 12 | 8 | 67% |
+| NF-1 | 11 | 8 | 73% |
 | NF-2 | 3 | 2 | 67% |
 | X | 4 | 0 | 0% |
 
@@ -28,43 +28,43 @@ A well-ordered table has accuracy falling as the tier falls. Tiers with few fiel
 | Bid1 | bid_number | yes | B | found | JA-207652 | a pattern matched |
 | Bid1 | title | yes | B | found | Student and Staff Computing Devices | all patterns present |
 | Bid1 | due_date | yes | A | found | 2024-07-09 14:00 CDT | instant matches |
-| Bid1 | pre_bid_meeting | yes | A | found | 2024-06-10 14:00 CDT | instant matches |
-| Bid1 | bid_submission_type | yes | B | found | Electronic submission via iSupplier portal https://www.dalla | a pattern matched |
-| Bid1 | term_of_bid | yes | B | found | Three-year initial term with two successive one-year renewal | all patterns present |
+| Bid1 | pre_bid_meeting | yes | A | found | 2024-06-10 14:00 CST via TEAMS video conference; attendance  | instant matches |
+| Bid1 | bid_submission_type | yes | B | found | Electronic submission via iSupplier portal (https://www.dall | a pattern matched |
+| Bid1 | term_of_bid | yes | B | found | Initial term of 3 years with two one-year renewals, not to e | all patterns present |
 | Bid1 | bid_bond_requirement | yes | NF-1 | not_found | null | absent, as expected |
 | Bid1 | delivery_date | yes | NF-2 | not_found | null | absent, as expected |
 | Bid1 | payment_terms | yes | NF-2 | not_found | null | absent, as expected |
-| Bid1 | additional_documentation | yes | A | found | INTERLOCAL AGREEMENT ("Rider") CONSENT FORM ; MWBE Forms ; W | all items present |
-| Bid1 | installation | yes | A | found | White glove deployment services including asset decaling, as | all patterns present |
-| Bid1 | mfg_for_registration | yes | B | found | OEM | found, but states the absence |
-| Bid1 | contract_or_cooperative | yes | B | found | Educational Purchasing Cooperative of North Texas (EPCNT) In | found, but states the absence |
+| Bid1 | additional_documentation | yes | A | found | MWBE Forms ; W9 Form ; Punch Out Process - OPTIONAL ; 1295 f | all items present |
+| Bid1 | installation | yes | A | found | White glove services including asset decaling, asset reporti | all patterns present |
+| Bid1 | mfg_for_registration | yes | A | found | OEM | found, but states the absence |
+| Bid1 | contract_or_cooperative | yes | B | found | Educational Purchasing Cooperative of North Texas (EPCNT) an | found, but states the absence |
 | Bid1 | model_no | yes | NF-1 | not_found | null | absent, as expected |
 | Bid1 | part_no | yes | NF-1 | not_found | null | absent, as expected |
-| Bid1 | product | NO | NF-1 | not_found | null | expected a value, got null |
-| Bid1 | contact_info | yes | B | found | Procurement Services, Phone: 972-925-3700, Email: Procuremen | a pattern matched |
+| Bid1 | product | NO | B | found | Tier 1 Small Student Chromebook Laptop (Touch) – 1, Tier 2 L | missing ['50,?000'] |
+| Bid1 | contact_info | yes | B | found | Procurement Services, 972-925-3700, ProcurementCS@dallasisd. | a pattern matched |
 | Bid1 | company_name | yes | B | found | Dallas Independent School District | all patterns present |
-| Bid1 | product_specification | yes | A | found | Intel i5 CPU, 14th Gen or equivalent., Memory: Minimum 16GB  | all patterns present |
-| Bid1 | bid_summary | yes | B | found | Dallas Independent School District is inviting bids for stud | all patterns present |
+| Bid1 | product_specification | NO | X | failed | null | expected a value, got null |
+| Bid1 | bid_summary | yes | B | found | Dallas Independent School District is seeking to purchase on | all patterns present |
 | Bid2 | bid_number | yes | B | found | #E20P4600040 | a pattern matched |
 | Bid2 | title | yes | B | found | Dell Laptops w/Extended Warranty | all patterns present |
 | Bid2 | due_date | yes | C | found | 2024-06-10 14:00 EDT | instant matches |
 | Bid2 | pre_bid_meeting | yes | NF-1 | not_found | null | absent, as expected |
-| Bid2 | bid_submission_type | yes | B | found | Electronic submission via the State's eMaryland Marketplace  | all patterns present |
+| Bid2 | bid_submission_type | yes | B | found | Electronic submission via eMaryland Marketplace Advantage (e | all patterns present |
 | Bid2 | term_of_bid | yes | B | found | Fixed Price; proposals must be valid for at least 90 days af | all patterns present |
 | Bid2 | bid_bond_requirement | yes | NF-1 | not_found | null | absent, as expected |
 | Bid2 | delivery_date | yes | B | found | within 45 days of Award | all patterns present |
-| Bid2 | payment_terms | yes | B | found | Invoices shall be submitted within 10 days of delivering the | all patterns present |
-| Bid2 | additional_documentation | NO | X | failed | null | expected a value, got null |
+| Bid2 | payment_terms | yes | B | found | Invoice(s) shall be submitted within 10 days of delivering t | all patterns present |
+| Bid2 | additional_documentation | NO | A | found | Mercury Affidavit ; Attachment N – Contract Affidavit | missing items ['warrant'] |
 | Bid2 | installation | yes | NF-1 | not_found | null | absent, as expected |
 | Bid2 | mfg_for_registration | yes | B | found | Dell | all patterns present |
 | Bid2 | contract_or_cooperative | yes | B | found | Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007 | a pattern matched |
-| Bid2 | model_no | yes | B | found | Dell Latitude 5550 ; WD22TB4 | all items present |
+| Bid2 | model_no | yes | A | found | Dell Latitude 5550 ; Dell Thunderbolt 4 Dock – WD22TB4 | all items present |
 | Bid2 | part_no | yes | B | found | 210-BLYZ ; 379-BFNZ ; 619-ARSB ; 658-BCSB ; 338-CNRG ; 338-C | all items present |
-| Bid2 | product | yes | B | found | Dell Latitude 5550 (Qty: 30); Dell Thunderbolt 4 Dock – WD22 | all patterns present |
-| Bid2 | contact_info | yes | B | found | Tamaira Hawkins, Phone: 410-260-7533, Email: thawkins@treasu | all patterns present |
+| Bid2 | product | yes | B | found | Dell Latitude 5550 Laptop – Qty 30, Dell Thunderbolt 4 Dock  | all patterns present |
+| Bid2 | contact_info | yes | B | found | Tamaira Hawkins, Email: thawkins@treasurer.state.md.us, Phon | all patterns present |
 | Bid2 | company_name | yes | B | found | State of Maryland Treasurer's Office | all patterns present |
-| Bid2 | product_specification | NO | B | found | Intel Core Ultra 5 125U processor (12 MB cache, 12 cores, 14 | missing ['3[- ]year'] |
-| Bid2 | bid_summary | yes | B | found | The State of Maryland Treasurer's Office is inviting bids fo | all patterns present |
+| Bid2 | product_specification | yes | A | found | Intel Core Ultra 5 125U processor (12 MB cache, 12 cores, 14 | all patterns present |
+| Bid2 | bid_summary | yes | B | found | The State of Maryland Treasurer's Office is purchasing 30 De | all patterns present |
 | Bid3 | bid_number | yes | C | found | 2025-003 | a pattern matched |
 | Bid3 | title | NO | X | failed | null | expected a value, got null |
 | Bid3 | due_date | yes | B | found | 2024-09-06 13:00 | all patterns present |

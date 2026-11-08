@@ -216,9 +216,10 @@ def gather(
     if rerank:
         demote = tuple(t for t in DEMOTABLE_DOC_TYPES if t not in spec.doc_types)
         topic = f"{spec.name}: {spec.description}"
-        # A list of many kinds of item (forms, affidavits, certificates) is not one topic: its
-        # chunks are scored against each of the field's own queries too, keeping the best.
-        query: str | list[str] = [topic, *spec.queries] if spec.diverse else topic
+        # A field whose items are of many kinds (forms and certificates; product categories in a
+        # price schedule) is not one topic: its chunks are scored against each of the field's
+        # own queries too, keeping the best.
+        query: str | list[str] = [topic, *spec.queries] if spec.rerank_queries else topic
         ids = [c for c, _ in engine.rerank(query, ids, demote_doc_types=demote)]
     if spec.diverse:
         files = {c: str(p["file_name"]) for c, p in engine.backend.fetch(ids).items()}

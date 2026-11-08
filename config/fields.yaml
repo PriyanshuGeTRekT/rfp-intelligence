@@ -15,6 +15,9 @@
 #                value (place, attendance) with the resolved date given as a hint
 # diverse        the items come from many documents (forms, affidavits): no document fills
 #                the evidence with more than two chunks before every other has its best ones
+# rerank_queries the items are of many kinds, so one description is a poor rerank query: each
+#                chunk is also scored against every query above, keeping its best score (one
+#                cross-encoder pass per query, so only where it is needed)
 #
 # Keep descriptions about procurement in general. Never put a bid's own values here.
 
@@ -145,6 +148,7 @@ fields:
     queries: [forms required with proposal, affidavits certifications to submit, acknowledge addendum signed, references required, attachments to complete and attach to the submission]
     doc_types: [affidavit, form]
     diverse: true
+    rerank_queries: true
 
   - key: product
     name: Product
@@ -156,6 +160,7 @@ fields:
       each category and give its quantity or estimated quantity.
     fact_kinds: [quantity]
     queries: [products to be purchased quantity, scope of work devices, price schedule line items, estimated quantity per tier]
+    rerank_queries: true
 
   - key: model_no
     name: Model_no

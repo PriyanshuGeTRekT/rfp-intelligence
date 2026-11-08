@@ -228,37 +228,40 @@ tuning described below. Exact provenance, because it matters for reading the num
 
 | Output | Run | Models |
 |---|---|---|
-| [outputs/Bid1.json](outputs/Bid1.json) | `20261108T075041Z-7410e6`, the current code | `openai/gpt-oss-120b`, cheap calls `openai/gpt-oss-20b` |
-| [outputs/Bid2.json](outputs/Bid2.json) | `20261108T100729Z-7f8ee5`, the current code (see below) | same |
+| [outputs/Bid1.json](outputs/Bid1.json) | `20261108T120609Z-6bfb77` | `openai/gpt-oss-120b`, cheap calls `openai/gpt-oss-20b` |
+| [outputs/Bid2.json](outputs/Bid2.json) | `20261108T115449Z-2c640f` | same |
 | [outputs/Bid3.json](outputs/Bid3.json) | `20261108T063550Z-932750` | `openai/gpt-oss-20b` throughout (the 120b daily quota went to Bid1 and Bid2) |
 | [outputs/qa_log.jsonl](outputs/qa_log.jsonl), [docs/qa_log.md](docs/qa_log.md) | with Bid3's record and the earlier Bid1 and Bid2 records of the same day (`20261108T061841Z-b06a6b`, `20261108T061044Z-144948`) | `openai/gpt-oss-20b` (`RFP_QA_MODEL`) |
 | [docs/comparison.md](docs/comparison.md), [docs/trace_example.md](docs/trace_example.md) | the records above; the trace is Bid2's run | as above |
 
-Bid1 and Bid2 ran with the current code, except for the last fix under "Found in the re-runs"
-(headers quoted whole), which came after Bid2's run. Bid3 used the code at commit `ad51132`;
-re-running it did not fit the day's quota. Bid2 was run four times on 2026-11-08, each run after
-a code change that the previous run exposed. The record is the last run, not the best one.
+Bid1 and Bid2 ran with the code at commit `eb3d0cb`, plus the product-label and Product
+reranking fixes under "Found in the re-runs". The fixes listed there after those two came after
+these runs and are covered by tests; re-running did not fit the day's quota. Bid3 used the code at
+commit `ad51132`. Bid1 and Bid2 were each run several times on 2026-11-08, each run after a code
+change that the previous run exposed. Each record is the last run, not the best one.
 
 **Extraction accuracy** against `eval/extraction_gold.yaml` (hand-compiled expected values),
-from [docs/eval/extraction.md](docs/eval/extraction.md): **37 of 40 fields (92.5%)**, Bid1 95%,
-Bid2 90%. Under this gold the 2026-11-07 records scored 35 of 40. The first live runs scored
-31 of 40, under an earlier and looser gold. Tier B is 23 of 24, tier A 5 of 5, the not-found
-tiers 8 of 9, and the one failed field (tier X) is a miss, as its tier says it may be. With the
-unseen Bid3 included, 50 of 60 (83%). Bid1 costs $0.020 (23 model calls, 70k tokens); Bid2
-$0.013 (15 calls, 47k tokens). The three misses:
+from [docs/eval/extraction.md](docs/eval/extraction.md): **37 of 40 fields (92.5%)**, Bid1 90%,
+Bid2 95%. Under this gold the 2026-11-07 records scored 35 of 40. The first live runs scored
+31 of 40, under an earlier and looser gold. Tier B is 21 of 22, tier A 7 of 8, the not-found
+tiers 8 of 8, and the one failed field (tier X) is a miss, as its tier says it may be. With the
+unseen Bid3 included, 50 of 60 (83%). Bid1 costs $0.020 (26 model calls, 71k tokens); Bid2
+$0.012 (14 calls, 46k tokens). The three misses, each traced to its cause:
 
-- Bid1 Product is reported as not found. The model read three passages for the product batch
-  and returned not found for all of it, although the tier names and quantities are in the prompt
-  (the evidence-reach check finds them) and the previous run listed the Chromebook tiers.
-- Bid2 Additional Documentation failed validation. The model cited each form by copying its
-  whole passage header, which the validator did not then accept; it does now ("Found in the
-  re-runs"). The run before, with the same evidence, listed all three documents: the Mercury
-  Affidavit, the Contract Affidavit and the warranty certificate due on award.
-- Bid2 Product Specification leaves out the 3-year warranty, which is in the prompt and which
-  every earlier run listed.
-
-Two of the three are model run-to-run variance, not retrieval gaps: the value is in the prompt,
-and another run with the same prompt got it right.
+- **Bid1 Product** lists the tiers with a quantity of 1 each. The price schedule has two levels:
+  category lines with a target of 1, and evaluation lines with the estimated quantities
+  (Tier 1 Chromebooks 50,000, and so on). Fourteen "1" candidates filled the candidate budget,
+  and the evaluation lines were not among the passages. Both are fixed after the run: distinct
+  candidate values now go first, and a passage that holds a kept candidate's sentence is
+  citable. The fix is not yet confirmed by a live run.
+- **Bid1 Product Specification** failed because the model's answer was cut off at the
+  3,500-token output limit, twice. Bid1 specifies ten device tiers, and on the free tier the
+  reasoning tokens count toward the same limit (see "Assumptions and limitations").
+- **Bid2 Additional Documentation** names the Mercury Affidavit and the Contract Affidavit but not
+  the warranty certificate due on award. Its passage (PORFP p3) never reaches the prompt: two
+  near-duplicate PORFP p2 chunks take the PORFP's two places in the diversified ranking. A query
+  for documents due on award was tried and reverted, because it displaced Bid1's Form 1295
+  without bringing this passage in.
 
 Compared with the 2026-11-07 records, the audit, the tuning and the re-runs fixed these fields:
 - Bid1 Additional Documentation now lists the MWBE forms and the W-9.
@@ -271,6 +274,9 @@ Compared with the 2026-11-07 records, the audit, the tuning and the re-runs fixe
 - Bid2 Model_no gives "Dell Latitude 5550" instead of the item code "CC7802".
 - Bid2 Installation is correctly not found. Before, a factory-install code from Dell's quote
   was read as a requirement.
+- Bid2 Product Specification keeps the 3-year warranty. The validator had rejected
+  product-labelled items such as "Dell Latitude 5550 - ...", because "5550" was not in the quoted
+  spec.
 
 The audit also found that the gold had accepted the old values because its rules only checked for
 words like "10 days" and "Affidavit"; it was tightened to the hand-compiled values in
@@ -340,7 +346,11 @@ That is more than one model's 200k daily quota on Groq's free tier, so spread it
 3,800 tokens for three fields, so each field gets three or four passages; whether the right one
 is among them decides more than the model does. `uv run rfp eval evidence` runs the graph with
 a scripted model and reports, for every gold rule, whether its expected text reached the prompt
-([docs/eval/evidence.md](docs/eval/evidence.md)). It went from 47 to **51 of 54** fields:
+([docs/eval/evidence.md](docs/eval/evidence.md)). It searches only the passages and candidate
+facts, not the field definitions or passage headers. An earlier version also searched those, and
+a document title such as "... w/Extended Warranty" made it report evidence that was not there.
+Under the earlier check, the changes below took it from 47 to 51 of 54 fields; under the
+stricter one it is **50 of 54**:
 
 - **Fact chunks are reranked with the rest.** Chunks holding a labelled fact used to go ahead
   of the reranked pool unconditionally. For Bid2's Term of Bid that put a "24 months" filing
@@ -357,14 +367,18 @@ a scripted model and reports, for every gold rule, whether its expected text rea
   cannot stand for forms, affidavits and certificates at once. For Bid1, the attachments table
   listing the MWBE forms and the W-9 ranked 21st against it. The cross-encoder now scores each
   chunk of a `diverse` field against the description and each of the field's own queries, and
-  keeps the best score, which moves that table to first. It costs one cross-encoder pass per
-  query, about 18 seconds per bid on a CPU, so it applies only to `diverse` fields.
+  keeps the best score, which moves that table to first. Product is the same kind of field (the
+  categories in a price schedule): its price schedule moves from eighth to first. Each pass
+  costs one cross-encoder run per query, about 18 seconds per field on a CPU, so it is set per
+  field (`rerank_queries: true`) and used only for these two.
 
-Still missing from the prompt: three Bid3 fields, left untuned so that Bid3 stays an unseen test.
+Still missing from the prompt: Bid1's requirement to return the signed addenda (the stricter
+check found it), Bid2's warranty certificate (see the misses above), and three Bid3 fields, left
+untuned so that Bid3 stays an unseen test.
 Retrieval metrics are unchanged.
 
 **Found in the re-runs** (2026-11-08), fixed with tests. Bid1's and Bid2's current records ran
-with all of these except the last; Bid3's ran with none of them:
+with all of these except the last three; Bid3's ran with none of them:
 
 - **A prompt could exceed the provider's per-minute limit.** The passage budget assumed 60
   tokens per candidate fact, but a candidate line carries up to 200 characters of context. One
@@ -398,7 +412,20 @@ with all of these except the last; Bid3's ran with none of them:
   model, which changed only the three summaries.
 - **Whole headers quoted as titles.** Citing a form by its title, the model copied the entire
   passage header (`[id] file p1 (affidavit; document title "...")`). The quoted title inside it
-  now grounds. This came after Bid2's run and cost it Additional Documentation.
+  now grounds.
+- **Product labels read as invented numbers.** When there are several products, the field rule
+  asks for each spec to be prefixed with its product, as in "Dell Latitude 5550 - ... 3 Years".
+  The validator requires every number in a value to appear in its quotes, so it rejected the
+  whole list over "5550", and the retry lost the warranty. Numbers in a product or tier label
+  now need only appear in the passages the model read. Numbers in the spec itself must still
+  be quoted, and a test checks that invented ones are still rejected.
+- **Repeated candidate values crowd out the informative ones.** Bid1's price schedule repeats a
+  target of 1 on fourteen category lines before the estimated quantities (50,000 and so on).
+  Each field's distinct candidate values now go first, ahead of the repeats.
+- **A candidate could not be cited unless its passage happened to fit.** The model reads a
+  candidate's sentence in the candidate list, but quotes had to come from the passages shown. A
+  retrieved passage that holds a kept candidate's sentence is now citable too, and the prompt
+  says a candidate's sentence may be quoted.
 
 **The unseen bid (Bid3).** Downloaded after the code was finished, run through it unchanged
 except for one capability the run proved missing (OCR):
@@ -813,10 +840,15 @@ with four tools: `list_bids`, `search`, `facts` and `ask` (which runs the agent 
   `qwen/qwen3.8-27b` was tried as a substitute and rejected: it often returned values without
   the required quotes.
 - **One run per bid.** Each record comes from a single run, and model output varies between
-  runs: Bid1's Product and Bid2's warranty specification were each right in one run and wrong
-  in the next, with the evidence in the prompt both times. A bid's score can therefore move by a
-  field or two from run to run; voting across several runs per field would steady it at about
-  three times the token cost. Bid3's record predates the fixes under "Found in the re-runs".
+  runs. Several misses first looked like run-to-run variance but had causes in the code (a
+  validator rule, the candidate order), so check a miss before calling it variance. A bid's
+  score can still move by a field from run to run; voting across several runs per field would
+  steady it, at about three times the token cost. Bid3's record predates the fixes under
+  "Found in the re-runs".
+- **Output limit.** On the free tier a call may produce at most 3,500 tokens, and gpt-oss counts
+  its reasoning against that limit. A long list (Bid1's product specification across ten device
+  tiers) can be cut off; the call then fails and the field is retried, as happened twice in
+  Bid1's run. A higher limit (`RFP_LLM_MAX_OUTPUT_TOKENS`) needs a higher per-minute quota.
 - **Q&A checks that each sentence is cited, not that it is entailed.** Every sentence must
   carry a citation that reproduces passage text, or it is removed; whether the sentence says
   exactly what its quote says is left to the prompt's rules.

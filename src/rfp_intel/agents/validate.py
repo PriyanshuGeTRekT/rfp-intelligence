@@ -208,13 +208,51 @@ def _value_text(value: str | list[str] | None) -> str:
     return " ; ".join(value) if isinstance(value, list) else value
 
 
-def _supported(spec: FieldSpec, value: str | list[str] | None, quotes_text: str) -> str | None:
-    """None when supported, else the reason."""
+# A list item labelled with its product or tier, as the field definitions ask for when several
+# are specified: "Dell Latitude 5550 - 16 GB DDR5", "Tier 3: Intel i5".
+_LABEL_SEPARATORS = (" - ", " " + chr(0x2013) + " ", " " + chr(0x2014) + " ", ": ")  # -, en, em
+MAX_LABEL_CHARS = 60
+
+
+def _split_label(item: str) -> tuple[str, str] | None:
+    """(label, rest) of a labelled list item, or None. The label is the text before the first
+    separator, if that comes within MAX_LABEL_CHARS."""
+    cuts = [(i, sep) for sep in _LABEL_SEPARATORS if 0 < (i := item.find(sep)) <= MAX_LABEL_CHARS]
+    if not cuts:
+        return None
+    i, sep = min(cuts)
+    return item[:i], item[i + len(sep) :]
+
+
+def _unquoted_numbers(value: str | list[str] | None, quotes_text: str, shown_text: str) -> set[str]:
+    """Numbers in the value that its quotes do not contain. A list item's product or tier label
+    is a name, not a claim, and is often not inside the quoted spec: its numbers ("5550" in a
+    model name) need only appear in the passages the model was shown. Every other number must
+    be in the quotes."""
+    quoted = _numbers(quotes_text)
+    if not isinstance(value, list):
+        return _numbers(_value_text(value)) - quoted
+    missing: set[str] = set()
+    for item in value:
+        labelled = _split_label(item)
+        if labelled is None:
+            missing |= _numbers(item) - quoted
+            continue
+        label, rest = labelled
+        missing |= _numbers(rest) - quoted
+        missing |= _numbers(label) - quoted - _numbers(shown_text)
+    return missing
+
+
+def _supported(
+    spec: FieldSpec, value: str | list[str] | None, quotes_text: str, shown_text: str = ""
+) -> str | None:
+    """None when supported, else the reason. `shown_text`: the passages the model read."""
     text = _value_text(value)
     if not text.strip():
         return "value is empty"
     q = norm(quotes_text)
-    missing_numbers = sorted(_numbers(text) - _numbers(quotes_text))
+    missing_numbers = sorted(_unquoted_numbers(value, quotes_text, shown_text))
     if spec.type == "identifier":
         tokens = [t.strip("#").casefold() for t in re.split(r"[\s,;]+", text) if t.strip("#")]
         compact_q = q.replace("-", "")
@@ -287,6 +325,9 @@ def validate(
             else None,
         )
     )
-    reason = _supported(spec, draft.value, " \n".join(q.text for q in draft.quotes))
+    shown = [item.quotable for e in evidence.evidence_ids if (item := store.get(e)) is not None]
+    reason = _supported(
+        spec, draft.value, " \n".join(q.text for q in draft.quotes), " \n".join(shown)
+    )
     checks.append(Check(name="value_supported", passed=reason is None, reason=reason))
     return ValidationResult(field=draft.field, passed=all(c.passed for c in checks), checks=checks)

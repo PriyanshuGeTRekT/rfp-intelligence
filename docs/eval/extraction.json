@@ -39,7 +39,7 @@
       "tier": "A",
       "confidence": 0.95,
       "status": "found",
-      "value": "2024-06-10 14:00 CDT",
+      "value": "2024-06-10 14:00 CST via TEAMS video conference; attendance not mandatory",
       "reason": "instant matches"
     },
     {
@@ -49,7 +49,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Electronic submission via iSupplier portal https://www.dallasisd.org/domain/143; manual sealed hard copy (one original) ",
+      "value": "Electronic submission via iSupplier portal (https://www.dallasisd.org/domain/143); manual sealed hard copy (one original",
       "reason": "a pattern matched"
     },
     {
@@ -59,7 +59,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Three-year initial term with two successive one-year renewal options, not to exceed a total of five years.",
+      "value": "Initial term of 3 years with two one-year renewals, not to exceed a total of 5 years.",
       "reason": "all patterns present"
     },
     {
@@ -99,7 +99,7 @@
       "tier": "A",
       "confidence": 0.95,
       "status": "found",
-      "value": "INTERLOCAL AGREEMENT (\"Rider\") CONSENT FORM ; MWBE Forms ; W9 Form ; Punch Out Process - OPTIONAL ; 1295 form ; Non-warr",
+      "value": "MWBE Forms ; W9 Form ; Punch Out Process - OPTIONAL ; 1295 form ; Non-warranty options can be submitted as an attachment",
       "reason": "all items present"
     },
     {
@@ -109,15 +109,15 @@
       "tier": "A",
       "confidence": 0.95,
       "status": "found",
-      "value": "White glove deployment services including asset decaling, asset reporting, etching, and delivery are required., All deli",
+      "value": "White glove services including asset decaling, asset reporting, etching, and delivery to varied locations., All deliveri",
       "reason": "all patterns present"
     },
     {
       "bid_id": "Bid1",
       "field": "mfg_for_registration",
       "passed": true,
-      "tier": "B",
-      "confidence": 0.85,
+      "tier": "A",
+      "confidence": 0.95,
       "status": "found",
       "value": "OEM",
       "reason": "found, but states the absence"
@@ -129,7 +129,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Educational Purchasing Cooperative of North Texas (EPCNT) Interlocal Agreement Rider; Central Texas Purchasing Alliance ",
+      "value": "Educational Purchasing Cooperative of North Texas (EPCNT) and Central Texas Purchasing Alliance (CTPA)",
       "reason": "found, but states the absence"
     },
     {
@@ -156,11 +156,11 @@
       "bid_id": "Bid1",
       "field": "product",
       "passed": false,
-      "tier": "NF-1",
-      "confidence": 0.8,
-      "status": "not_found",
-      "value": null,
-      "reason": "expected a value, got null"
+      "tier": "B",
+      "confidence": 0.85,
+      "status": "found",
+      "value": "Tier 1 Small Student Chromebook Laptop (Touch) – 1, Tier 2 Large Student Chromebook Laptop (Non- Touch) – 1, Tier 3 Stud",
+      "reason": "missing ['50,?000']"
     },
     {
       "bid_id": "Bid1",
@@ -169,7 +169,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Procurement Services, Phone: 972-925-3700, Email: ProcurementCS@dallasisd.org",
+      "value": "Procurement Services, 972-925-3700, ProcurementCS@dallasisd.org",
       "reason": "a pattern matched"
     },
     {
@@ -185,12 +185,12 @@
     {
       "bid_id": "Bid1",
       "field": "product_specification",
-      "passed": true,
-      "tier": "A",
-      "confidence": 0.95,
-      "status": "found",
-      "value": "Intel i5 CPU, 14th Gen or equivalent., Memory: Minimum 16GB DDR5 RAM, Storage: 512 GB NVMe SSD, Display: Minimum 13\" dia",
-      "reason": "all patterns present"
+      "passed": false,
+      "tier": "X",
+      "confidence": 0.2,
+      "status": "failed",
+      "value": null,
+      "reason": "expected a value, got null"
     },
     {
       "bid_id": "Bid1",
@@ -199,7 +199,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Dallas Independent School District is inviting bids for student and staff computing devices featuring Intel i5, i7, Cele",
+      "value": "Dallas Independent School District is seeking to purchase one of each of the following items: a Tier 1 Small Student Chr",
       "reason": "all patterns present"
     },
     {
@@ -249,7 +249,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Electronic submission via the State's eMaryland Marketplace Advantage (eMMA) e-Procurement system; bids will not be acce",
+      "value": "Electronic submission via eMaryland Marketplace Advantage (eMMA) portal only; email, fax, U.S. Mail, and hand delivery n",
       "reason": "all patterns present"
     },
     {
@@ -289,18 +289,18 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Invoices shall be submitted within 10 days of delivering the equipment",
+      "value": "Invoice(s) shall be submitted within 10 days of delivering the equipment",
       "reason": "all patterns present"
     },
     {
       "bid_id": "Bid2",
       "field": "additional_documentation",
       "passed": false,
-      "tier": "X",
-      "confidence": 0.2,
-      "status": "failed",
-      "value": null,
-      "reason": "expected a value, got null"
+      "tier": "A",
+      "confidence": 0.95,
+      "status": "found",
+      "value": "Mercury Affidavit ; Attachment N – Contract Affidavit",
+      "reason": "missing items ['warrant']"
     },
     {
       "bid_id": "Bid2",
@@ -336,10 +336,10 @@
       "bid_id": "Bid2",
       "field": "model_no",
       "passed": true,
-      "tier": "B",
-      "confidence": 0.85,
+      "tier": "A",
+      "confidence": 0.95,
       "status": "found",
-      "value": "Dell Latitude 5550 ; WD22TB4",
+      "value": "Dell Latitude 5550 ; Dell Thunderbolt 4 Dock – WD22TB4",
       "reason": "all items present"
     },
     {
@@ -359,7 +359,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Dell Latitude 5550 (Qty: 30); Dell Thunderbolt 4 Dock – WD22TB4 (Qty: 30)",
+      "value": "Dell Latitude 5550 Laptop – Qty 30, Dell Thunderbolt 4 Dock – WD22TB4 – Qty 30",
       "reason": "all patterns present"
     },
     {
@@ -369,7 +369,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Tamaira Hawkins, Phone: 410-260-7533, Email: thawkins@treasurer.state.md.us",
+      "value": "Tamaira Hawkins, Email: thawkins@treasurer.state.md.us, Phone: 410-260-7533",
       "reason": "all patterns present"
     },
     {
@@ -385,12 +385,12 @@
     {
       "bid_id": "Bid2",
       "field": "product_specification",
-      "passed": false,
-      "tier": "B",
-      "confidence": 0.85,
+      "passed": true,
+      "tier": "A",
+      "confidence": 0.95,
       "status": "found",
       "value": "Intel Core Ultra 5 125U processor (12 MB cache, 12 cores, 14 threads, up to 4.3 GHz Turbo) ; 16 GB: 2 x 8 GB, DDR5, 5600",
-      "reason": "missing ['3[- ]year']"
+      "reason": "all patterns present"
     },
     {
       "bid_id": "Bid2",
@@ -399,7 +399,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "The State of Maryland Treasurer's Office is inviting bids for 30 Dell Latitude 5550 laptops and 30 Dell Thunderbolt 4 Do",
+      "value": "The State of Maryland Treasurer's Office is purchasing 30 Dell Latitude 5550 laptops and 30 Dell Thunderbolt 4 Dock WD22",
       "reason": "all patterns present"
     },
     {

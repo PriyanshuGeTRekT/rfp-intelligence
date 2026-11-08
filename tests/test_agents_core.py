@@ -564,3 +564,24 @@ def test_values_use_plain_spaces_and_hyphens() -> None:
     items = FieldResult(key="model_no", value=[f"Dock{nbsp}WD22TB4"], status="found",
                         confidence=0.9, tier="B")  # fmt: skip
     assert items.value == ["Dock WD22TB4"]
+
+
+def test_a_product_label_may_carry_numbers_from_the_passages(catalog: FieldCatalog) -> None:
+    # Bid2: the definition asks to prefix each spec with its product when there are several, so
+    # the model wrote "Dell Latitude 5550 - ...", and "5550" is in the passage, not the quote.
+    specs = EvidenceStore()
+    specs.add(EvidenceItem(evidence_id="e1", file="specs.pdf", page_start=1, page_end=1,
+                           doc_type="specs", text="Dell Latitude 5550\n16 GB: 2 x 8 GB, DDR5"))  # fmt: skip
+    specs.add(EvidenceItem(evidence_id="e2", file="porfp.pdf", page_start=3, page_end=3,
+                           doc_type="rfp", text="Dell Limited Hardware Warranty - 3 Years"))  # fmt: skip
+    quotes = [("e1", "16 GB: 2 x 8 GB, DDR5"), ("e2", "Dell Limited Hardware Warranty - 3 Years")]
+    labelled = ["Dell Latitude 5550 - 16 GB: 2 x 8 GB, DDR5",
+                "Dell Latitude 5550 - Dell Limited Hardware Warranty - 3 Years"]  # fmt: skip
+    assert _check(catalog, specs, "product_specification", labelled, quotes)[0]
+    # A number the spec itself claims must still be quoted, and a label's must be in a passage.
+    ok, reason = _check(catalog, specs, "product_specification",
+                        ["Dell Latitude 5550 - 32 GB: 2 x 8 GB, DDR5"], quotes)  # fmt: skip
+    assert not ok and "32" in str(reason)
+    ok, reason = _check(catalog, specs, "product_specification",
+                        ["Dell Latitude 7450 - 16 GB: 2 x 8 GB, DDR5"], quotes)  # fmt: skip
+    assert not ok and "7450" in str(reason)

@@ -1,7 +1,7 @@
 {
   "bid_id": "Bid1",
-  "run_id": "20261108T075041Z-7410e6",
-  "generated_at": "2026-11-08T08:06:21+00:00",
+  "run_id": "20261108T120609Z-6bfb77",
+  "generated_at": "2026-11-08T12:23:35+00:00",
   "documents": [
     {
       "file": "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf",
@@ -50,7 +50,7 @@
       "confidence": 0.85,
       "tier": "B",
       "normalized": null,
-      "notes": "Reference Number 00004079100 also appears but primary solicitation number is JA-207652."
+      "notes": "Reference Number 00004079100 also appears in the bid page, but the primary solicitation number is JA-207652."
     },
     "Title": {
       "key": "title",
@@ -69,7 +69,7 @@
       "confidence": 0.85,
       "tier": "B",
       "normalized": null,
-      "notes": "The title includes a sourcing number, which is omitted as per instructions."
+      "notes": "The title in the document includes the sourcing identifier \"**SOURCING #168884**\"; it has been omitted as per instructions."
     },
     "Due Date": {
       "key": "due_date",
@@ -116,7 +116,7 @@
     },
     "Pre Bid Meeting": {
       "key": "pre_bid_meeting",
-      "value": "2024-06-10 14:00 CDT",
+      "value": "2024-06-10 14:00 CST via TEAMS video conference; attendance not mandatory",
       "status": "found",
       "sources": [
         {
@@ -134,6 +134,14 @@
           "doc_type": "rfp",
           "addendum_number": null,
           "evidence_id": "96d47440d35a4e43d43fa531"
+        },
+        {
+          "file": "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html",
+          "page": 1,
+          "quote": "Attendance: N/A",
+          "doc_type": "bid_page",
+          "addendum_number": null,
+          "evidence_id": "6118da649469bcf9823d9d37"
         },
         {
           "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
@@ -171,17 +179,17 @@
         "tz_note": "'CST' is written for a date when CDT applies; read as local time in America/Chicago (UTC-05:00). A literal CST reading would be 2024-06-10T20:00:00Z.",
         "display": "June 10, 2024, 2:00 PM CDT"
       },
-      "notes": "'CST' is written for a date when CDT applies; read as local time in America/Chicago (UTC-05:00). A literal CST reading would be 2024-06-10T20:00:00Z. Matches the portal's 06/10/2024 03:00 PM EDT. Meeting is via TEAMS video conference; attendance is highly encouraged but not mandatory."
+      "notes": "'CST' is written for a date when CDT applies; read as local time in America/Chicago (UTC-05:00). A literal CST reading would be 2024-06-10T20:00:00Z. Matches the portal's 06/10/2024 03:00 PM EDT."
     },
     "Bid Submission Type": {
       "key": "bid_submission_type",
-      "value": "Electronic submission via iSupplier portal https://www.dallasisd.org/domain/143; manual sealed hard copy (one original) delivered to Procurement Services Department; fax and email not accepted",
+      "value": "Electronic submission via iSupplier portal (https://www.dallasisd.org/domain/143); manual sealed hard copy (one original) delivered to Procurement Services Department; no fax or email submissions accepted.",
       "status": "found",
       "sources": [
         {
           "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
           "page": 9,
-          "quote": "Dallas ISD prefers responses to be submitted online via our electronic system. Please register with the iSupplier portal https://www.dallasisd.org/domain/143 This process takes up to a week, Dallas ISD asks the vendor to please register as early as possible to allow time for electronic responses. Submissions may be submitted manually. Manual submissions must be delivered to the Procurement Services Department, in a sealed envelope by the date and time stated. No fax or email submissions will be accepted. Only one format is needed. The manual submission shall consist of one (1) original hard copy. The Offeror may submit a manual response by paper via mail/FedEx/UPS etc. before the cutoff date and time at the following address: Dallas ISD Procurement Services 9400 N Central Expwy, Ste 1510 Attn: Staff Member and BID NUMBER Dallas, Tx 75231",
+          "quote": "Dallas ISD prefers responses to be submitted online via our electronic system. Please register with the iSupplier portal https://www.dallasisd.org/domain/143 … Manual submissions must be delivered to the Procurement Services Department, in a sealed envelope … No fax or email submissions will be accepted. Only one format is needed. The manual submission shall consist of one (1) original hard copy.",
           "doc_type": "rfp",
           "addendum_number": null,
           "evidence_id": "a927c5901a5ea816891fa215"
@@ -194,7 +202,7 @@
     },
     "Term of Bid": {
       "key": "term_of_bid",
-      "value": "Three-year initial term with two successive one-year renewal options, not to exceed a total of five years.",
+      "value": "Initial term of 3 years with two one-year renewals, not to exceed a total of 5 years.",
       "status": "found",
       "sources": [
         {
@@ -227,7 +235,7 @@
       "confidence": 0.8,
       "tier": "NF-1",
       "normalized": null,
-      "notes": "Not found in documents. The solicitation references bid bond requirements elsewhere but does not state a specific requirement or amount. Searched 4 queries (Bid Bond Requirement; bid bond required amount; bid security guarantee; performance bond insurance); 0 labelled facts; 2 passages reviewed."
+      "notes": "Not found in documents. Bid bond mentioned but no specific requirement or amount is stated in the provided passages. Searched 4 queries (Bid Bond Requirement; bid bond required amount; bid security guarantee; performance bond insurance); 0 labelled facts; 2 passages reviewed."
     },
     "Payment Terms": {
       "key": "payment_terms",
@@ -237,11 +245,11 @@
       "confidence": 0.5,
       "tier": "NF-2",
       "normalized": null,
-      "notes": "Not found in documents. The documents only specify that prime vendors must pay subcontractors within 10 days of receiving district payment and mention a 60‑day rule for backup withholding, but no clause describing how the district will pay the prime vendor (e.g., net days, invoicing). 4 labelled facts were reviewed on every attempt and judged not to state this field. Searched 8 queries (Payment Terms; payment terms net days; invoice submission payment; prompt payment; Payment schedule agency; Net days invoicing; Prompt payment terms; Agency invoice submission rules); 4 labelled facts; 5 passages reviewed."
+      "notes": "Not found in documents. The passages only describe vendor obligations to pay subcontractors (e.g., within 10 days) and reference a 60‑day rule, but no clause specifies when or how Dallas ISD pays the vendor. Therefore no agency payment terms are found. 4 labelled facts were reviewed on every attempt and judged not to state this field. Searched 7 queries (Payment Terms; payment terms net days; invoice submission payment; prompt payment; agency vendor payment schedule; payment due date agency; invoice payment cycle); 4 labelled facts; 4 passages reviewed."
     },
     "Contract or Cooperative to use": {
       "key": "contract_or_cooperative",
-      "value": "Educational Purchasing Cooperative of North Texas (EPCNT) Interlocal Agreement Rider; Central Texas Purchasing Alliance (CTPA) Interlocal Agreement - Cooperative",
+      "value": "Educational Purchasing Cooperative of North Texas (EPCNT) and Central Texas Purchasing Alliance (CTPA)",
       "status": "found",
       "sources": [
         {
@@ -269,7 +277,6 @@
     "Any Additional Documentation Required": {
       "key": "additional_documentation",
       "value": [
-        "INTERLOCAL AGREEMENT (\"Rider\") CONSENT FORM",
         "MWBE Forms",
         "W9 Form",
         "Punch Out Process - OPTIONAL",
@@ -279,14 +286,6 @@
       ],
       "status": "found",
       "sources": [
-        {
-          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-          "page": 19,
-          "quote": "INTERLOCAL AGREEMENT (\"Rider\") CONSENT FORM",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "59e98dc466b373e6ba7176b1"
-        },
         {
           "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
           "page": 33,
@@ -314,7 +313,7 @@
         {
           "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
           "page": 14,
-          "quote": "Please complete and sign, then attach the completed 1295 form with the bid response.",
+          "quote": "Box 6: Please complete and sign, then attach the completed 1295 form with the bid response.",
           "doc_type": "rfp",
           "addendum_number": null,
           "evidence_id": "e548369e3eca2346fa256bbd"
@@ -343,13 +342,22 @@
     },
     "Product": {
       "key": "product",
-      "value": null,
-      "status": "not_found",
-      "sources": [],
-      "confidence": 0.8,
-      "tier": "NF-1",
+      "value": "Tier 1 Small Student Chromebook Laptop (Touch) – 1, Tier 2 Large Student Chromebook Laptop (Non- Touch) – 1, Tier 3 Student Windows Laptop – 1, Student Tablet – 1, Tier 1 Staff Basic Desktop – 1, Tier 2 Staff Professional Desktop – 1, Tier 1 Staff Laptop – 1, Tier 2 Staff Laptop – 1, Display Monitor - Touch – 1, Display Monitor - Non-Touch – 1, Additional Warranty – 1, Device Deployment – 1, Subscriptions/Services Required – 1, Discount Percentage Off Catalog or List Price – 1",
+      "status": "found",
+      "sources": [
+        {
+          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
+          "page": 34,
+          "quote": "1 Tier 1 Small Student | 1 | Each\nChromebook Laptop (Touch)\n2 Tier 2 Large Student | 1 | Each\nChromebook Laptop (Non- Touch)\n3 Tier 3 Student | 1 | Each\nWindows Laptop\n4 Student Tablet | 1 | Each\n5 Tier 1 Staff Basic | 1 | Each\nDesktop\n6 Tier 2 Staff | 1 | Each\nProfessional Desktop\n7 Tier 1 Staff Laptop | 1 | Each\n8 Tier 2 Staff Laptop | 1 | Each\n9 Display Monitor - | 1 | Each\nTouch\n10 Display Monitor - | 1 | Each\nNon-Touch\n11 Additional Warranty | 1 | Each\n- not included in the initial purchase of a device\n12 Device Deployment | 1 | Each\n- include all associated costs for asset decaling and reporting, etching, and delivery\n13 | 1 | Each\nSubscriptions/Services Required with the purchase of any device\n14 Discount | 1 | Each\nPercentage Off Catalog or List Price - provide your catalog/price list with your submission to ensure the District can verify pricing",
+          "doc_type": "rfp",
+          "addendum_number": null,
+          "evidence_id": "5153c5229e94e9bb848407a8"
+        }
+      ],
+      "confidence": 0.85,
+      "tier": "B",
       "normalized": null,
-      "notes": "Not found in documents. No product list with quantities found in the provided passages. Searched 5 queries (Product; products to be purchased quantity; scope of work devices; price schedule line items; estimated quantity per tier); 0 labelled facts; 3 passages reviewed."
+      "notes": null
     },
     "Model_no": {
       "key": "model_no",
@@ -359,7 +367,7 @@
       "confidence": 0.8,
       "tier": "NF-1",
       "normalized": null,
-      "notes": "Not found in documents. No model numbers listed in the provided passages. Searched 5 queries (Model_no; model number; product model required; brand and model; Model_no (in specs)); 0 labelled facts; 2 passages reviewed."
+      "notes": "Not found in documents. The solicitation does not specify any manufacturer model names or numbers; vendors may propose models. Searched 5 queries (Model_no; model number; product model required; brand and model; Model_no (in specs)); 0 labelled facts; 2 passages reviewed."
     },
     "Part_no": {
       "key": "part_no",
@@ -369,7 +377,7 @@
       "confidence": 0.8,
       "tier": "NF-1",
       "normalized": null,
-      "notes": "Not found in documents. No part numbers or SKUs listed in the provided passages. Searched 5 queries (Part_no; part number SKU; configuration SKU list; item part numbers; Part_no (in specs)); 0 labelled facts; 1 passages reviewed."
+      "notes": "Not found in documents. No part numbers or SKUs appear in the provided passages. Searched 5 queries (Part_no; part number SKU; configuration SKU list; item part numbers; Part_no (in specs)); 0 labelled facts; 1 passages reviewed."
     },
     "MFG for Registration": {
       "key": "mfg_for_registration",
@@ -383,151 +391,30 @@
           "doc_type": "rfp",
           "addendum_number": null,
           "evidence_id": "5f516a91d5af26417b6fdc85"
-        }
-      ],
-      "confidence": 0.85,
-      "tier": "B",
-      "normalized": null,
-      "notes": null
-    },
-    "Product Specification": {
-      "key": "product_specification",
-      "value": "Intel i5 CPU, 14th Gen or equivalent., Memory: Minimum 16GB DDR5 RAM, Storage: 512 GB NVMe SSD, Display: Minimum 13\" diagonal screen, Warranty: 3-year minimum, Intel i7 CPU, 14th Gen or equivalent., Memory: Minimum 32GB DDR5 RAM, Storage: 1 TB NVMe SSD, Intel Celeron Processor N100 or equivalent, Memory: Minimum 8GB DDR5 Memory, Storage: 64 GB eMMC, Warranty: 1-year minimum, Processor A13, Warranty: 1-year minimum, Display: 10.2\" Retina; no Accidental Damage Protection; Windows devices require autopilot; Chromebooks require enrollment in Google Management.",
-      "status": "found",
-      "sources": [
-        {
-          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-          "page": 6,
-          "quote": "Intel i5 CPU, 14th Gen or equivalent.",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "7f91283e8f90c0f52113262c"
-        },
-        {
-          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-          "page": 6,
-          "quote": "Memory: Minimum 16GB DDR5 RAM",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "7f91283e8f90c0f52113262c"
-        },
-        {
-          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-          "page": 6,
-          "quote": "Storage: 512 GB NVMe SSD",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "7f91283e8f90c0f52113262c"
-        },
-        {
-          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-          "page": 6,
-          "quote": "Display: Minimum 13\" diagonal screen",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "7f91283e8f90c0f52113262c"
-        },
-        {
-          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-          "page": 6,
-          "quote": "Warranty: 3-year minimum",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "7f91283e8f90c0f52113262c"
-        },
-        {
-          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-          "page": 6,
-          "quote": "Intel i7 CPU, 14th Gen or equivalent.",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "7f91283e8f90c0f52113262c"
-        },
-        {
-          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-          "page": 6,
-          "quote": "Memory: Minimum 32GB DDR5 RAM",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "7f91283e8f90c0f52113262c"
-        },
-        {
-          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-          "page": 6,
-          "quote": "Storage: 1 TB NVMe SSD",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "7f91283e8f90c0f52113262c"
-        },
-        {
-          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-          "page": 4,
-          "quote": "Intel Celeron Processor N100 or equivalent",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "c62d2d4961b049eee577758e"
-        },
-        {
-          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-          "page": 4,
-          "quote": "Memory: Minimum 8GB DDR5 Memory",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "c62d2d4961b049eee577758e"
-        },
-        {
-          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-          "page": 4,
-          "quote": "Storage: 64 GB eMMC",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "c62d2d4961b049eee577758e"
-        },
-        {
-          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-          "page": 5,
-          "quote": "Warranty: 1-year minimum",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "2a503c928ce66e0e75f40df5"
-        },
-        {
-          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-          "page": 5,
-          "quote": "Processor A13",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "2a503c928ce66e0e75f40df5"
-        },
-        {
-          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-          "page": 5,
-          "quote": "Display: 10.2\" Retina",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "2a503c928ce66e0e75f40df5"
         },
         {
           "file": "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf",
-          "page": 1,
-          "quote": "Dallas ISD will not ask for Accidental Damage Protection for purchased devices.",
+          "page": 2,
+          "quote": "Dallas ISD will ask all warranties to be made by OEM.",
           "doc_type": "addendum",
           "addendum_number": 1,
-          "evidence_id": null
-        },
-        {
-          "file": "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf",
-          "page": 4,
-          "quote": "For Windows devices, autopilot is required. For Chromebooks, enrollment in Google Management is required.",
-          "doc_type": "addendum",
-          "addendum_number": 1,
-          "evidence_id": null
+          "evidence_id": "255210e3b26011f137372d28"
         }
       ],
       "confidence": 0.95,
       "tier": "A",
       "normalized": null,
-      "notes": "Addendum 1: Yes, the specs, more specifically the proposed make and model of the device being proposed, should be included in this field."
+      "notes": null
+    },
+    "Product Specification": {
+      "key": "product_specification",
+      "value": null,
+      "status": "failed",
+      "sources": [],
+      "confidence": 0.2,
+      "tier": "X",
+      "normalized": null,
+      "notes": "Extraction failed: the model call failed: LLMError: output truncated at 3500 tokens."
     },
     "company_name": {
       "key": "company_name",
@@ -550,29 +437,13 @@
     },
     "contact_info": {
       "key": "contact_info",
-      "value": "Procurement Services, Phone: 972-925-3700, Email: ProcurementCS@dallasisd.org",
+      "value": "Procurement Services, 972-925-3700, ProcurementCS@dallasisd.org",
       "status": "found",
       "sources": [
         {
           "file": "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html",
           "page": 1,
-          "quote": "Procurement Services",
-          "doc_type": "bid_page",
-          "addendum_number": null,
-          "evidence_id": "69fe67bf98069735f645e62c"
-        },
-        {
-          "file": "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html",
-          "page": 1,
-          "quote": "972-925-3700",
-          "doc_type": "bid_page",
-          "addendum_number": null,
-          "evidence_id": "69fe67bf98069735f645e62c"
-        },
-        {
-          "file": "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html",
-          "page": 1,
-          "quote": "ProcurementCS@dallasisd.org",
+          "quote": "Procurement Services\n\n972-925-3700\n\nProcurementCS@dallasisd.org",
           "doc_type": "bid_page",
           "addendum_number": null,
           "evidence_id": "69fe67bf98069735f645e62c"
@@ -581,12 +452,12 @@
       "confidence": 0.85,
       "tier": "B",
       "normalized": null,
-      "notes": null
+      "notes": "Only department name, phone, and email are provided; no individual name or title appears in the supplied passages."
     },
     "Installation": {
       "key": "installation",
       "value": [
-        "White glove deployment services including asset decaling, asset reporting, etching, and delivery are required., All deliveries and deployments must incorporate white glove services, which include asset decaling, asset reporting, etching, and delivery to varied locations.; Only laptops require etching.",
+        "White glove services including asset decaling, asset reporting, etching, and delivery to varied locations., All deliveries and deployments must incorporate white glove services, which include asset decaling, asset reporting, etching, and delivery to varied locations.; Only laptops require etching.",
         "Vendor must coordinate a delivery schedule with the Dallas ISD ED Tech department."
       ],
       "status": "found",
@@ -637,11 +508,11 @@
       "confidence": 0.5,
       "tier": "NF-2",
       "normalized": null,
-      "notes": "Not found in documents. The documents only mention coordinating delivery schedules and that quotes will be requested starting September 2024, but no specific delivery date or period is provided. 1 labelled facts were reviewed on every attempt and judged not to state this field. Searched 8 queries (Delivery Date; delivery timeline days after award; delivery date location; shipment lead time; delivery schedule requirement; goods delivery timeframe clause; delivery location and date; delivery due date provision); 1 labelled facts; 10 passages reviewed."
+      "notes": "Not found in documents. No passage provides a specific delivery date, period, or location for the goods. References to delivery dates are generic (e.g., meet delivery dates as specified) but no explicit requirement is stated. 1 labelled facts were reviewed on every attempt and judged not to state this field. Searched 8 queries (Delivery Date; delivery timeline days after award; delivery date location; shipment lead time; delivery schedule within days of award; delivery deadline and location specification; delivery period relative to award; delivery location and due date clause); 1 labelled facts; 9 passages reviewed."
     },
     "Bid Summary": {
       "key": "bid_summary",
-      "value": "Dallas Independent School District is inviting bids for student and staff computing devices featuring Intel i5, i7, Celeron, or A13 processors with specified memory and storage options. Bidders must submit proposals electronically through the iSupplier portal at https://www.dallasisd.org/domain/143 or deliver a sealed hard copy to the Procurement Services Department; fax and email submissions are not accepted. The final submission deadline is July 9, 2024, at 2:00 PM CDT, following any addenda, and proposals must include the required INTERLOCAL AGREEMENT CONSENT FORM, MWBE forms, W9, optional Punch Out Process, 1295 form, and signed acknowledgement of this addendum. Proposals must meet a three-year initial contract term with up to two one-year renewals, provide at least a 3-year minimum warranty for Intel-based models, and include white-glove deployment services such as asset decaling, reporting, etching, and delivery coordinated with the Dallas ISD ED Tech department. Vendors should note that bid bond and payment terms are not specified and that delivery dates are not listed, so coordination for scheduling will be required.",
+      "value": "Dallas Independent School District is seeking to purchase one of each of the following items: a Tier 1 Small Student Chromebook Laptop (Touch), a Tier 2 Large Student Chromebook Laptop (Non-Touch), a Tier 3 Student Windows Laptop, a Student Tablet, a Tier 1 Staff Basic Desktop, a Tier 2 Staff Professional Desktop, a Tier 1 Staff Laptop, a Tier 2 Staff Laptop, a Display Monitor – Touch, a Display Monitor – Non-Touch, an Additional Warranty, a Device Deployment, and Subscriptions/Services Required. Bids must be submitted electronically through the iSupplier portal (https://www.dallasisd.org/domain/143) or as a sealed hard copy delivered to Procurement Services by July 9, 2024, 2:00 PM CDT; fax or email submissions are not accepted. The proposal must include a signed acknowledgement of this addendum, MWBE Forms, a W-9 Form, optional Punch-Out Process documentation, a 1295 form, and non-warranty options as an attachment; delivery must involve white-glove services, asset decaling, reporting, etching, and coordination with the ED Tech department, and the contract will be issued under the EPCNT and CTPA cooperatives. The initial term of the contract is three years with up to two one-year renewals, for a maximum total of five years. Bid bond, payment terms, product specifications, model numbers, and part numbers are not specified in the bid.",
       "status": "found",
       "sources": [
         {
@@ -651,6 +522,14 @@
           "doc_type": "addendum",
           "addendum_number": 2,
           "evidence_id": null
+        },
+        {
+          "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
+          "page": 34,
+          "quote": "1 Tier 1 Small Student | 1 | Each\nChromebook Laptop (Touch)\n2 Tier 2 Large Student | 1 | Each\nChromebook Laptop (Non- Touch)\n3 Tier 3 Student | 1 | Each\nWindows Laptop\n4 Student Tablet | 1 | Each\n5 Tier 1 Staff Basic | 1 | Each\nDesktop\n6 Tier 2 Staff | 1 | Each\nProfessional Desktop\n7 Tier 1 Staff Laptop | 1 | Each\n8 Tier 2 Staff Laptop | 1 | Each\n9 Display Monitor - | 1 | Each\nTouch\n10 Display Monitor - | 1 | Each\nNon-Touch\n11 Additional Warranty | 1 | Each\n- not included in the initial purchase of a device\n12 Device Deployment | 1 | Each\n- include all associated costs for asset decaling and reporting, etching, and delivery\n13 | 1 | Each\nSubscriptions/Services Required with the purchase of any device\n14 Discount | 1 | Each\nPercentage Off Catalog or List Price - provide your catalog/price list with your submission to ensure the District can verify pricing",
+          "doc_type": "rfp",
+          "addendum_number": null,
+          "evidence_id": "5153c5229e94e9bb848407a8"
         },
         {
           "file": "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html",
@@ -689,8 +568,8 @@
       "operation": "add_requirement",
       "addendum_number": 1,
       "doc_date": "2024-06-13",
-      "old_value": "INTERLOCAL AGREEMENT (\"Rider\") CONSENT FORM, MWBE Forms, W9 Form, Punch Out Process - OPTIONAL, 1295 form",
-      "new_value": "INTERLOCAL AGREEMENT (\"Rider\") CONSENT FORM, MWBE Forms, W9 Form, Punch Out Process - OPTIONAL, 1295 form, Non-warranty options can be submitted as an attachment.",
+      "old_value": "MWBE Forms, W9 Form, Punch Out Process - OPTIONAL, 1295 form",
+      "new_value": "MWBE Forms, W9 Form, Punch Out Process - OPTIONAL, 1295 form, Non-warranty options can be submitted as an attachment.",
       "source": {
         "file": "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf",
         "page": 2,
@@ -705,8 +584,8 @@
       "operation": "add_requirement",
       "addendum_number": 2,
       "doc_date": "2024-06-27",
-      "old_value": "INTERLOCAL AGREEMENT (\"Rider\") CONSENT FORM, MWBE Forms, W9 Form, Punch Out Process - OPTIONAL, 1295 form, Non-warranty options can be submitted as an attachment.",
-      "new_value": "INTERLOCAL AGREEMENT (\"Rider\") CONSENT FORM, MWBE Forms, W9 Form, Punch Out Process - OPTIONAL, 1295 form, Non-warranty options can be submitted as an attachment., Signed acknowledgement and return/submission of this addendum with the proposal.",
+      "old_value": "MWBE Forms, W9 Form, Punch Out Process - OPTIONAL, 1295 form, Non-warranty options can be submitted as an attachment.",
+      "new_value": "MWBE Forms, W9 Form, Punch Out Process - OPTIONAL, 1295 form, Non-warranty options can be submitted as an attachment., Signed acknowledgement and return/submission of this addendum with the proposal.",
       "source": {
         "file": "Addendum 2 RFP JA-207652 Student and Staff Computing Devices.pdf",
         "page": 1,
@@ -717,60 +596,12 @@
       }
     },
     {
-      "field": "product_specification",
-      "operation": "amend",
-      "addendum_number": 1,
-      "doc_date": "2024-06-13",
-      "old_value": "Intel i5 CPU, 14th Gen or equivalent., Memory: Minimum 16GB DDR5 RAM, Storage: 512 GB NVMe SSD, Display: Minimum 13\" diagonal screen, Warranty: 3-year minimum, Intel i7 CPU, 14th Gen or equivalent., Memory: Minimum 32GB DDR5 RAM, Storage: 1 TB NVMe SSD, Intel Celeron Processor N100 or equivalent, Memory: Minimum 8GB DDR5 Memory, Storage: 64 GB eMMC, Warranty: 1-year minimum, Processor A13, Warranty: 1-year minimum, Display: 10.2\" Retina",
-      "new_value": "Intel i5 CPU, 14th Gen or equivalent., Memory: Minimum 16GB DDR5 RAM, Storage: 512 GB NVMe SSD, Display: Minimum 13\" diagonal screen, Warranty: 3-year minimum, Intel i7 CPU, 14th Gen or equivalent., Memory: Minimum 32GB DDR5 RAM, Storage: 1 TB NVMe SSD, Intel Celeron Processor N100 or equivalent, Memory: Minimum 8GB DDR5 Memory, Storage: 64 GB eMMC, Warranty: 1-year minimum, Processor A13, Warranty: 1-year minimum, Display: 10.2\" Retina; no Accidental Damage Protection",
-      "source": {
-        "file": "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf",
-        "page": 1,
-        "quote": "Dallas ISD will not ask for Accidental Damage Protection for purchased devices.",
-        "doc_type": "addendum",
-        "addendum_number": 1,
-        "evidence_id": null
-      }
-    },
-    {
-      "field": "product_specification",
-      "operation": "clarify",
-      "addendum_number": 1,
-      "doc_date": "2024-06-13",
-      "old_value": "Intel i5 CPU, 14th Gen or equivalent., Memory: Minimum 16GB DDR5 RAM, Storage: 512 GB NVMe SSD, Display: Minimum 13\" diagonal screen, Warranty: 3-year minimum, Intel i7 CPU, 14th Gen or equivalent., Memory: Minimum 32GB DDR5 RAM, Storage: 1 TB NVMe SSD, Intel Celeron Processor N100 or equivalent, Memory: Minimum 8GB DDR5 Memory, Storage: 64 GB eMMC, Warranty: 1-year minimum, Processor A13, Warranty: 1-year minimum, Display: 10.2\" Retina; no Accidental Damage Protection",
-      "new_value": null,
-      "source": {
-        "file": "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf",
-        "page": 1,
-        "quote": "Yes, the specs, more specifically the proposed make and model of the device being proposed, should be included in this field.",
-        "doc_type": "addendum",
-        "addendum_number": 1,
-        "evidence_id": null
-      }
-    },
-    {
-      "field": "product_specification",
-      "operation": "amend",
-      "addendum_number": 1,
-      "doc_date": "2024-06-13",
-      "old_value": "Intel i5 CPU, 14th Gen or equivalent., Memory: Minimum 16GB DDR5 RAM, Storage: 512 GB NVMe SSD, Display: Minimum 13\" diagonal screen, Warranty: 3-year minimum, Intel i7 CPU, 14th Gen or equivalent., Memory: Minimum 32GB DDR5 RAM, Storage: 1 TB NVMe SSD, Intel Celeron Processor N100 or equivalent, Memory: Minimum 8GB DDR5 Memory, Storage: 64 GB eMMC, Warranty: 1-year minimum, Processor A13, Warranty: 1-year minimum, Display: 10.2\" Retina; no Accidental Damage Protection",
-      "new_value": "Intel i5 CPU, 14th Gen or equivalent., Memory: Minimum 16GB DDR5 RAM, Storage: 512 GB NVMe SSD, Display: Minimum 13\" diagonal screen, Warranty: 3-year minimum, Intel i7 CPU, 14th Gen or equivalent., Memory: Minimum 32GB DDR5 RAM, Storage: 1 TB NVMe SSD, Intel Celeron Processor N100 or equivalent, Memory: Minimum 8GB DDR5 Memory, Storage: 64 GB eMMC, Warranty: 1-year minimum, Processor A13, Warranty: 1-year minimum, Display: 10.2\" Retina; no Accidental Damage Protection; Windows devices require autopilot; Chromebooks require enrollment in Google Management.",
-      "source": {
-        "file": "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf",
-        "page": 4,
-        "quote": "For Windows devices, autopilot is required. For Chromebooks, enrollment in Google Management is required.",
-        "doc_type": "addendum",
-        "addendum_number": 1,
-        "evidence_id": null
-      }
-    },
-    {
       "field": "installation",
       "operation": "add_requirement",
       "addendum_number": 1,
       "doc_date": "2024-06-13",
-      "old_value": "White glove deployment services including asset decaling, asset reporting, etching, and delivery are required.",
-      "new_value": "White glove deployment services including asset decaling, asset reporting, etching, and delivery are required., All deliveries and deployments must incorporate white glove services, which include asset decaling, asset reporting, etching, and delivery to varied locations.",
+      "old_value": "White glove services including asset decaling, asset reporting, etching, and delivery to varied locations.",
+      "new_value": "White glove services including asset decaling, asset reporting, etching, and delivery to varied locations., All deliveries and deployments must incorporate white glove services, which include asset decaling, asset reporting, etching, and delivery to varied locations.",
       "source": {
         "file": "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf",
         "page": 1,
@@ -785,8 +616,8 @@
       "operation": "amend",
       "addendum_number": 1,
       "doc_date": "2024-06-13",
-      "old_value": "White glove deployment services including asset decaling, asset reporting, etching, and delivery are required., All deliveries and deployments must incorporate white glove services, which include asset decaling, asset reporting, etching, and delivery to varied locations.",
-      "new_value": "White glove deployment services including asset decaling, asset reporting, etching, and delivery are required., All deliveries and deployments must incorporate white glove services, which include asset decaling, asset reporting, etching, and delivery to varied locations.; Only laptops require etching.",
+      "old_value": "White glove services including asset decaling, asset reporting, etching, and delivery to varied locations., All deliveries and deployments must incorporate white glove services, which include asset decaling, asset reporting, etching, and delivery to varied locations.",
+      "new_value": "White glove services including asset decaling, asset reporting, etching, and delivery to varied locations., All deliveries and deployments must incorporate white glove services, which include asset decaling, asset reporting, etching, and delivery to varied locations.; Only laptops require etching.",
       "source": {
         "file": "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf",
         "page": 1,
@@ -801,8 +632,8 @@
       "operation": "add_requirement",
       "addendum_number": 1,
       "doc_date": "2024-06-13",
-      "old_value": "White glove deployment services including asset decaling, asset reporting, etching, and delivery are required., All deliveries and deployments must incorporate white glove services, which include asset decaling, asset reporting, etching, and delivery to varied locations.; Only laptops require etching.",
-      "new_value": "White glove deployment services including asset decaling, asset reporting, etching, and delivery are required., All deliveries and deployments must incorporate white glove services, which include asset decaling, asset reporting, etching, and delivery to varied locations.; Only laptops require etching., Vendor must coordinate a delivery schedule with the Dallas ISD ED Tech department.",
+      "old_value": "White glove services including asset decaling, asset reporting, etching, and delivery to varied locations., All deliveries and deployments must incorporate white glove services, which include asset decaling, asset reporting, etching, and delivery to varied locations.; Only laptops require etching.",
+      "new_value": "White glove services including asset decaling, asset reporting, etching, and delivery to varied locations., All deliveries and deployments must incorporate white glove services, which include asset decaling, asset reporting, etching, and delivery to varied locations.; Only laptops require etching., Vendor must coordinate a delivery schedule with the Dallas ISD ED Tech department.",
       "source": {
         "file": "Addendum 1 RFP JA-207652 Student and Staff Computing Devices.pdf",
         "page": 4,
@@ -815,29 +646,34 @@
   ],
   "validation": {
     "passed": 14,
-    "failed": 0,
-    "not_found": 6,
+    "failed": 1,
+    "not_found": 5,
     "conflicts": 0,
     "fields": 20,
-    "passed_first_time": 15,
-    "passed_after_retry": 4,
-    "retries": 7,
-    "checks_failed": {},
+    "passed_first_time": 13,
+    "passed_after_retry": 5,
+    "retries": 9,
+    "checks_failed": {
+      "model_call": 1
+    },
     "consistency_issues": []
   },
   "usage": {
-    "calls": 23,
-    "input_tokens": 45277,
-    "output_tokens": 24229,
-    "cache_read_tokens": 3328,
+    "calls": 26,
+    "input_tokens": 46348,
+    "output_tokens": 24735,
+    "cache_read_tokens": 6656,
     "cache_write_tokens": 0,
-    "latency_ms": 58609.2,
-    "cost_usd": 0.019982
+    "latency_ms": 62071.7,
+    "cost_usd": 0.020048
   },
   "models": {
     "provider": "groq",
     "extract": "openai/gpt-oss-120b",
     "cheap": "openai/gpt-oss-20b"
   },
-  "errors": []
+  "errors": [
+    "extract retry:product_specification: LLMError: output truncated at 3500 tokens",
+    "product_specification: LLMError: output truncated at 3500 tokens"
+  ]
 }

@@ -25,6 +25,7 @@ class FieldSpec(BaseModel):
     reconcile: bool = False
     enrich: bool = False  # reconciled date fields the model still describes (place, mandatory)
     diverse: bool = False  # items come from many documents: spread the evidence across them
+    rerank_queries: bool = False  # rerank against each query too, not only the description
 
 
 class FieldCatalog(BaseModel):

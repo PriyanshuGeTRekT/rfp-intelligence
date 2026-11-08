@@ -38,14 +38,43 @@ def _fixed_tokens(fields: list[FieldSpec]) -> int:
     )
 
 
+def _letters(text: str) -> str:
+    return "".join(ch for ch in text.casefold() if ch.isalnum())
+
+
+def _holding_candidates(pool: list[EvidenceItem], kept: list[FactCandidate]) -> list[str]:
+    """Pooled passages that hold a kept candidate's sentence. The model reads that sentence in
+    the candidate list even when the prompt has no room for the passage, so a quote of it is
+    verbatim text of that passage and must be citable."""
+    sentences = {_letters(c.context)[:80] for c in kept if len(_letters(c.context)) >= 20}
+    return [i.evidence_id for i in pool if any(s in _letters(i.text) for s in sentences)]
+
+
+def _distinct_first(candidates: list[FactCandidate]) -> list[FactCandidate]:
+    """The candidates with the first of each distinct (kind, value) ahead of the repeats, order
+    otherwise kept."""
+    seen: set[tuple[str, str]] = set()
+    first: list[FactCandidate] = []
+    repeats: list[FactCandidate] = []
+    for c in candidates:
+        key = (c.kind, c.raw.casefold())
+        (repeats if key in seen else first).append(c)
+        seen.add(key)
+    return first + repeats
+
+
 def _fit_candidates(
     s: Services, fields: list[FieldSpec], candidates: dict[str, list[FactCandidate]]
 ) -> dict[str, list[FactCandidate]]:
     """Candidate facts that fit the prompt cap with MIN_PASSAGE_TOKENS left for passages,
     taken in turn (each field's first, then second, ...); a fact already kept for another field
     costs nothing, since shared lists are printed once. A product batch can have dozens of part
-    numbers; sent whole, they pushed one Bid1 call past the provider's per-minute limit."""
+    numbers; sent whole, they pushed one Bid1 call past the provider's per-minute limit.
+
+    Each field's distinct values go first: a price schedule repeats "1" on every category line
+    before the estimated quantities, and fourteen copies of "1" crowded out the 50,000s."""
     room = s.settings.llm_max_prompt_tokens - _fixed_tokens(fields) - MIN_PASSAGE_TOKENS
+    candidates = {key: _distinct_first(cands) for key, cands in candidates.items()}
     kept: dict[str, list[FactCandidate]] = {key: [] for key in candidates}
     paid: set[str] = set()
     depth = max((len(c) for c in candidates.values()), default=0)
@@ -80,12 +109,12 @@ def extract(s: Services, state: RunState) -> dict[str, Any]:
         span.set_attribute("agent.fields", task.fields)
         span.set_attribute("agent.attempt", task.attempt)
         candidates = _fit_candidates(s, specs, {k: ev.candidates for k, ev in evidence.items()})
-        passages: dict[str, list[EvidenceItem]] = fit_passages(
-            {k: s.store.many(ev.evidence_ids) for k, ev in evidence.items()},
-            _budget(s, specs, candidates),
-        )
+        pools = {k: s.store.many(ev.evidence_ids) for k, ev in evidence.items()}
+        passages: dict[str, list[EvidenceItem]] = fit_passages(pools, _budget(s, specs, candidates))
         for key, items in passages.items():  # record what the model actually read
-            evidence[key].evidence_ids = [i.evidence_id for i in items]
+            read = [i.evidence_id for i in items]
+            holding = _holding_candidates(pools.get(key, []), candidates.get(key, []))
+            evidence[key].evidence_ids = read + [e for e in holding if e not in read]
 
         empty = [f for f in specs if not passages.get(f.key) and not candidates.get(f.key)]
         asked = [f for f in specs if f not in empty]

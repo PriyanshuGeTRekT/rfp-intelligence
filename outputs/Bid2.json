@@ -1,7 +1,7 @@
 {
   "bid_id": "Bid2",
-  "run_id": "20261108T100729Z-7f8ee5",
-  "generated_at": "2026-11-08T10:18:31+00:00",
+  "run_id": "20261108T115449Z-2c640f",
+  "generated_at": "2026-11-08T12:06:07+00:00",
   "documents": [
     {
       "file": "Contract_Affidavit.pdf",
@@ -57,7 +57,7 @@
       "confidence": 0.85,
       "tier": "B",
       "normalized": null,
-      "notes": "Other identifiers appear: Reference Number 00004079359 and Solicitation Number BPM044557, but the primary PORFP Number is used."
+      "notes": "The eMMA Project Number BPM044557 is also listed but the primary PORFP Number is used."
     },
     "Title": {
       "key": "title",
@@ -127,11 +127,11 @@
       "confidence": 0.8,
       "tier": "NF-1",
       "normalized": null,
-      "notes": "Not found in documents. No pre‑bid meeting information provided in the supplied documents. Searched 4 queries (Pre Bid Meeting; pre-bid meeting; pre-proposal conference; site visit); 0 labelled facts; 3 passages reviewed."
+      "notes": "Not found in documents. No pre‑bid meeting information provided in the passages. Searched 4 queries (Pre Bid Meeting; pre-bid meeting; pre-proposal conference; site visit); 0 labelled facts; 3 passages reviewed."
     },
     "Bid Submission Type": {
       "key": "bid_submission_type",
-      "value": "Electronic submission via the State's eMaryland Marketplace Advantage (eMMA) e-Procurement system; bids will not be accepted by email, fax, U.S. Mail, or hand delivery.",
+      "value": "Electronic submission via eMaryland Marketplace Advantage (eMMA) portal only; email, fax, U.S. Mail, and hand delivery not accepted.",
       "status": "found",
       "sources": [
         {
@@ -183,17 +183,17 @@
       "confidence": 0.8,
       "tier": "NF-1",
       "normalized": null,
-      "notes": "Not found in documents. Bid bond requirement not stated in the provided documents. Searched 4 queries (Bid Bond Requirement; bid bond required amount; bid security guarantee; performance bond insurance); 0 labelled facts; 5 passages reviewed."
+      "notes": "Not found in documents. No passage states a bid bond, bid security, or guarantee requirement. Searched 4 queries (Bid Bond Requirement; bid bond required amount; bid security guarantee; performance bond insurance); 0 labelled facts; 5 passages reviewed."
     },
     "Payment Terms": {
       "key": "payment_terms",
-      "value": "Invoices shall be submitted within 10 days of delivering the equipment",
+      "value": "Invoice(s) shall be submitted within 10 days of delivering the equipment",
       "status": "found",
       "sources": [
         {
           "file": "PORFP_-_Dell_Laptop_Final.pdf",
           "page": 2,
-          "quote": "Invoice(s) shall be submitted within 10 days of delivering the equipment and shall include at a minimum the following:",
+          "quote": "Invoice(s) shall be submitted within 10 days of delivering the equipment",
           "doc_type": "rfp",
           "addendum_number": null,
           "evidence_id": "dc914406e49b3a21d4a75381"
@@ -212,7 +212,7 @@
         {
           "file": "PORFP_-_Dell_Laptop_Final.pdf",
           "page": 1,
-          "quote": "Only Master Contractors that are awarded a contract under the Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007, are eligible to submit a bid in response to this secondary competition Purchase Order Request for Proposal (PORFP",
+          "quote": "LIMITED TO MASTER CONTRACTORS Only Master Contractors that are awarded a contract under the Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007, are eligible to submit a bid",
           "doc_type": "rfp",
           "addendum_number": null,
           "evidence_id": "0add078209cc59571febe7ad"
@@ -225,39 +225,37 @@
     },
     "Any Additional Documentation Required": {
       "key": "additional_documentation",
-      "value": null,
-      "status": "failed",
-      "sources": [],
-      "confidence": 0.2,
-      "tier": "X",
-      "normalized": null,
-      "notes": "Rejected by the validator: quotes not found verbatim in their passages: ['[133bc91126d6fc1ad8c9486b] Contract_Affidavit.pdf p3 (affida', '[217162c7d0b3f4e4e72d52bd] Mercury_Affidavit.pdf p1 (affidav']."
-    },
-    "Product": {
-      "key": "product",
-      "value": "Dell Latitude 5550 (Qty: 30); Dell Thunderbolt 4 Dock – WD22TB4 (Qty: 30)",
+      "value": [
+        "Mercury Affidavit",
+        "Attachment N – Contract Affidavit"
+      ],
       "status": "found",
       "sources": [
         {
           "file": "PORFP_-_Dell_Laptop_Final.pdf",
-          "page": 3,
-          "quote": "1. SI# CC7802 Dell Latitude 5550 | SI# CC7802 Dell Latitude SI# CC7802 5550 *Laptops must be Microsoft Copilot ready* | 30 | 06/10/2024\n2. Dell Thunderbolt 4 Dock – WD22TB4 | Dell Thunderbolt 4 Dock – WD22TB4 WD22TB4 | 30 | 06/10/2024",
+          "page": 2,
+          "quote": "The Master Contractor must provide a Mercury Affidavit: https://doit.maryland.gov/contracts/Documents/hardware_co ntract/hwmercury_affidavit.pdf",
           "doc_type": "rfp",
           "addendum_number": null,
-          "evidence_id": "18474d86b0e3cd8760b03821"
+          "evidence_id": "57b478dcce95481a66ae2d49"
+        },
+        {
+          "file": "Contract_Affidavit.pdf",
+          "page": 1,
+          "quote": "Attachment N – Contract Affidavit",
+          "doc_type": "affidavit",
+          "addendum_number": null,
+          "evidence_id": "54a4aad23b47147f7c2b53c6"
         }
       ],
-      "confidence": 0.85,
-      "tier": "B",
+      "confidence": 0.95,
+      "tier": "A",
       "normalized": null,
       "notes": null
     },
-    "Model_no": {
-      "key": "model_no",
-      "value": [
-        "Dell Latitude 5550",
-        "WD22TB4"
-      ],
+    "Product": {
+      "key": "product",
+      "value": "Dell Latitude 5550 Laptop – Qty 30, Dell Thunderbolt 4 Dock – WD22TB4 – Qty 30",
       "status": "found",
       "sources": [
         {
@@ -279,6 +277,36 @@
       ],
       "confidence": 0.85,
       "tier": "B",
+      "normalized": null,
+      "notes": null
+    },
+    "Model_no": {
+      "key": "model_no",
+      "value": [
+        "Dell Latitude 5550",
+        "Dell Thunderbolt 4 Dock – WD22TB4"
+      ],
+      "status": "found",
+      "sources": [
+        {
+          "file": "Dell_Laptop_Specs.pdf",
+          "page": 1,
+          "quote": "SI# CC7802 Dell Latitude 5550",
+          "doc_type": "specs",
+          "addendum_number": null,
+          "evidence_id": "32c9a5dc21d21e7a5aeb01d3"
+        },
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 3,
+          "quote": "2. Dell Thunderbolt 4 Dock – WD22TB4 | Dell Thunderbolt 4 Dock – WD22TB4 WD22TB4 | 30 | 06/10/2024",
+          "doc_type": "rfp",
+          "addendum_number": null,
+          "evidence_id": "18474d86b0e3cd8760b03821"
+        }
+      ],
+      "confidence": 0.95,
+      "tier": "A",
       "normalized": null,
       "notes": null
     },
@@ -313,7 +341,16 @@
         "389-FGSN",
         "319-BBKK",
         "634-BRWG",
-        "379-BDZB"
+        "379-BDZB",
+        "362-7806",
+        "364-1846",
+        "364-4107",
+        "365-0257",
+        "366-0135",
+        "366-0141",
+        "371-0941",
+        "375-3088",
+        "383-0464"
       ],
       "status": "found",
       "sources": [
@@ -324,6 +361,14 @@
           "doc_type": "specs",
           "addendum_number": null,
           "evidence_id": "32c9a5dc21d21e7a5aeb01d3"
+        },
+        {
+          "file": "Dell_Laptop_Specs.pdf",
+          "page": 2,
+          "quote": "CFI,Information,MIAS, Post Bur n,Factory Install | 362-7806\nCFI Titan Code for CFI FIDA or Bypass SI | 364-1846\nCFI,Information, Validation,Se lect Any Microsoft OS | 364-4107\nCFI Routing SKU | 365-0257\nCustom Asset Report | 366-0135\nConsigned Asset Tag | 366-0141\nCFI,Information Client,Only | 371-0941\nCFI,Information,CSRouting,Elig ible,Factory Install | 375-3088\nCFI,LBL,POLY,SML,CC7801,FACTOR Y INSTALL | 383-0464",
+          "doc_type": "specs",
+          "addendum_number": null,
+          "evidence_id": "1c7e43fe40e9d5d5d75850e1"
         }
       ],
       "confidence": 0.85,
@@ -358,11 +403,10 @@
         "256 GB, M.2 2230, TLC, Gen 4 PCIe NVMe, SSD",
         "15.6\", FHD 1920x1080, 60Hz, IPS, Non-Touch, AG, 250 nit, 45% NTSC, FHD Cam",
         "3-cell, 54 Wh, ExpressCharge Capable, ExpressCharge Boost Capable",
-        "65W AC adapter, USB Type-C, EcoDesign",
-        "Windows 11 Pro, English, Brazilian Portuguese PT-BR, French, Spanish",
-        "Integrated Intel graphics for Intel Core Ultra 5 125U processor",
-        "English US backlit AI hotkey keyboard with numeric keypad, 99-key",
-        "Intel AX211 WLAN Driver"
+        "Dell Limited Hardware Warranty Extended for all machines purchased - 3 Years",
+        "ENERGY STAR Qualified",
+        "Laptops must be Microsoft Copilot ready",
+        "Windows 11 Pro, English, Brazilian Portuguese PT-BR, French, Spanish"
       ],
       "status": "found",
       "sources": [
@@ -407,12 +451,28 @@
           "evidence_id": "32c9a5dc21d21e7a5aeb01d3"
         },
         {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 3,
+          "quote": "Dell Limited Hardware Warranty Extended for all machines purchased - 3 Years",
+          "doc_type": "rfp",
+          "addendum_number": null,
+          "evidence_id": "cfb4071f1d12743e1f27e173"
+        },
+        {
           "file": "Dell_Laptop_Specs.pdf",
           "page": 1,
-          "quote": "65W AC adapter, USB Type-C, EcoDesign",
+          "quote": "ENERGY STAR Qualified",
           "doc_type": "specs",
           "addendum_number": null,
           "evidence_id": "32c9a5dc21d21e7a5aeb01d3"
+        },
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 3,
+          "quote": "*Laptops must be Microsoft Copilot ready*",
+          "doc_type": "rfp",
+          "addendum_number": null,
+          "evidence_id": "18474d86b0e3cd8760b03821"
         },
         {
           "file": "Dell_Laptop_Specs.pdf",
@@ -421,34 +481,10 @@
           "doc_type": "specs",
           "addendum_number": null,
           "evidence_id": "32c9a5dc21d21e7a5aeb01d3"
-        },
-        {
-          "file": "Dell_Laptop_Specs.pdf",
-          "page": 1,
-          "quote": "Integrated Intel graphics for Intel Core Ultra 5 125U processor",
-          "doc_type": "specs",
-          "addendum_number": null,
-          "evidence_id": "32c9a5dc21d21e7a5aeb01d3"
-        },
-        {
-          "file": "Dell_Laptop_Specs.pdf",
-          "page": 1,
-          "quote": "English US backlit AI hotkey keyboard with numeric keypad, 99-key",
-          "doc_type": "specs",
-          "addendum_number": null,
-          "evidence_id": "32c9a5dc21d21e7a5aeb01d3"
-        },
-        {
-          "file": "Dell_Laptop_Specs.pdf",
-          "page": 1,
-          "quote": "Intel AX211 WLAN Driver",
-          "doc_type": "specs",
-          "addendum_number": null,
-          "evidence_id": "32c9a5dc21d21e7a5aeb01d3"
         }
       ],
-      "confidence": 0.85,
-      "tier": "B",
+      "confidence": 0.95,
+      "tier": "A",
       "normalized": null,
       "notes": null
     },
@@ -473,13 +509,13 @@
     },
     "contact_info": {
       "key": "contact_info",
-      "value": "Tamaira Hawkins, Phone: 410-260-7533, Email: thawkins@treasurer.state.md.us",
+      "value": "Tamaira Hawkins, Email: thawkins@treasurer.state.md.us, Phone: 410-260-7533",
       "status": "found",
       "sources": [
         {
           "file": "PORFP_-_Dell_Laptop_Final.pdf",
           "page": 3,
-          "quote": "Agency POC Name: | Tamaira Hawkins | Agency POC Phone Number: | 410-260-7533",
+          "quote": "Tamaira Hawkins",
           "doc_type": "rfp",
           "addendum_number": null,
           "evidence_id": "8ac9bfa06f088876067a4e5b"
@@ -487,7 +523,15 @@
         {
           "file": "PORFP_-_Dell_Laptop_Final.pdf",
           "page": 3,
-          "quote": "Agency POC Email Address: | thawkins@treasurer.state.md.us",
+          "quote": "410-260-7533",
+          "doc_type": "rfp",
+          "addendum_number": null,
+          "evidence_id": "8ac9bfa06f088876067a4e5b"
+        },
+        {
+          "file": "PORFP_-_Dell_Laptop_Final.pdf",
+          "page": 3,
+          "quote": "thawkins@treasurer.state.md.us",
           "doc_type": "rfp",
           "addendum_number": null,
           "evidence_id": "8ac9bfa06f088876067a4e5b"
@@ -506,7 +550,7 @@
       "confidence": 0.8,
       "tier": "NF-1",
       "normalized": null,
-      "notes": "Not found in documents. No installation or on-site service requirement is mentioned in the provided documents. Searched 4 queries (Installation; installation deployment services; white glove imaging asset tagging; setup configuration services); 0 labelled facts; 4 passages reviewed."
+      "notes": "Not found in documents. Installation requirements are not mentioned in the provided documents. Searched 4 queries (Installation; installation deployment services; white glove imaging asset tagging; setup configuration services); 0 labelled facts; 4 passages reviewed."
     },
     "Delivery Date": {
       "key": "delivery_date",
@@ -525,11 +569,11 @@
       "confidence": 0.85,
       "tier": "B",
       "normalized": null,
-      "notes": "The solicitation specifies delivery must occur within 45 days of award. No delivery location is stated."
+      "notes": null
     },
     "Bid Summary": {
       "key": "bid_summary",
-      "value": "The State of Maryland Treasurer's Office is inviting bids for 30 Dell Latitude 5550 laptops and 30 Dell Thunderbolt 4 Dock – WD22TB4 docking stations under contract 060B5400007, a Desktop, Laptop and Tablet 2015 Master Contract. Proposals must be fixed-price and remain valid for at least 90 days after the due date of June 10, 2024, 2:00 PM EDT, and must be submitted electronically through the State's eMaryland Marketplace Advantage (eMMA) e-Procurement system. The bidder must provide invoices within 10 days of delivering the equipment, which must be delivered within 45 days of award, and must comply with the product specifications listed in the bid; no bid bond requirement or additional documentation is specified. Contact Tamaira Hawkins at 410-260-7533 or thawkins@treasurer.state.md.us for questions.",
+      "value": "The State of Maryland Treasurer's Office is purchasing 30 Dell Latitude 5550 laptops and 30 Dell Thunderbolt 4 Dock WD22TB4 units. The final bid due date is June 10, 2024, 2:00 PM EDT, and proposals must be valid for at least 90 days after that date. Submissions must be made electronically via the eMaryland Marketplace Advantage (eMMA) portal only; email, fax, U.S. Mail, and hand delivery are not accepted. The contract requires a 3-year extended warranty, delivery within 45 days of award, and invoices submitted within 10 days of delivery, along with a Mercury Affidavit and Attachment N – Contract Affidavit. Notably, the bid bond requirement, pre-bid meeting, and installation details are not specified.",
       "status": "found",
       "sources": [
         {
@@ -543,7 +587,7 @@
         {
           "file": "PORFP_-_Dell_Laptop_Final.pdf",
           "page": 3,
-          "quote": "1. SI# CC7802 Dell Latitude 5550 | SI# CC7802 Dell Latitude SI# CC7802 5550 *Laptops must be Microsoft Copilot ready* | 30 | 06/10/2024\n2. Dell Thunderbolt 4 Dock – WD22TB4 | Dell Thunderbolt 4 Dock – WD22TB4 WD22TB4 | 30 | 06/10/2024",
+          "quote": "1. SI# CC7802 Dell Latitude 5550 | SI# CC7802 Dell Latitude SI# CC7802 5550 *Laptops must be Microsoft Copilot ready* | 30 | 06/10/2024",
           "doc_type": "rfp",
           "addendum_number": null,
           "evidence_id": "18474d86b0e3cd8760b03821"
@@ -565,32 +609,32 @@
   },
   "addendum_changes": [],
   "validation": {
-    "passed": 16,
-    "failed": 1,
+    "passed": 17,
+    "failed": 0,
     "not_found": 3,
     "conflicts": 0,
     "fields": 20,
-    "passed_first_time": 17,
-    "passed_after_retry": 1,
+    "passed_first_time": 16,
+    "passed_after_retry": 3,
     "retries": 3,
-    "checks_failed": {
-      "quotes_verbatim": 1
-    },
+    "checks_failed": {},
     "consistency_issues": []
   },
   "usage": {
-    "calls": 15,
-    "input_tokens": 30797,
-    "output_tokens": 16084,
-    "cache_read_tokens": 5888,
+    "calls": 14,
+    "input_tokens": 33077,
+    "output_tokens": 13073,
+    "cache_read_tokens": 768,
     "cache_write_tokens": 0,
-    "latency_ms": 38151.8,
-    "cost_usd": 0.01318
+    "latency_ms": 33630.9,
+    "cost_usd": 0.012214
   },
   "models": {
     "provider": "groq",
     "extract": "openai/gpt-oss-120b",
     "cheap": "openai/gpt-oss-20b"
   },
-  "errors": []
+  "errors": [
+    "extract product_specs: LLMError: output truncated at 3500 tokens"
+  ]
 }

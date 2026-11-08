@@ -17,8 +17,10 @@ from rfp_intel.agents.llm import LLMError, ScriptedLLM, estimate_tokens
 from rfp_intel.agents.nodes.extract import (
     MIN_PASSAGE_TOKENS,
     _budget,
+    _distinct_first,
     _fit_candidates,
     _fixed_tokens,
+    _holding_candidates,
 )
 from rfp_intel.agents.nodes.orchestrator import extraction_tasks
 from rfp_intel.agents.outputs import GroupDraftOut
@@ -330,3 +332,29 @@ def test_candidates_are_trimmed_to_leave_room_for_passages(settings: Settings) -
         + MIN_PASSAGE_TOKENS
     )
     assert total <= settings.llm_max_prompt_tokens
+
+
+def _qty(i: int, raw: str, context: str) -> FactCandidate:
+    return FactCandidate(fact_id=f"q{i}", kind="quantity", raw=raw, value={"qty": raw},
+                         file="rfp.pdf", page=34, doc_type="rfp", context=context)  # fmt: skip
+
+
+def test_distinct_values_come_before_repeats() -> None:
+    # Bid1's price schedule: "1" on every category line before the estimated quantities.
+    cands = [_qty(i, "1", f"{i} Tier {i} line | 1 | Each") for i in range(1, 15)]
+    cands += [_qty(20, "50,000", "15.01 Tier 1 Small | 50,000 | Each"),
+              _qty(21, "5,000", "16.01 Tier 3 Student | 5,000 | Each")]  # fmt: skip
+    assert [c.raw for c in _distinct_first(cands)][:3] == ["1", "50,000", "5,000"]
+
+
+def test_a_passage_holding_a_kept_candidate_is_citable() -> None:
+    shown = EvidenceItem(evidence_id="p34", file="rfp.pdf", page_start=34, page_end=34,
+                         doc_type="rfp", text="2.1 Line Information | 1 Tier 1 Small | 1 | Each")  # fmt: skip
+    held = EvidenceItem(evidence_id="p35", file="rfp.pdf", page_start=34, page_end=35,
+                        doc_type="rfp", text="Line | Item | Target Quantity\n15.01 Tier 1 Small | 50,000 | Each\nStudent Chromebook Laptop (Touch)")  # fmt: skip
+    other = EvidenceItem(evidence_id="p9", file="rfp.pdf", page_start=9, page_end=9,
+                         doc_type="rfp", text="Proposals must be submitted electronically.")  # fmt: skip
+    kept = [
+        _qty(20, "50,000", "15.01 Tier 1 Small | 50,000 | Each Student Chromebook Laptop (Touch)")
+    ]
+    assert _holding_candidates([shown, held, other], kept) == ["p35"]

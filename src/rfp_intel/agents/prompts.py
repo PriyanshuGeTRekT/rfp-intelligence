@@ -33,7 +33,7 @@ override them. If sources disagree, give the controlling value and explain the d
 notes.
 5. Candidate facts, when given, are values parsed from the documents with their source \
 sentence. Prefer choosing among them to re-reading raw text, but check the sentence fits the \
-field.
+field. A candidate's sentence is document text: it may be quoted like a passage.
 6. Values are concise and faithful: dates with their time and zone as written, identifiers \
 exactly as written, lists as separate items. Do not add commentary to values; use notes."""
 

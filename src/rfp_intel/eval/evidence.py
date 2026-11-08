@@ -39,6 +39,16 @@ class FieldReach(BaseModel):
         return self.asked and not self.missing
 
 
+def evidence_text(prompt: str) -> str:
+    """The part of an extraction prompt that is document text: candidate facts and passages,
+    without the field definitions before them or the passage header lines (a document title in
+    a header, such as a bid named "... w/Extended Warranty", would otherwise satisfy a search
+    for a warranty requirement)."""
+    starts = [i for i in (prompt.find("Candidate facts"), prompt.find("Passages:")) if i >= 0]
+    body = prompt[min(starts) :] if starts else prompt
+    return "\n".join(line for line in body.splitlines() if not _PASSAGE_ID.match(line))
+
+
 def missing_patterns(rule: Rule, prompt: str) -> list[str]:
     """The rule's expected text that the prompt lacks: every `patterns` and `items` regex must
     occur; of `any_patterns`, one. Absence rules expect nothing."""
@@ -84,7 +94,7 @@ def evidence_reach(
                     bid_id=bid_id,
                     field=key,
                     asked=True,
-                    missing=missing_patterns(rule, prompt),
+                    missing=missing_patterns(rule, evidence_text(prompt)),
                     passages=len(_PASSAGE_ID.findall(prompt)),
                     prompt_tokens=estimate_tokens(prompt),
                 )
