@@ -3,19 +3,26 @@
 from collections.abc import Iterator
 from datetime import date
 from pathlib import Path
+from types import SimpleNamespace
 
 import pytest
 from pydantic import BaseModel
 
 from rfp_intel.agents import consistency
-from rfp_intel.agents.evidence import EvidenceItem
+from rfp_intel.agents.evidence import EvidenceItem, FactCandidate
 from rfp_intel.agents.fields import load_fields
 from rfp_intel.agents.graph import graph_mermaid, run_extraction, run_question
 from rfp_intel.agents.guarded import GuardedLLM
-from rfp_intel.agents.llm import LLMError, ScriptedLLM
+from rfp_intel.agents.llm import LLMError, ScriptedLLM, estimate_tokens
+from rfp_intel.agents.nodes.extract import (
+    MIN_PASSAGE_TOKENS,
+    _budget,
+    _fit_candidates,
+    _fixed_tokens,
+)
 from rfp_intel.agents.nodes.orchestrator import extraction_tasks
 from rfp_intel.agents.outputs import GroupDraftOut
-from rfp_intel.agents.prompts import fit_passages, passage_tokens
+from rfp_intel.agents.prompts import candidate_sections, fit_passages, passage_tokens
 from rfp_intel.agents.schema import DocumentInfo, FieldResult
 from rfp_intel.agents.services import Services
 from rfp_intel.config import Settings
@@ -291,3 +298,35 @@ def test_questions_use_the_qa_model_when_one_is_set(
     qa_settings = settings.model_copy(update={"qa_model": "small-qa-model"})
     result, _ = run_question(Services.build(qa_settings, runtime, asker, tmp_path), "Delivery?")
     assert asker.calls[-1].model == "small-qa-model" and result.model == "small-qa-model"
+
+
+def _cand(i: int, context: str = "c" * 200) -> FactCandidate:
+    return FactCandidate(fact_id=f"f{i}", kind="identifier", raw=f"SKU-{i}", value={"id": f"SKU-{i}"},
+                         file="specs.pdf", page=1, doc_type="specs", context=context)  # fmt: skip
+
+
+def test_fields_sharing_candidates_get_them_listed_once() -> None:
+    shared = [_cand(1), _cand(2)]
+    model_no, part_no = CATALOG.by_key("model_no"), CATALOG.by_key("part_no")
+    text = "\n".join(
+        candidate_sections([model_no, part_no], {"model_no": shared, "part_no": shared})
+    )
+    assert text.count('identifier "SKU-1"') == 1
+    assert "Candidate facts for part_no: the same as for model_no." in text
+
+
+def test_candidates_are_trimmed_to_leave_room_for_passages(settings: Settings) -> None:
+    # 60 identifier candidates (about 80 tokens each) would fill the whole prompt cap.
+    settings = settings.model_copy(update={"llm_max_prompt_tokens": 3_800})
+    services = SimpleNamespace(settings=settings)
+    fields = [CATALOG.by_key("model_no"), CATALOG.by_key("part_no"), CATALOG.by_key("product")]
+    many = [_cand(i) for i in range(60)]
+    kept = _fit_candidates(services, fields, {"model_no": many, "part_no": many, "product": []})  # type: ignore[arg-type]
+    assert 0 < len(kept["model_no"]) < 60 and kept["part_no"] == kept["model_no"]
+    assert _budget(services, fields, kept) >= MIN_PASSAGE_TOKENS  # type: ignore[arg-type]
+    total = (
+        _fixed_tokens(fields)
+        + estimate_tokens("\n".join(candidate_sections(fields, kept)))
+        + MIN_PASSAGE_TOKENS
+    )
+    assert total <= settings.llm_max_prompt_tokens

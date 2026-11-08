@@ -16,16 +16,16 @@
           "source": "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html, p. 1"
         },
         "Bid2": {
-          "value": "BPM044557",
+          "value": "#E20P4600040",
           "status": "found",
           "tier": "B",
-          "source": "Dell Laptops w_Extended Warranty - Bid Information - {3} _ BidNet Direct.html, p. 1"
+          "source": "PORFP_-_Dell_Laptop_Final.pdf, p. 1"
         },
         "Bid3": {
           "value": "2025-003",
           "status": "found",
           "tier": "C",
-          "source": "RFP 2025-003 Computer Equipment.pdf, p. 6"
+          "source": "RFP 2025-003 Computer Equipment.pdf, p. 29"
         }
       }
     },
@@ -47,8 +47,8 @@
         },
         "Bid3": {
           "value": "(not found)",
-          "status": "not_found",
-          "tier": "NF-1",
+          "status": "failed",
+          "tier": "X",
           "source": null
         }
       }
@@ -82,10 +82,10 @@
       "name": "Pre Bid Meeting",
       "cells": {
         "Bid1": {
-          "value": "2024-06-10 14:00 CST via TEAMS video conference (link: https://www.microsoft.com/en-us/microsoft-teams/join-a-meeting); attendance encouraged but not mandatory",
+          "value": "2024-06-10 14:00 CDT",
           "status": "found",
           "tier": "A",
-          "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 2"
+          "source": "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html, p. 1"
         },
         "Bid2": {
           "value": "(not found)",
@@ -106,22 +106,22 @@
       "name": "Bid Submission Type",
       "cells": {
         "Bid1": {
-          "value": "Responses must be submitted online via the iSupplier portal (https://www.dallasisd.org/domain/143) or manually as one original hard copy in a sealed envelope...",
+          "value": "Electronic submission via the iSupplier portal (https://www.dallasisd.org/domain/143); manual submission in a sealed envelope with one (1) original hard copy...",
           "status": "found",
           "tier": "B",
           "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 9"
         },
         "Bid2": {
-          "value": "Electronic submission through eMMA portal; bids not accepted by email, fax, U.S. Mail, or hand delivery.",
+          "value": "Only through the State's eMaryland Marketplace Advantage (eMMA) e-Procurement system; bids not accepted by email, fax, U.S. Mail, or hand delivery.",
           "status": "found",
           "tier": "B",
           "source": "PORFP_-_Dell_Laptop_Final.pdf, p. 1"
         },
         "Bid3": {
-          "value": "(not found)",
-          "status": "not_found",
-          "tier": "NF-2",
-          "source": null
+          "value": "Proposals must be received prior to 1:00 PM on September 6, 2024. Proposals must be submitted in a sealed envelope, marked with the RFP number and title, and...",
+          "status": "found",
+          "tier": "C",
+          "source": "RFP 2025-003 Computer Equipment.pdf, p. 2"
         }
       }
     },
@@ -130,15 +130,15 @@
       "name": "Term of Bid",
       "cells": {
         "Bid1": {
-          "value": "3-year initial term with two one-year extensions, not to exceed five years total",
+          "value": "Initial term of 3 years with two one-year renewal options, not to exceed a total of 5 years.",
           "status": "found",
           "tier": "B",
           "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 2"
         },
         "Bid2": {
-          "value": "Fixed Price; pricing valid for thirty days",
+          "value": "Fixed Price; proposals must remain valid for at least 90 days after the due date",
           "status": "found",
-          "tier": "A",
+          "tier": "B",
           "source": "PORFP_-_Dell_Laptop_Final.pdf, p. 1"
         },
         "Bid3": {
@@ -169,7 +169,7 @@
           "value": "10% bid security in cash, a certified cashier’s check or furnish a bid bond as its bid security.",
           "status": "found",
           "tier": "C",
-          "source": "RFP 2025-003 Computer Equipment Addendum 1.pdf, p. 1"
+          "source": "RFP 2025-003 Computer Equipment.pdf, p. 19"
         }
       }
     },
@@ -202,22 +202,22 @@
       "name": "Contract or Cooperative to use",
       "cells": {
         "Bid1": {
-          "value": "Educational Purchasing Cooperative of North Texas (EPCNT) Interlocal Agreement Rider; Central Texas Purchasing Alliance (CTPA) Interlocal Agreement – Coopera...",
+          "value": "Educational Purchasing Cooperative of North Texas (EPCNT); Central Texas Purchasing Alliance (CTPA)",
           "status": "found",
           "tier": "B",
           "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 19"
         },
         "Bid2": {
-          "value": "Master Contract: Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007",
+          "value": "Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007",
           "status": "found",
           "tier": "B",
           "source": "PORFP_-_Dell_Laptop_Final.pdf, p. 1"
         },
         "Bid3": {
-          "value": "Purchase Contract",
-          "status": "found",
-          "tier": "C",
-          "source": "RFP 2025-003 Computer Equipment.pdf, p. 35"
+          "value": "(not found)",
+          "status": "not_found",
+          "tier": "NF-1",
+          "source": null
         }
       }
     },
@@ -232,16 +232,16 @@
           "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 19"
         },
         "Bid2": {
-          "value": "MERCURY CONTENT INFORMATION; Proposal Affidavit",
+          "value": "Mercury Affidavit; Contract Affidavit",
           "status": "found",
           "tier": "A",
-          "source": "Mercury_Affidavit.pdf, p. 1"
+          "source": "PORFP_-_Dell_Laptop_Final.pdf, p. 2"
         },
         "Bid3": {
-          "value": "Instructions to Bidders; Bid Form; Substitution Listing; Workers' Compensation Certificate; Guarantee; This form must be signed and included with the RFP sub...",
-          "status": "found",
-          "tier": "C",
-          "source": "RFP 2025-003 Computer Equipment.pdf, p. 35"
+          "value": "(not found)",
+          "status": "failed",
+          "tier": "X",
+          "source": null
         }
       }
     },
@@ -250,22 +250,22 @@
       "name": "Product",
       "cells": {
         "Bid1": {
-          "value": "Student Tablet - 50,000",
+          "value": "Tier 1 Small Student Chromebook Laptop (Touch) – 50,000; Tier 2 Large Student Chromebook Laptop (Non‑Touch) – 50,000; Student Tablet – 50,000",
           "status": "found",
           "tier": "B",
-          "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 35"
+          "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 34"
         },
         "Bid2": {
-          "value": "SI# CC7802 Dell Latitude 5550 (Qty: 30), Dell Thunderbolt 4 Dock – WD22TB4 (Qty: 30)",
+          "value": "30 Dell Latitude 5550 laptops; 30 Dell Thunderbolt 4 Dock – WD22TB4",
           "status": "found",
           "tier": "B",
           "source": "PORFP_-_Dell_Laptop_Final.pdf, p. 3"
         },
         "Bid3": {
-          "value": "Dell Chrome 3120 Chromebook* (Latest Model) or functionally equivalent, Quantity: 500; GOOGLE CHROME OS MANAGEMENT CONSOLE LICENSE, EDUCATlON*orfunctionallye...",
-          "status": "found",
-          "tier": "C",
-          "source": "RFP 2025-003 Computer Equipment.pdf, p. 17"
+          "value": "(not found)",
+          "status": "not_found",
+          "tier": "NF-1",
+          "source": null
         }
       }
     },
@@ -280,13 +280,13 @@
           "source": null
         },
         "Bid2": {
-          "value": "Dell Latitude 5550; Dell Thunderbolt 4 Dock – WD22TB4",
+          "value": "CC7802; WD22TB4",
           "status": "found",
           "tier": "B",
           "source": "PORFP_-_Dell_Laptop_Final.pdf, p. 3"
         },
         "Bid3": {
-          "value": "Dell Chrome 3120 Chromebook; GOOGLE CHROME OS MANAGEMENT CONSOLE LICENSE; Dell Optical Mouse- MS 116",
+          "value": "Dell Chrome 3120 Chromebook",
           "status": "found",
           "tier": "C",
           "source": "RFP 2025-003 Computer Equipment.pdf, p. 17"
@@ -304,7 +304,7 @@
           "source": null
         },
         "Bid2": {
-          "value": "210-BLYZ; 379-BFNZ; 619-ARSB; 658-BCSB; 338-CNRG; 338-CNRK; 321-BKTQ; 409-BCXY; 631-BBSQ; 370-BBTL; 400-BRFT; 391-BJHB; 583-BLNH; 555-BKQC; 555-BKLQ; 451-BDG...",
+          "value": "210-BLYZ; 379-BFNZ; 619-ARSB; 658-BCSB; 338-CNRG; 338-CNRK; 321-BKTQ; 409-BCXY; 631-BBSQ; 370-BBTL; 400-BRFT; 391-BJHB; 583-BLNH; 555-BKQC; 555-BKLQ",
           "status": "found",
           "tier": "B",
           "source": "Dell_Laptop_Specs.pdf, p. 1"
@@ -322,7 +322,7 @@
       "name": "MFG for Registration",
       "cells": {
         "Bid1": {
-          "value": "OEM",
+          "value": "Original Equipment Manufacturer (OEM)",
           "status": "found",
           "tier": "B",
           "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 3"
@@ -334,7 +334,7 @@
           "source": "PORFP_-_Dell_Laptop_Final.pdf, p. 1"
         },
         "Bid3": {
-          "value": "Dell Chrome 3120 Chromebook* (Latest Model) or functionally equivalent",
+          "value": "Dell",
           "status": "found",
           "tier": "C",
           "source": "RFP 2025-003 Computer Equipment.pdf, p. 17"
@@ -346,7 +346,7 @@
       "name": "Product Specification",
       "cells": {
         "Bid1": {
-          "value": "Student Windows – Screen Resolution 1920-1080 Non-Touch, Student Windows – Memory: Minimum 16GB RAM DDR5 Memory, Student Windows – Storage: 256 GB NVMe SSD, ...",
+          "value": "Windows Device – Screen Resolution 1920-1080 Non-Touch, Windows Device – Memory Minimum 16GB RAM DDR5, Windows Device – Storage 256 GB NVMe SSD, Windows Devi...",
           "status": "found",
           "tier": "A",
           "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 5"
@@ -394,10 +394,10 @@
       "name": "contact_info",
       "cells": {
         "Bid1": {
-          "value": "JASMINE ALZATE, Buyer, JALZATE@dallasisd.org, 972.925.3700",
+          "value": "Procurement Services; Phone: 972-925-3700; Email: ProcurementCS@dallasisd.org",
           "status": "found",
           "tier": "B",
-          "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 1"
+          "source": "Student and Staff Computing Devices __SOURCING #168884__ - Bid Information - {3} _ BidNet Direct.html, p. 1"
         },
         "Bid2": {
           "value": "Tamaira Hawkins, Phone: 410-260-7533, Email: thawkins@treasurer.state.md.us",
@@ -406,10 +406,10 @@
           "source": "PORFP_-_Dell_Laptop_Final.pdf, p. 3"
         },
         "Bid3": {
-          "value": "Sandra Rivera, Assistant Superintendent of Business, email: srivera@duesd.org, phone: (661) 721-5000, ext. 00125.",
-          "status": "found",
-          "tier": "C",
-          "source": "RFP 2025-003 Computer Equipment.pdf, p. 1"
+          "value": "(not found)",
+          "status": "failed",
+          "tier": "X",
+          "source": null
         }
       }
     },
@@ -418,7 +418,7 @@
       "name": "Installation",
       "cells": {
         "Bid1": {
-          "value": "White glove deployment services (asset decal, reporting, etching, delivery) are required, All deliveries and deployments must incorporate white glove service...",
+          "value": "White glove deployment services including asset decaling, asset reporting, etching, and delivery to varied locations are required., All deliveries and deploy...",
           "status": "found",
           "tier": "A",
           "source": "JA-207652 Student and Staff Computing Devices FINAL.pdf, p. 3"
@@ -454,10 +454,10 @@
           "source": "PORFP_-_Dell_Laptop_Final.pdf, p. 2"
         },
         "Bid3": {
-          "value": "November30,2024",
+          "value": "October 31, 2024",
           "status": "found",
           "tier": "C",
-          "source": "RFP 2025-003 Computer Equipment.pdf, p. 35"
+          "source": "RFP 2025-003 Computer Equipment.pdf, p. 7"
         }
       }
     },
@@ -466,19 +466,19 @@
       "name": "Bid Summary",
       "cells": {
         "Bid1": {
-          "value": "Dallas Independent School District is seeking to purchase 50,000 Student Tablets under bid number JA-207652. The final bid deadline is July 9, 2024 at 2:00 P...",
+          "value": "The Dallas Independent School District is inviting bids to supply 50,000 Tier 1 Small Student Chromebook Laptops (Touch), 50,000 Tier 2 Large Student Chromeb...",
           "status": "found",
           "tier": "B",
           "source": "Addendum 2 RFP JA-207652 Student and Staff Computing Devices.pdf, p. 1"
         },
         "Bid2": {
-          "value": "The State of Maryland Treasurer's Office (bid_number BPM044557) is procuring 30 units of Dell Latitude 5550 laptops and 30 Dell Thunderbolt 4 Dock WD22TB4 do...",
+          "value": "The State of Maryland Treasurer's Office (bid #E20P4600040) is buying 30 Dell Latitude 5550 laptops (model CC7802) and 30 Dell Thunderbolt 4 Dock – WD22TB4 (...",
           "status": "found",
           "tier": "B",
           "source": "PORFP_-_Dell_Laptop_Final.pdf, p. 1"
         },
         "Bid3": {
-          "value": "Bid number 2025-003 from Delano Union School District seeks to purchase 500 Dell Chrome 3120 Chromebooks, 500 Google Chrome OS Management Console Licenses, a...",
+          "value": "The Delano Union School District (bid number 2025-003) seeks to purchase Dell Chrome 3120 Chromebooks and HP Fortis 11 inch G10 Chromebooks with specificatio...",
           "status": "found",
           "tier": "B",
           "source": "RFP 2025-003 Computer Equipment.pdf, p. 2"
@@ -486,83 +486,75 @@
       }
     }
   ],
-  "summary": "The bids differ across key procurement parameters such as submission methods, deadlines, contractual terms, bond requirements, product specifications, and delivery schedules. Bid1 targets a large quantity of tablets with a flexible 3‑year term and white‑glove deployment, Bid2 focuses on a small quantity of Dell laptops under a fixed‑price, short‑term contract, and Bid3 offers a significant fleet of Chromebooks with a 12‑month term and a stricter bid bond. Decision‑makers should weigh the urgency of delivery, the need for white‑glove services, and the financial security provisions before choosing the most suitable bid.",
+  "summary": "Bid1 (JA-207652) targets a large volume of student and staff devices with a longer 3-year term and cooperative procurement; Bid2 (#E20P4600040) is a fixed-price offer under a state master contract with a short 12-month term; Bid3 (2025-003) has the latest deadline and a bid security requirement but lacks many product details. The main distinctions lie in due dates, submission methods, contractual terms, required bond, payment, and delivery schedules, as well as the specific device offerings and documentation needs. These differences should guide which bid aligns best with procurement timing, financial terms, and device requirements.",
   "differences": [
     {
-      "field": "bid_number",
-      "statement": "The bids have distinct identifiers: JA-207652 (Bid1), BPM044557 (Bid2), and 2025-003 (Bid3)."
-    },
-    {
-      "field": "title",
-      "statement": "The titles differ: Bid1 is 'Student and Staff Computing Devices', Bid2 is 'Dell Laptops w/Extended Warranty', and Bid3 has no title provided."
-    },
-    {
       "field": "due_date",
-      "statement": "Bid2 has the earliest due date of 2024-06-10 14:00 EDT, Bid1 follows at 2024-07-09 14:00 CDT, and Bid3 is the latest at 2024-09-06 13:00."
+      "statement": "Bid1 due date is July 9, 2024; Bid2 is June 10, 2024, earlier; Bid3 is September 6, 2024, latest."
     },
     {
       "field": "pre_bid_meeting",
-      "statement": "Bid1 specifies a pre‑bid meeting on 2024-06-10 14:00 CST via TEAMS, whereas Bid2 and Bid3 do not provide a pre‑bid meeting schedule."
+      "statement": "Bid1 has a pre-bid meeting on June 10, 2024; Bid2 and Bid3 do not specify a pre-bid meeting."
     },
     {
       "field": "bid_submission_type",
-      "statement": "Bid1 requires online submission via the iSupplier portal or a sealed hard copy, Bid2 mandates electronic submission through the eMMA portal only, and Bid3 provides no submission method."
+      "statement": "Bid1 allows electronic submission via iSupplier portal plus manual sealed envelope; Bid2 requires submission only through eMMA; Bid3 mandates sealed envelope by September 6."
     },
     {
       "field": "term_of_bid",
-      "statement": "Bid1 offers a 3‑year initial term with up to two one‑year extensions (maximum five years), Bid2 has a fixed price term valid for thirty days, and Bid3 has a twelve‑month term."
+      "statement": "Bid1 offers a 3-year term with two one-year renewals up to 5 years; Bid2 provides fixed price with 90-day validity; Bid3 offers a 12-month term."
     },
     {
       "field": "bid_bond_requirement",
-      "statement": "Bid1 does not state a bid bond requirement, Bid2 also does not state one, but Bid3 requires a 10% bid security in cash, a certified cashier’s check, or a bid bond."
+      "statement": "Bid3 requires a 10% bid security in cash or a bid bond; Bid1 and Bid2 have no specified bid bond requirement."
     },
     {
       "field": "payment_terms",
-      "statement": "Bid1 stipulates payment within ten days of receiving payment from the district, Bid2 requires invoices emailed and submitted within ten days of equipment delivery, and Bid3 has no payment terms stated."
+      "statement": "Bid1 requires payment within 10 days of receiving payment from the district; Bid2 requires invoices within 10 days of delivery; Bid3 has no payment terms stated."
     },
     {
       "field": "contract_or_cooperative",
-      "statement": "Bid1 references the Educational Purchasing Cooperative of North Texas and the Central Texas Purchasing Alliance, Bid2 references the Master Contract: Desktop, Laptop and Tablet 2015 Master Contract, and Bid3 refers to a Purchase Contract."
+      "statement": "Bid1 is under EPCNT/CTPA cooperatives; Bid2 is under the Desktop, Laptop and Tablet Master Contract; Bid3 has no cooperative listed."
     },
     {
       "field": "additional_documentation",
-      "statement": "Bid1 lists INTERLOCAL AGREEMENT CONSENT FORM, FORM 1295, and other documents; Bid2 lists MERCURY CONTENT INFORMATION and a Proposal Affidavit; Bid3 lists Instructions to Bidders, Bid Form, Substitution Listing, Workers' Compensation Certificate, Guarantee, and a required signed form."
+      "statement": "Bid1 requires multiple forms including INTERLOCAL AGREEMENT and certificates; Bid2 requires Mercury Affidavit and Contract Affidavit; Bid3 has no additional documentation specified."
     },
     {
       "field": "product",
-      "statement": "Bid1 proposes 50,000 Student Tablets, Bid2 proposes 30 Dell Latitude 5550 laptops and 30 Dell Thunderbolt 4 Docks, and Bid3 proposes 500 Dell Chrome 3120 Chromebooks plus a Google Chrome OS Management Console license."
+      "statement": "Bid1 requests 150,000 devices (50,000 each of three types); Bid2 requests 30 Dell Latitude laptops and 30 docks; Bid3 has no product listed."
     },
     {
       "field": "model_no",
-      "statement": "Bid1 has no model numbers listed, Bid2 lists Dell Latitude 5550 and Dell Thunderbolt 4 Dock – WD22TB4, and Bid3 lists Dell Chrome 3120 Chromebook and a Google Chrome OS Management Console license and Dell Optical Mouse."
+      "statement": "Bid1 has no model specified; Bid2 specifies CC7802 and WD22TB4; Bid3 specifies Dell Chrome 3120 Chromebook."
     },
     {
       "field": "part_no",
-      "statement": "Bid1 does not provide part numbers, Bid2 lists multiple Dell part numbers such as 210-BLYZ and others, and Bid3 does not list part numbers."
+      "statement": "Bid2 lists numerous part numbers; Bid1 and Bid3 have none."
     },
     {
       "field": "mfg_for_registration",
-      "statement": "Bid1 specifies OEM for registration, Bid2 indicates Dell, and Bid3 specifies Dell Chrome 3120 Chromebook or equivalent."
+      "statement": "Bid1 OEM; Bid2 Dell; Bid3 Dell."
     },
     {
       "field": "product_specification",
-      "statement": "Bid1 details Student Windows specs including 1920-1080 resolution, 16GB DDR5, 256GB NVMe SSD; Bid2 provides Intel Core Ultra 5 125U processor, 16GB DDR5 at 5600 MT/s; Bid3 specifies HP Fortis 11 inch G10 Chromebook specs and Intel Processor N100."
+      "statement": "Bid1 lists Windows devices with specific specs; Bid2 specifies Intel Core Ultra 5 and related specs; Bid3 lists HP Fortis 11-inch Chromebook specs."
     },
     {
       "field": "company_name",
-      "statement": "Bid1 is from Dallas Independent School District, Bid2 from the State of Maryland Treasurer's Office, and Bid3 from Delano Union School District."
+      "statement": "Bid1 Dallas Independent School District; Bid2 State of Maryland Treasurer's Office; Bid3 Delano Union School District."
     },
     {
       "field": "contact_info",
-      "statement": "Bid1 contacts Jasmine Alzate (buyer) at JALZATE@dallasisd.org, Bid2 contacts Tamaira Hawkins at thawkins@treasurer.state.md.us, and Bid3 contacts Sandra Rivera at srivera@duesd.org."
+      "statement": "Bid1 provides procurement contact details; Bid2 provides contact details; Bid3 has no contact info."
     },
     {
       "field": "installation",
-      "statement": "Bid1 requires white glove deployment services; Bid2 and Bid3 do not specify installation requirements."
+      "statement": "Bid1 requires white glove deployment services; Bid2 requires all deliveries and deployment; Bid3 has no installation requirement listed."
     },
     {
       "field": "delivery_date",
-      "statement": "Bid1 does not specify a delivery date, Bid2 requires delivery within 45 days of award, and Bid3 requires delivery by November 30, 2024."
+      "statement": "Bid1 has no specified delivery date; Bid2 requires delivery within 45 days of award; Bid3 specifies delivery on October 31, 2024."
     }
   ],
   "recommendations": [
@@ -602,12 +594,12 @@
           "verdict": "review",
           "detail": "No manufacturer is named.",
           "field": "mfg_for_registration",
-          "value": "OEM",
+          "value": "Original Equipment Manufacturer (OEM)",
           "sources": [
             {
               "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
               "page": 3,
-              "quote": "as advertised by the original equipment manufacturer (OEM)",
+              "quote": "All standard or optional equipment must be as advertised by the original equipment manufacturer (OEM) and must not consist of substitute or aftermarket equipment.",
               "doc_type": "rfp",
               "addendum_number": null,
               "evidence_id": "5f516a91d5af26417b6fdc85"
@@ -617,17 +609,25 @@
         {
           "name": "Products",
           "verdict": "pass",
-          "detail": "We sell these: chromebook, tablet, device.",
+          "detail": "We sell these: laptop, chromebook, tablet, device.",
           "field": "product",
-          "value": "Student Tablet - 50,000",
+          "value": "Tier 1 Small Student Chromebook Laptop (Touch) – 50,000; Tier 2 Large Student Chromebook Laptop (Non‑Touch) – 50,000; Student Tablet – 50,000",
           "sources": [
             {
               "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
-              "page": 35,
-              "quote": "17.01 Student Tablet | 50,000 | Each",
+              "page": 34,
+              "quote": "15.01 Tier 1 Small | 50,000 | Each\nStudent Chromebook Laptop (Touch)",
               "doc_type": "rfp",
               "addendum_number": null,
-              "evidence_id": "ae77d1d3209fa698512ee2c8"
+              "evidence_id": "32fe36c7661b9a2a0ee115bd"
+            },
+            {
+              "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
+              "page": 34,
+              "quote": "15.02 Tier 2 Large | 50,000 | Each\nStudent Chromebook Laptop (Non- Touch)",
+              "doc_type": "rfp",
+              "addendum_number": null,
+              "evidence_id": "32fe36c7661b9a2a0ee115bd"
             }
           ]
         },
@@ -636,7 +636,7 @@
           "verdict": "pass",
           "detail": "Services are required; we provide them.",
           "field": "installation",
-          "value": "White glove deployment services (asset decal, reporting, etching, delivery) are required, All deliveries and deployments must incorporate white glove services, which include asset decaling, asset reporting, etching, and delivery to varied locations.; Only laptops require etching.; Vendor must coordi",
+          "value": "White glove deployment services including asset decaling, asset reporting, etching, and delivery to varied locations are required., All deliveries and deployments must incorporate white glove services, which include asset decaling, asset reporting, etching, and delivery to varied locations.; Only la",
           "sources": [
             {
               "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
@@ -677,7 +677,7 @@
           "verdict": "pass",
           "detail": "Uses EPCNT, which we hold.",
           "field": "contract_or_cooperative",
-          "value": "Educational Purchasing Cooperative of North Texas (EPCNT) Interlocal Agreement Rider; Central Texas Purchasing Alliance (CTPA) Interlocal Agreement – Cooperative",
+          "value": "Educational Purchasing Cooperative of North Texas (EPCNT); Central Texas Purchasing Alliance (CTPA)",
           "sources": [
             {
               "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
@@ -690,7 +690,7 @@
             {
               "file": "JA-207652 Student and Staff Computing Devices FINAL.pdf",
               "page": 20,
-              "quote": "Dallas ISD is a member of the Central Texas Purchasing Alliance (CTPA), an alliance of school districts",
+              "quote": "Dallas ISD is a member of the Central Texas Purchasing Alliance (CTPA), an alliance of school districts in the central Texas area that share information, services, and contractual opportunities.",
               "doc_type": "rfp",
               "addendum_number": null,
               "evidence_id": "eb317ec4590d9b587c0ee4f4"
@@ -777,7 +777,7 @@
           "verdict": "pass",
           "detail": "We sell these: laptop, dock.",
           "field": "product",
-          "value": "SI# CC7802 Dell Latitude 5550 (Qty: 30), Dell Thunderbolt 4 Dock – WD22TB4 (Qty: 30)",
+          "value": "30 Dell Latitude 5550 laptops; 30 Dell Thunderbolt 4 Dock – WD22TB4",
           "sources": [
             {
               "file": "PORFP_-_Dell_Laptop_Final.pdf",
@@ -835,12 +835,12 @@
           "verdict": "review",
           "detail": "Names a contract vehicle we do not list.",
           "field": "contract_or_cooperative",
-          "value": "Master Contract: Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007",
+          "value": "Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007",
           "sources": [
             {
               "file": "PORFP_-_Dell_Laptop_Final.pdf",
               "page": 1,
-              "quote": "LIMITED TO MASTER CONTRACTORS Only Master Contractors that are awarded a contract under the Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007, are eligible to submit a bid in response to this secondary competition Purchase Order Request for Proposal (PORFP",
+              "quote": "Only Master Contractors that are awarded a contract under the Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007, are eligible to submit a bid in response to this secondary competition Purchase Order Request for Proposal (PORFP",
               "doc_type": "rfp",
               "addendum_number": null,
               "evidence_id": "0add078209cc59571febe7ad"
@@ -852,23 +852,23 @@
           "verdict": "pass",
           "detail": "We can supply every listed document.",
           "field": "additional_documentation",
-          "value": "MERCURY CONTENT INFORMATION; Proposal Affidavit",
+          "value": "Mercury Affidavit; Contract Affidavit",
           "sources": [
             {
-              "file": "Mercury_Affidavit.pdf",
-              "page": 1,
-              "quote": "MERCURY CONTENT INFORMATION:",
-              "doc_type": "affidavit",
+              "file": "PORFP_-_Dell_Laptop_Final.pdf",
+              "page": 2,
+              "quote": "The Master Contractor must provide a Mercury Affidavit: https://doit.maryland.gov/contracts/Documents/hardware_co ntract/hwmercury_affidavit.pdf",
+              "doc_type": "rfp",
               "addendum_number": null,
-              "evidence_id": "04ec7e397335eff4e4a0ad15"
+              "evidence_id": "57b478dcce95481a66ae2d49"
             },
             {
               "file": "Contract_Affidavit.pdf",
-              "page": 3,
-              "quote": "Proposal Affidavit",
+              "page": 1,
+              "quote": "Attachment N – Contract Affidavit",
               "doc_type": "affidavit",
               "addendum_number": null,
-              "evidence_id": "133bc91126d6fc1ad8c9486b"
+              "evidence_id": "54a4aad23b47147f7c2b53c6"
             }
           ]
         }
@@ -902,7 +902,7 @@
           "verdict": "pass",
           "detail": "Requires Dell; we are authorized.",
           "field": "mfg_for_registration",
-          "value": "Dell Chrome 3120 Chromebook* (Latest Model) or functionally equivalent",
+          "value": "Dell",
           "sources": [
             {
               "file": "RFP 2025-003 Computer Equipment.pdf",
@@ -919,25 +919,8 @@
           "verdict": "pass",
           "detail": "We sell these: chromebook.",
           "field": "product",
-          "value": "Dell Chrome 3120 Chromebook* (Latest Model) or functionally equivalent, Quantity: 500; GOOGLE CHROME OS MANAGEMENT CONSOLE LICENSE, EDUCATlON*orfunctionallyequivalent, Quantity: 500; Dell Optical Mouse- MS 116* or Functionally Equivalent, Quantity: 500",
-          "sources": [
-            {
-              "file": "RFP 2025-003 Computer Equipment.pdf",
-              "page": 17,
-              "quote": "Item 1: Quantity: 500\n\nDescription/Model: Dell Chrome 3120 Chromebook* (Latest Model) or functionally equivalent",
-              "doc_type": "rfp",
-              "addendum_number": null,
-              "evidence_id": "a29058ec45e6e09766d62398"
-            },
-            {
-              "file": "RFP 2025-003 Computer Equipment.pdf",
-              "page": 17,
-              "quote": "Item 2: Quantity: 500\n\nDeScription/Model: GOOGLE CHROME OS MANAGEMENT CONSOLE LICENSE,\n\nEDUCATlON*orfunctionallyequivalent",
-              "doc_type": "rfp",
-              "addendum_number": null,
-              "evidence_id": "a29058ec45e6e09766d62398"
-            }
-          ]
+          "value": "",
+          "sources": []
         },
         {
           "name": "Installation",
@@ -955,20 +938,20 @@
           "value": "10% bid security in cash, a certified cashier’s check or furnish a bid bond as its bid security.",
           "sources": [
             {
-              "file": "RFP 2025-003 Computer Equipment Addendum 1.pdf",
-              "page": 1,
-              "quote": "Each bid shall be accompanied by 10% bid security in cash, a certified cashier’s check or furnish a bid bond as its bid security.",
-              "doc_type": "addendum",
-              "addendum_number": 1,
-              "evidence_id": "1a2ac0ee70bb48120a8ee597"
+              "file": "RFP 2025-003 Computer Equipment.pdf",
+              "page": 19,
+              "quote": "C. | Attached is bid security not less than 10 percent of the bid, in the amount of",
+              "doc_type": "rfp",
+              "addendum_number": null,
+              "evidence_id": "aa8e06a839e915a8e098bf4f"
             },
             {
               "file": "RFP 2025-003 Computer Equipment.pdf",
-              "page": 4,
-              "quote": "furnish a 10% bid bond as its bid security",
+              "page": 26,
+              "quote": "give bonds with good and sufficient surety or sureties as may be required for the faithful performance and proper fulfillment of such contract",
               "doc_type": "rfp",
               "addendum_number": null,
-              "evidence_id": "5f087ede5b959f948a59972d"
+              "evidence_id": "98584daa460fdbbc5ea924c4"
             }
           ]
         },
@@ -977,79 +960,53 @@
           "verdict": "review",
           "detail": "A delivery date is set; check it against stock.",
           "field": "delivery_date",
-          "value": "November30,2024",
+          "value": "October 31, 2024",
           "sources": [
             {
               "file": "RFP 2025-003 Computer Equipment.pdf",
-              "page": 35,
-              "quote": "Goods must be delivered\n\nby November30,2024.",
-              "doc_type": "rfp",
-              "addendum_number": null,
-              "evidence_id": "8796b91ba393900519abdefb"
-            },
-            {
-              "file": "RFP 2025-003 Computer Equipment.pdf",
               "page": 7,
-              "quote": "Ability to deliver goods on or before October 31, 2024.",
+              "quote": "4. Ability to deliver goods on or before October 31, 2024.",
               "doc_type": "rfp",
               "addendum_number": null,
               "evidence_id": "0ee9508bd63af45f6f416a28"
+            },
+            {
+              "file": "RFP 2025-003 Computer Equipment.pdf",
+              "page": 17,
+              "quote": "BIDDERMUSTBEABLETODELIVERALLITEMSTO DELANOUNIONSCHOOLDISTRICT ONORBEFORE October 31, 2024",
+              "doc_type": "rfp",
+              "addendum_number": null,
+              "evidence_id": "a29058ec45e6e09766d62398"
             }
           ]
         },
         {
           "name": "Contract vehicle",
-          "verdict": "review",
-          "detail": "Names a contract vehicle we do not list.",
+          "verdict": "pass",
+          "detail": "No contract vehicle is required.",
           "field": "contract_or_cooperative",
-          "value": "Purchase Contract",
-          "sources": [
-            {
-              "file": "RFP 2025-003 Computer Equipment.pdf",
-              "page": 35,
-              "quote": "Purchase Contract",
-              "doc_type": "rfp",
-              "addendum_number": null,
-              "evidence_id": "2d0806d48736e89cd4599bfd"
-            }
-          ]
+          "value": "",
+          "sources": []
         },
         {
           "name": "Documents",
-          "verdict": "pass",
-          "detail": "We can supply every listed document.",
+          "verdict": "review",
+          "detail": "The required documents were not extracted.",
           "field": "additional_documentation",
-          "value": "Instructions to Bidders; Bid Form; Substitution Listing; Workers' Compensation Certificate; Guarantee; This form must be signed and included with the RFP submittal.",
-          "sources": [
-            {
-              "file": "RFP 2025-003 Computer Equipment.pdf",
-              "page": 35,
-              "quote": "Instructions to Bidders",
-              "doc_type": "rfp",
-              "addendum_number": null,
-              "evidence_id": "2d0806d48736e89cd4599bfd"
-            },
-            {
-              "file": "RFP 2025-003 Computer Equipment.pdf",
-              "page": 35,
-              "quote": "Bid Form",
-              "doc_type": "rfp",
-              "addendum_number": null,
-              "evidence_id": "2d0806d48736e89cd4599bfd"
-            }
-          ]
+          "value": "",
+          "sources": []
         }
       ]
     }
   ],
   "usage": {
     "calls": 1,
-    "input_tokens": 1557,
-    "output_tokens": 2538,
+    "input_tokens": 1392,
+    "output_tokens": 1989,
     "cache_read_tokens": 0,
     "cache_write_tokens": 0,
-    "latency_ms": 3268.4,
-    "cost_usd": 0.000878
+    "latency_ms": 2446.0,
+    "cost_usd": 0.000701
   },
   "error": null
 }

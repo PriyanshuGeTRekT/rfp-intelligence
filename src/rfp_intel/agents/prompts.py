@@ -213,6 +213,26 @@ def rewrite_user(spec: FieldSpec, reason: str, tried: Sequence[str]) -> str:
     )
 
 
+def candidate_sections(
+    fields: Sequence[FieldSpec], candidates: dict[str, list[FactCandidate]]
+) -> list[str]:
+    """Each field's candidate facts. Fields with the same candidates (model and part numbers
+    share their identifiers) get them listed once and a pointer, not a second copy."""
+    out: list[str] = []
+    listed: dict[tuple[str, ...], str] = {}
+    for spec in fields:
+        cands = candidates.get(spec.key, [])
+        if not cands:
+            continue
+        ids = tuple(c.fact_id for c in cands)
+        if ids in listed:
+            out += [f"Candidate facts for {spec.key}: the same as for {listed[ids]}.", ""]
+            continue
+        listed[ids] = spec.key
+        out += [f"Candidate facts for {spec.key}:", candidates_block(cands), ""]
+    return out
+
+
 def extraction_user(
     fields: Sequence[FieldSpec],
     passages: dict[str, list[EvidenceItem]],
@@ -224,11 +244,9 @@ def extraction_user(
     out = ["Fields to extract:", *[field_block(f, hints.get(f.key)) for f in fields], ""]
     if retry_reasons:
         out += [RETRY_NOTE.format(field=k, reason=v) for k, v in retry_reasons.items()] + [""]
+    out += candidate_sections(fields, candidates)
     seen: dict[str, EvidenceItem] = {}
     for spec in fields:
-        cands = candidates.get(spec.key, [])
-        if cands:
-            out += [f"Candidate facts for {spec.key}:", candidates_block(cands), ""]
         for item in passages.get(spec.key, []):
             seen.setdefault(item.evidence_id, item)
     out += ["Passages:", "", passages_block(list(seen.values()))]

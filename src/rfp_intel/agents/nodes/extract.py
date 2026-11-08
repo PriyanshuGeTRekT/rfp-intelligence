@@ -14,21 +14,62 @@ from rfp_intel.agents.fields import FieldSpec
 from rfp_intel.agents.guarded import io_attribute
 from rfp_intel.agents.llm import estimate_tokens
 from rfp_intel.agents.outputs import GroupDraftOut
-from rfp_intel.agents.prompts import EXTRACT_SYSTEM, extraction_user, field_block, fit_passages
+from rfp_intel.agents.prompts import (
+    EXTRACT_SYSTEM,
+    candidate_sections,
+    candidates_block,
+    extraction_user,
+    field_block,
+    fit_passages,
+)
 from rfp_intel.agents.services import Services
 from rfp_intel.agents.state import ExtractionTask, RunState
 from rfp_intel.agents.validate import FieldDraft
 
 PROMPT_OVERHEAD = 600  # instructions around the passages, in tokens
+MIN_PASSAGE_TOKENS = 1_000  # kept for passages, however many candidate facts there are
+
+
+def _fixed_tokens(fields: list[FieldSpec]) -> int:
+    return (
+        estimate_tokens(EXTRACT_SYSTEM)
+        + PROMPT_OVERHEAD
+        + sum(estimate_tokens(field_block(f)) for f in fields)
+    )
+
+
+def _fit_candidates(
+    s: Services, fields: list[FieldSpec], candidates: dict[str, list[FactCandidate]]
+) -> dict[str, list[FactCandidate]]:
+    """Candidate facts that fit the prompt cap with MIN_PASSAGE_TOKENS left for passages,
+    taken in turn (each field's first, then second, ...); a fact already kept for another field
+    costs nothing, since shared lists are printed once. A product batch can have dozens of part
+    numbers; sent whole, they pushed one Bid1 call past the provider's per-minute limit."""
+    room = s.settings.llm_max_prompt_tokens - _fixed_tokens(fields) - MIN_PASSAGE_TOKENS
+    kept: dict[str, list[FactCandidate]] = {key: [] for key in candidates}
+    paid: set[str] = set()
+    depth = max((len(c) for c in candidates.values()), default=0)
+    for i in range(depth):
+        for key, cands in candidates.items():
+            if i >= len(cands):
+                continue
+            fact = cands[i]
+            cost = 0 if fact.fact_id in paid else estimate_tokens(candidates_block([fact])) + 1
+            if cost > room:
+                return kept
+            room -= cost
+            paid.add(fact.fact_id)
+            kept[key].append(fact)
+    return kept
 
 
 def _budget(
     s: Services, fields: list[FieldSpec], candidates: dict[str, list[FactCandidate]]
 ) -> int:
-    fixed = estimate_tokens(EXTRACT_SYSTEM) + PROMPT_OVERHEAD
-    fixed += sum(estimate_tokens(field_block(f)) for f in fields)
-    fixed += sum(len(c) * 60 for c in candidates.values())
-    return max(1_000, s.settings.llm_max_prompt_tokens - fixed)
+    """Tokens left for passages: the cap less everything else in the prompt."""
+    sections = "\n".join(candidate_sections(fields, candidates))
+    fixed = _fixed_tokens(fields) + estimate_tokens(sections)
+    return max(MIN_PASSAGE_TOKENS, s.settings.llm_max_prompt_tokens - fixed)
 
 
 def extract(s: Services, state: RunState) -> dict[str, Any]:
@@ -38,7 +79,7 @@ def extract(s: Services, state: RunState) -> dict[str, Any]:
     with s.span(f"agent.extract.{task.batch}") as span:
         span.set_attribute("agent.fields", task.fields)
         span.set_attribute("agent.attempt", task.attempt)
-        candidates = {k: ev.candidates for k, ev in evidence.items()}
+        candidates = _fit_candidates(s, specs, {k: ev.candidates for k, ev in evidence.items()})
         passages: dict[str, list[EvidenceItem]] = fit_passages(
             {k: s.store.many(ev.evidence_ids) for k, ev in evidence.items()},
             _budget(s, specs, candidates),

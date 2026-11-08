@@ -387,6 +387,17 @@ def test_list_items_need_support(catalog: FieldCatalog, store: EvidenceStore) ->
     assert not ok and "not supported" in str(reason)
 
 
+def test_words_run_together_by_ocr_still_support_a_value(catalog: FieldCatalog) -> None:
+    # Bid3's scanned RFP: OCR dropped the spaces in "PROJECT TITLE: ... Computer Equipment".
+    ocr = EvidenceStore()
+    ocr.add(EvidenceItem(evidence_id="o1", file="rfp.pdf", page_start=1, page_end=1,
+                         doc_type="rfp", text="PROJECT TITLE:BID#:RFP2025-003ComputerEquipment"))  # fmt: skip
+    quote = [("o1", "PROJECT TITLE:BID#:RFP2025-003ComputerEquipment")]
+    assert _check(catalog, ocr, "title", "Computer Equipment", quote)[0]
+    ok, reason = _check(catalog, ocr, "title", "Network Switches", quote)
+    assert not ok and "not supported" in str(reason)
+
+
 def test_uncited_found_value_fails(catalog: FieldCatalog, store: EvidenceStore) -> None:
     ok, reason = _check(catalog, store, "title", "Dell laptops", [])
     assert not ok and "no quotes" in str(reason)

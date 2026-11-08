@@ -223,41 +223,45 @@ quota cannot serve fails at once with the provider's message, and the run record
 
 ## Results of the live runs
 
-All outputs were produced on Groq's free tier on 2026-11-07. Exact provenance, because it
-matters for reading the numbers:
+All outputs were produced on Groq's free tier on 2026-11-08, after the audit and the evidence
+tuning described below. Exact provenance, because it matters for reading the numbers:
 
 | Output | Run | Models |
 |---|---|---|
-| [outputs/Bid1.json](outputs/Bid1.json) | `20261107T115231Z-fc0e65`, the current code | `openai/gpt-oss-120b`, cheap calls `openai/gpt-oss-20b` |
-| [outputs/Bid2.json](outputs/Bid2.json) | `20261107T113922Z-8930a9`, the current code | same |
-| [outputs/qa_log.jsonl](outputs/qa_log.jsonl), [docs/qa_log.md](docs/qa_log.md) | the current code, after the extractions above | `openai/gpt-oss-20b` (`RFP_QA_MODEL`, to stay within the 120b daily quota) |
-| [docs/trace_example.md](docs/trace_example.md), [docs/trace_example.jsonl](docs/trace_example.jsonl) | Bid2's run above | as above |
+| [outputs/Bid1.json](outputs/Bid1.json) | `20261108T061841Z-b06a6b` | `openai/gpt-oss-120b`, cheap calls `openai/gpt-oss-20b` |
+| [outputs/Bid2.json](outputs/Bid2.json) | `20261108T061044Z-144948` | same |
+| [outputs/Bid3.json](outputs/Bid3.json) | `20261108T063550Z-932750` | `openai/gpt-oss-20b` throughout (the 120b daily quota went to Bid1 and Bid2) |
+| [outputs/qa_log.jsonl](outputs/qa_log.jsonl), [docs/qa_log.md](docs/qa_log.md) | after the extractions above | `openai/gpt-oss-20b` (`RFP_QA_MODEL`) |
+| [docs/comparison.md](docs/comparison.md), [docs/trace_example.md](docs/trace_example.md) | the records above; the trace is Bid2's run | as above |
+
+The extraction runs used the code at commit `ad51132`. Three fixes that the runs turned up
+(listed under "Found in the re-runs") came after them and are covered by tests.
 
 **Extraction accuracy** against `eval/extraction_gold.yaml` (hand-compiled expected values),
-from [docs/eval/extraction.md](docs/eval/extraction.md): **35 of 40 fields (87.5%)**, Bid1 85%,
-Bid2 90%. The first live runs, before the changes below, scored 31 of 40 under the earlier,
-looser gold. Not-found tiers are reliable (NF-1 and NF-2: 7 of 7) and tier B is 21 of 23, but
-tier A is only 6 of 9: A means every quote verifies, not that a list is complete or that the
-quoted document is the right one. With the unseen Bid3 included, 48 of 60 (80%); the per-tier
-table in the report covers all three. Bid1 costs $0.019 (28 model calls, 75k tokens); Bid2
-$0.015 (18 calls, 57k tokens). The five misses:
+from [docs/eval/extraction.md](docs/eval/extraction.md): **36 of 40 fields (90%)**, Bid1 90%,
+Bid2 90%. Under this gold the 2026-11-07 records scored 35 of 40. The first live runs scored
+31 of 40, under an earlier and looser gold. Not-found tiers are reliable (NF-1 and NF-2: 7 of 7)
+and tier B is 22 of 24, but tier A is 6 of 8: A means every quote verifies, not that a list is
+complete. With the unseen Bid3 included, 49 of 60 (82%). Bid1 costs $0.018 (28 model calls,
+70k tokens); Bid2 $0.010 (9 calls, 36k tokens). The four misses:
 
-- Bid1 Additional Documentation leaves out the M/WBE forms and the W-9, which are listed in an
-  attachments table that retrieval does not rank into the field's top passages.
-- Bid1 Product names the student tablets (50,000) but not the Chromebook and laptop tiers.
+- Bid1 Additional Documentation leaves out the M/WBE forms and the W-9: the attachments table
+  that lists them ranks 21st for the field after reranking (see "Tuned with evidence reach").
 - Bid1 Payment Terms gives "within 10 days of receiving payment from the district", which is
   what the prime owes its M/WBE subcontractors; the RFP states no payment term for the district.
-- Bid2 Term of Bid gives "Fixed Price; pricing valid for thirty days". The 30 days is printed in
-  Dell's own quote (Specs p3); the PORFP requires quotes valid for at least 90 days (p2).
-- Bid2 Additional Documentation names headings inside the forms ("MERCURY CONTENT INFORMATION",
-  "Proposal Affidavit") instead of the Mercury Affidavit and the Contract Affidavit, and leaves
-  out the warranty certificate due on award.
+- Bid2 Additional Documentation now names the Mercury Affidavit and the Contract Affidavit, but
+  leaves out the warranty certificate due on award.
+- Bid2 Model_no gives the configuration code "CC7802" where the field asks for the marketed
+  model (Latitude 5550). The previous run got this right with the same definition, so this is
+  run-to-run variance of the model, not a retrieval gap: the evidence-reach check finds the
+  model name in the prompt.
 
-An audit against the brief on 2026-11-08 found the last three. The gold had accepted them because
-its rules only checked for words like "10 days" and "Affidavit", so it was tightened to the
-hand-compiled values in BASELINE.md, and the earlier 38 of 40 became 35. The fixes are in the
-code (see "Found in the audit" below). Re-running needs the daily model quota, so the records
-above are still from 2026-11-07.
+Compared with the 2026-11-07 records, the audit and the tuning fixed three fields. Bid1 Product
+now names the Chromebook tiers with their quantities. Bid2 Term of Bid gives the solicitation's
+90-day quote validity instead of the 30 days in the vendor's quote. Bid2's documents are named by
+their titles instead of headings inside them. The audit also found that the gold had accepted
+the old values because its rules only checked for words like "10 days" and "Affidavit"; it was
+tightened to the hand-compiled values in BASELINE.md.
 
 What the first runs showed, and what was changed because of it. `uv run rfp deliverables`
 regenerates every output: about 60-75k tokens per extraction and 80k for the 16 questions.
@@ -341,6 +345,21 @@ Still missing from the prompt: Bid1's W-9 (its row in the attachments table rank
 reranking; blending in search rank would undo the reranker's gains elsewhere) and three Bid3
 fields, which were left untuned so Bid3 stays an unseen test. Retrieval metrics are unchanged.
 
+**Found in the re-runs** (2026-11-08), fixed after them, with tests:
+
+- **A prompt could exceed the provider's per-minute limit.** The passage budget assumed 60
+  tokens per candidate fact, but a candidate line carries up to 200 characters of context. One
+  Bid1 product batch, with dozens of part-number candidates, came to 7,711 tokens against a
+  7,500 limit and had to be retried in smaller batches. Candidates are now costed by their
+  rendered text, and trimmed in turn across fields so that at least 1,000 tokens stay for
+  passages. Model and part numbers share their identifier candidates, so the shared list is
+  printed once instead of twice. Every extraction prompt now fits the cap, and evidence reach
+  stays at 50 of 54.
+- **Words run together by OCR failed the support check.** A value's words must appear in its
+  quotes, but OCR can drop the spaces ("RFP2025-003ComputerEquipment"). A value word of five or
+  more letters now also counts when it occurs inside the quotes' run-together letters. This
+  would have kept Bid3's correct title.
+
 **The unseen bid (Bid3).** Downloaded after the code was finished, run through it unchanged
 except for one capability the run proved missing (OCR):
 
@@ -356,24 +375,33 @@ except for one capability the run proved missing (OCR):
   as a `replace` of the product specification, where `amend` would be more accurate since the
   original model remains acceptable.
 - Retrieval: Recall@5 0.80 and MRR 0.68 with reranking (table under "Retrieval evaluation").
-- Extraction ([outputs/Bid3.json](outputs/Bid3.json), run `20261107T122843Z-a3e194`, on
-  `openai/gpt-oss-20b` because the 120b daily quota was spent on Bid1 and Bid2): **13 of 20
-  (65%)**, with nothing tuned on it. Right: the number, due date, term (12 months), the 10% bid
-  security from Addendum 1, the substitute HP Chromebook from Addendum 2, model, product and
-  quantity, contact, agency. Wrong: title, submission method and payment terms reported as not
-  found; delivery read as November 30 where the RFP says October 31; the cooperative contracts
-  (the retrieval vocabulary miss above); two of the required forms; the substitute's SKU. Most
-  Bid3 values carry tier C, the cap for text read by OCR, and its unverified absences tier NF-2,
-  so the record says where to look twice.
+- Extraction ([outputs/Bid3.json](outputs/Bid3.json), run `20261108T063550Z-932750`, on
+  `openai/gpt-oss-20b` because the 120b daily quota went to Bid1 and Bid2): **13 of 20 (65%)**,
+  with nothing tuned on it. That is the same score as the first run, with different misses.
+  - Right: the number, due date, submission method, term (12 months), the 10% bid security from
+    Addendum 1, delivery by October 31 (the first run read November 30), the substitute HP
+    Chromebook from Addendum 2, model, manufacturer and agency.
+  - Never reach the prompt: payment terms, the cooperative contracts and the substitute's SKU
+    (see "Tuned with evidence reach").
+  - Reported as not found: Product.
+  - Rejected by the validator: three fields. Two of them were correct values it should have
+    accepted: the title "Computer Equipment", quoted from OCR text that runs the words together
+    ("RFP2025-003ComputerEquipment"), and the contact. The third failed because gpt-oss-20b
+    twice returned output that did not match the schema. The validator now accepts run-together
+    OCR words (see "Found in the re-runs").
+
+  Most Bid3 values carry tier C, the cap for text read by OCR, so the record says where to look
+  twice.
 
 **Q&A** ([docs/qa_log.md](docs/qa_log.md)): 16 questions over the three bids, including the five
-from the brief, answered with the current code on `openai/gpt-oss-20b`. 15 have cited answers
-and one is a correct "Not found in documents" (the incumbent's price). Every sentence carries
-its own verified quote; one sentence across the 16 was removed for lacking one. The brief's
-bond question, asked across all bids, first came back as "10% of the bid" without saying that
-only the unseen Bid3 sets one; the Q&A prompt now requires naming the bid in every statement
-when passages come from several, and the re-asked answer says Bid3 requires 10% bid security
-and Bid1's documents only refer to bond requirements "enumerated elsewhere".
+from the brief, answered on `openai/gpt-oss-20b` after the extractions above. 15 have cited
+answers and one is a correct "Not found in documents" (the incumbent's price). Every sentence
+carries its own verified quote; two citations across the 16 were dropped for failing
+verification. When an answer draws on several bids, each statement names its bid ("In Bid3, a
+bid bond is required ... Bid1 does not specify ..."). That rule was added after an earlier run
+answered the bond question with Bid3's 10% as if it applied to every bid. Two answers are
+incomplete. The bond answer does not mention Bid2, because none of Bid2's passages were
+retrieved. Bid3's "when and how" answer gives the due date but not the submission method.
 
 ## Design decisions
 
@@ -744,9 +772,10 @@ with four tools: `list_bids`, `search`, `facts` and `ask` (which runs the agent 
   extraction uses about 60-75k, so three bids and the Q&A log need two models or two days.
   `qwen/qwen3.8-27b` was tried as a substitute and rejected: it often returned values without
   the required quotes.
-- **The committed records predate the audit fixes.** `outputs/` is from the 2026-11-07 runs;
-  the fixes listed under "Found in the audit" change prompts and grounding, so their effect on
-  the scores shows only after `uv run rfp extract BidN` is re-run with quota available.
+- **One run per bid.** Each record comes from a single run, and model output varies between
+  runs: Bid2's Model_no was right in one run and wrong in the next with the same prompt. A
+  bid's score can therefore move by a field or two from run to run. The three fixes under
+  "Found in the re-runs" came after the runs that produced `outputs/`.
 - **Q&A checks that each sentence is cited, not that it is entailed.** Every sentence must
   carry a citation that reproduces passage text, or it is removed; whether the sentence says
   exactly what its quote says is left to the prompt's rules.

@@ -229,9 +229,13 @@ def _supported(spec: FieldSpec, value: str | list[str] | None, quotes_text: str)
         return None
     items = value if isinstance(value, list) else [text]
     quote_words = _words(quotes_text)
+    # OCR can set words without the space between them ("RFP2025-003ComputerEquipment"); a
+    # longer value word found inside the quotes' run-together letters still counts.
+    run_together = re.sub(r"[^0-9a-z]", "", quotes_text.casefold())
     for item in items:
         words = _words(item)
-        if words and len(words & quote_words) / len(words) < COVERAGE_TEXT:
+        present = {w for w in words if w in quote_words or (len(w) >= 5 and w in run_together)}
+        if words and len(present) / len(words) < COVERAGE_TEXT:
             return f"'{item[:60]}' is not supported by the quotes (too few of its words appear)"
     return None
 

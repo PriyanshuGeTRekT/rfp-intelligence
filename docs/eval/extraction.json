@@ -39,7 +39,7 @@
       "tier": "A",
       "confidence": 0.95,
       "status": "found",
-      "value": "2024-06-10 14:00 CST via TEAMS video conference (link: https://www.microsoft.com/en-us/microsoft-teams/join-a-meeting); ",
+      "value": "2024-06-10 14:00 CDT",
       "reason": "instant matches"
     },
     {
@@ -49,7 +49,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Responses must be submitted online via the iSupplier portal (https://www.dallasisd.org/domain/143) or manually as one or",
+      "value": "Electronic submission via the iSupplier portal (https://www.dallasisd.org/domain/143); manual submission in a sealed env",
       "reason": "a pattern matched"
     },
     {
@@ -59,7 +59,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "3-year initial term with two one-year extensions, not to exceed five years total",
+      "value": "Initial term of 3 years with two one-year renewal options, not to exceed a total of 5 years.",
       "reason": "all patterns present"
     },
     {
@@ -109,7 +109,7 @@
       "tier": "A",
       "confidence": 0.95,
       "status": "found",
-      "value": "White glove deployment services (asset decal, reporting, etching, delivery) are required, All deliveries and deployments",
+      "value": "White glove deployment services including asset decaling, asset reporting, etching, and delivery to varied locations are",
       "reason": "all patterns present"
     },
     {
@@ -119,7 +119,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "OEM",
+      "value": "Original Equipment Manufacturer (OEM)",
       "reason": "found, but states the absence"
     },
     {
@@ -129,7 +129,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Educational Purchasing Cooperative of North Texas (EPCNT) Interlocal Agreement Rider; Central Texas Purchasing Alliance ",
+      "value": "Educational Purchasing Cooperative of North Texas (EPCNT); Central Texas Purchasing Alliance (CTPA)",
       "reason": "found, but states the absence"
     },
     {
@@ -155,12 +155,12 @@
     {
       "bid_id": "Bid1",
       "field": "product",
-      "passed": false,
+      "passed": true,
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Student Tablet - 50,000",
-      "reason": "missing ['Chromebook', 'laptop']"
+      "value": "Tier 1 Small Student Chromebook Laptop (Touch) – 50,000; Tier 2 Large Student Chromebook Laptop (Non‑Touch) – 50,000; St",
+      "reason": "all patterns present"
     },
     {
       "bid_id": "Bid1",
@@ -169,7 +169,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "JASMINE ALZATE, Buyer, JALZATE@dallasisd.org, 972.925.3700",
+      "value": "Procurement Services; Phone: 972-925-3700; Email: ProcurementCS@dallasisd.org",
       "reason": "a pattern matched"
     },
     {
@@ -189,7 +189,7 @@
       "tier": "A",
       "confidence": 0.95,
       "status": "found",
-      "value": "Student Windows – Screen Resolution 1920-1080 Non-Touch, Student Windows – Memory: Minimum 16GB RAM DDR5 Memory, Student",
+      "value": "Windows Device – Screen Resolution 1920-1080 Non-Touch, Windows Device – Memory Minimum 16GB RAM DDR5, Windows Device – ",
       "reason": "all patterns present"
     },
     {
@@ -199,7 +199,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Dallas Independent School District is seeking to purchase 50,000 Student Tablets under bid number JA-207652. The final b",
+      "value": "The Dallas Independent School District is inviting bids to supply 50,000 Tier 1 Small Student Chromebook Laptops (Touch)",
       "reason": "all patterns present"
     },
     {
@@ -209,7 +209,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "BPM044557",
+      "value": "#E20P4600040",
       "reason": "a pattern matched"
     },
     {
@@ -249,18 +249,18 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Electronic submission through eMMA portal; bids not accepted by email, fax, U.S. Mail, or hand delivery.",
+      "value": "Only through the State's eMaryland Marketplace Advantage (eMMA) e-Procurement system; bids not accepted by email, fax, U",
       "reason": "all patterns present"
     },
     {
       "bid_id": "Bid2",
       "field": "term_of_bid",
-      "passed": false,
-      "tier": "A",
-      "confidence": 0.95,
+      "passed": true,
+      "tier": "B",
+      "confidence": 0.85,
       "status": "found",
-      "value": "Fixed Price; pricing valid for thirty days",
-      "reason": "missing ['90 days|ninety']"
+      "value": "Fixed Price; proposals must remain valid for at least 90 days after the due date",
+      "reason": "all patterns present"
     },
     {
       "bid_id": "Bid2",
@@ -299,8 +299,8 @@
       "tier": "A",
       "confidence": 0.95,
       "status": "found",
-      "value": "MERCURY CONTENT INFORMATION ; Proposal Affidavit",
-      "reason": "missing items ['Contract Affidavit', 'warrant']"
+      "value": "Mercury Affidavit ; Contract Affidavit",
+      "reason": "missing items ['warrant']"
     },
     {
       "bid_id": "Bid2",
@@ -329,18 +329,18 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Master Contract: Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007",
+      "value": "Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007",
       "reason": "a pattern matched"
     },
     {
       "bid_id": "Bid2",
       "field": "model_no",
-      "passed": true,
+      "passed": false,
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Dell Latitude 5550 ; Dell Thunderbolt 4 Dock – WD22TB4",
-      "reason": "all items present"
+      "value": "CC7802 ; WD22TB4",
+      "reason": "missing items ['Latitude 5550']"
     },
     {
       "bid_id": "Bid2",
@@ -359,7 +359,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "SI# CC7802 Dell Latitude 5550 (Qty: 30), Dell Thunderbolt 4 Dock – WD22TB4 (Qty: 30)",
+      "value": "30 Dell Latitude 5550 laptops; 30 Dell Thunderbolt 4 Dock – WD22TB4",
       "reason": "all patterns present"
     },
     {
@@ -399,7 +399,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "The State of Maryland Treasurer's Office (bid_number BPM044557) is procuring 30 units of Dell Latitude 5550 laptops and ",
+      "value": "The State of Maryland Treasurer's Office (bid #E20P4600040) is buying 30 Dell Latitude 5550 laptops (model CC7802) and 3",
       "reason": "all patterns present"
     },
     {
@@ -416,9 +416,9 @@
       "bid_id": "Bid3",
       "field": "title",
       "passed": false,
-      "tier": "NF-1",
-      "confidence": 0.8,
-      "status": "not_found",
+      "tier": "X",
+      "confidence": 0.2,
+      "status": "failed",
       "value": null,
       "reason": "expected a value, got null"
     },
@@ -445,12 +445,12 @@
     {
       "bid_id": "Bid3",
       "field": "bid_submission_type",
-      "passed": false,
-      "tier": "NF-2",
-      "confidence": 0.5,
-      "status": "not_found",
-      "value": null,
-      "reason": "expected a value, got null"
+      "passed": true,
+      "tier": "C",
+      "confidence": 0.7,
+      "status": "found",
+      "value": "Proposals must be received prior to 1:00 PM on September 6, 2024. Proposals must be submitted in a sealed envelope, mark",
+      "reason": "all patterns present"
     },
     {
       "bid_id": "Bid3",
@@ -475,12 +475,12 @@
     {
       "bid_id": "Bid3",
       "field": "delivery_date",
-      "passed": false,
+      "passed": true,
       "tier": "C",
       "confidence": 0.7,
       "status": "found",
-      "value": "November30,2024",
-      "reason": "missing ['October 31, 2024|2024-10-31']"
+      "value": "October 31, 2024",
+      "reason": "all patterns present"
     },
     {
       "bid_id": "Bid3",
@@ -496,11 +496,11 @@
       "bid_id": "Bid3",
       "field": "additional_documentation",
       "passed": false,
-      "tier": "C",
-      "confidence": 0.7,
-      "status": "found",
-      "value": "Instructions to Bidders ; Bid Form ; Substitution Listing ; Workers' Compensation Certificate ; Guarantee ; This form mu",
-      "reason": "missing items ['Non-?Collusion', 'Addend']"
+      "tier": "X",
+      "confidence": 0.2,
+      "status": "failed",
+      "value": null,
+      "reason": "expected a value, got null"
     },
     {
       "bid_id": "Bid3",
@@ -519,18 +519,18 @@
       "tier": "C",
       "confidence": 0.7,
       "status": "found",
-      "value": "Dell Chrome 3120 Chromebook* (Latest Model) or functionally equivalent",
+      "value": "Dell",
       "reason": "found, but states the absence"
     },
     {
       "bid_id": "Bid3",
       "field": "contract_or_cooperative",
       "passed": false,
-      "tier": "C",
-      "confidence": 0.7,
-      "status": "found",
-      "value": "Purchase Contract",
-      "reason": "none of ['NASPO', 'CMAS', 'WSCA', 'CALNET'] matched"
+      "tier": "NF-1",
+      "confidence": 0.8,
+      "status": "not_found",
+      "value": null,
+      "reason": "expected a value, got null"
     },
     {
       "bid_id": "Bid3",
@@ -539,7 +539,7 @@
       "tier": "C",
       "confidence": 0.7,
       "status": "found",
-      "value": "Dell Chrome 3120 Chromebook ; GOOGLE CHROME OS MANAGEMENT CONSOLE LICENSE ; Dell Optical Mouse- MS 116",
+      "value": "Dell Chrome 3120 Chromebook",
       "reason": "all items present"
     },
     {
@@ -555,22 +555,22 @@
     {
       "bid_id": "Bid3",
       "field": "product",
-      "passed": true,
-      "tier": "C",
-      "confidence": 0.7,
-      "status": "found",
-      "value": "Dell Chrome 3120 Chromebook* (Latest Model) or functionally equivalent, Quantity: 500; GOOGLE CHROME OS MANAGEMENT CONSO",
-      "reason": "all patterns present"
+      "passed": false,
+      "tier": "NF-1",
+      "confidence": 0.8,
+      "status": "not_found",
+      "value": null,
+      "reason": "expected a value, got null"
     },
     {
       "bid_id": "Bid3",
       "field": "contact_info",
-      "passed": true,
-      "tier": "C",
-      "confidence": 0.7,
-      "status": "found",
-      "value": "Sandra Rivera, Assistant Superintendent of Business, email: srivera@duesd.org, phone: (661) 721-5000, ext. 00125.",
-      "reason": "a pattern matched"
+      "passed": false,
+      "tier": "X",
+      "confidence": 0.2,
+      "status": "failed",
+      "value": null,
+      "reason": "expected a value, got null"
     },
     {
       "bid_id": "Bid3",
@@ -599,7 +599,7 @@
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
-      "value": "Bid number 2025-003 from Delano Union School District seeks to purchase 500 Dell Chrome 3120 Chromebooks, 500 Google Chr",
+      "value": "The Delano Union School District (bid number 2025-003) seeks to purchase Dell Chrome 3120 Chromebooks and HP Fortis 11 i",
       "reason": "all patterns present"
     }
   ],

@@ -1,7 +1,7 @@
 {
   "bid_id": "Bid3",
-  "run_id": "20261107T122843Z-a3e194",
-  "generated_at": "2026-11-07T12:47:46+00:00",
+  "run_id": "20261108T063550Z-932750",
+  "generated_at": "2026-11-08T07:00:20+00:00",
   "documents": [
     {
       "file": "RFP 2025-003 Computer Equipment Addendum 1.pdf",
@@ -33,11 +33,11 @@
       "sources": [
         {
           "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 6,
+          "page": 29,
           "quote": "DUSDRFP#2025-003",
           "doc_type": "rfp",
           "addendum_number": null,
-          "evidence_id": "3149e534d0704bc44ef8722f"
+          "evidence_id": "ede0a2db1e77eae085c1fb67"
         }
       ],
       "confidence": 0.7,
@@ -48,12 +48,12 @@
     "Title": {
       "key": "title",
       "value": null,
-      "status": "not_found",
+      "status": "failed",
       "sources": [],
-      "confidence": 0.8,
-      "tier": "NF-1",
+      "confidence": 0.2,
+      "tier": "X",
       "normalized": null,
-      "notes": "Not found in documents. No passage provided a title separate from the number. The document name indicates 'Computer Equipment' but that is not directly quoted. Searched 3 queries (Title; solicitation title; request for proposal title); 0 labelled facts; 2 passages reviewed."
+      "notes": "Rejected by the validator: 'ComputerEquipment' is not supported by the quotes (too few of its words appear)."
     },
     "Due Date": {
       "key": "due_date",
@@ -94,17 +94,26 @@
       "confidence": 0.8,
       "tier": "NF-1",
       "normalized": null,
-      "notes": "Not found in documents. No passages were retrieved. Searched 4 queries (Pre Bid Meeting; pre-bid meeting; pre-proposal conference; site visit); 0 labelled facts; 0 passages reviewed."
+      "notes": "Not found in documents. No pre-bid meeting information found in provided passages. Searched 4 queries (Pre Bid Meeting; pre-bid meeting; pre-proposal conference; site visit); 0 labelled facts; 1 passages reviewed."
     },
     "Bid Submission Type": {
       "key": "bid_submission_type",
-      "value": null,
-      "status": "not_found",
-      "sources": [],
-      "confidence": 0.5,
-      "tier": "NF-2",
+      "value": "Proposals must be received prior to 1:00 PM on September 6, 2024. Proposals must be submitted in a sealed envelope, marked with the RFP number and title, and returned to the Delano Union School District, Business Services, 1405 12th Avenue, Delano, California, 93215.",
+      "status": "found",
+      "sources": [
+        {
+          "file": "RFP 2025-003 Computer Equipment.pdf",
+          "page": 2,
+          "quote": "Proposals must be received prior to 1:00 PM on September 6, 2024 Proposals must be submitted in a sealed envelope, marked with the RFP number and title, and returned to the Delano Union School District, Business Services, 1405 12th Avenue, Delano, California, 93215.",
+          "doc_type": "rfp",
+          "addendum_number": null,
+          "evidence_id": "4195dcb676b27a72a0897744"
+        }
+      ],
+      "confidence": 0.7,
+      "tier": "C",
       "normalized": null,
-      "notes": "Not found in documents. No passage in the provided documents specifies bid submission method, portal, email, sealed hard copy, copy count, or exclusions. 8 labelled facts were reviewed on every attempt and judged not to state this field. Searched 8 queries (Bid Submission Type; how to submit proposals; electronic submission portal; sealed bids hard copy; Bid submission procedures and restrictions; Proposal entry methods and exclusions; Online submission system and sealed bid rules; Number of copies requirement for bids); 8 labelled facts; 6 passages reviewed."
+      "notes": null
     },
     "Term of Bid": {
       "key": "term_of_bid",
@@ -131,34 +140,34 @@
       "status": "found",
       "sources": [
         {
+          "file": "RFP 2025-003 Computer Equipment.pdf",
+          "page": 19,
+          "quote": "C. | Attached is bid security not less than 10 percent of the bid, in the amount of",
+          "doc_type": "rfp",
+          "addendum_number": null,
+          "evidence_id": "aa8e06a839e915a8e098bf4f"
+        },
+        {
+          "file": "RFP 2025-003 Computer Equipment.pdf",
+          "page": 26,
+          "quote": "give bonds with good and sufficient surety or sureties as may be required for the faithful performance and proper fulfillment of such contract",
+          "doc_type": "rfp",
+          "addendum_number": null,
+          "evidence_id": "98584daa460fdbbc5ea924c4"
+        },
+        {
           "file": "RFP 2025-003 Computer Equipment Addendum 1.pdf",
           "page": 1,
           "quote": "Each bid shall be accompanied by 10% bid security in cash, a certified cashier’s check or furnish a bid bond as its bid security.",
           "doc_type": "addendum",
           "addendum_number": 1,
-          "evidence_id": "1a2ac0ee70bb48120a8ee597"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 4,
-          "quote": "furnish a 10% bid bond as its bid security",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "5f087ede5b959f948a59972d"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 18,
-          "quote": "Attached is bid security not less than 10 percent of the bid, in the amount of",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "fb39de82bbfab09200a27518"
+          "evidence_id": null
         }
       ],
       "confidence": 0.7,
       "tier": "C",
       "normalized": null,
-      "notes": null
+      "notes": "Both documents confirm a 10% bid security requirement."
     },
     "Payment Terms": {
       "key": "payment_terms",
@@ -168,142 +177,42 @@
       "confidence": 0.5,
       "tier": "NF-2",
       "normalized": null,
-      "notes": "Not found in documents. No explicit payment terms are provided in the supplied passages. 15 labelled facts were reviewed on every attempt and judged not to state this field. Searched 8 queries (Payment Terms; payment terms net days; invoice submission payment; prompt payment; Agency payment schedule; Invoicing guidelines agency; Vendor payment window; Payment processing timeline); 15 labelled facts; 4 passages reviewed."
+      "notes": "Not found in documents. No passage contains explicit payment terms (e.g., net days, invoicing rules, prompt payment). 15 labelled facts were reviewed on every attempt and judged not to state this field. Searched 8 queries (Payment Terms; payment terms net days; invoice submission payment; prompt payment; agency payment schedule and invoicing; vendor payment due dates policy; payment processing rules for contractors; quick settlement compliance guidelines); 15 labelled facts; 4 passages reviewed."
     },
     "Contract or Cooperative to use": {
       "key": "contract_or_cooperative",
-      "value": "Purchase Contract",
-      "status": "found",
-      "sources": [
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 35,
-          "quote": "Purchase Contract",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "2d0806d48736e89cd4599bfd"
-        }
-      ],
-      "confidence": 0.7,
-      "tier": "C",
+      "value": null,
+      "status": "not_found",
+      "sources": [],
+      "confidence": 0.8,
+      "tier": "NF-1",
       "normalized": null,
-      "notes": null
+      "notes": "Not found in documents. No contract vehicle or cooperative mentioned in provided passages. Searched 4 queries (Contract or Cooperative to use; master contract cooperative purchasing; piggyback cooperative agreement; contract vehicle); 0 labelled facts; 3 passages reviewed."
     },
     "Any Additional Documentation Required": {
       "key": "additional_documentation",
-      "value": [
-        "Instructions to Bidders",
-        "Bid Form",
-        "Substitution Listing",
-        "Workers' Compensation Certificate",
-        "Guarantee",
-        "This form must be signed and included with the RFP submittal."
-      ],
-      "status": "found",
-      "sources": [
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 35,
-          "quote": "Instructions to Bidders",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "2d0806d48736e89cd4599bfd"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 35,
-          "quote": "Bid Form",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "2d0806d48736e89cd4599bfd"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 35,
-          "quote": "Substitution Listing",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "2d0806d48736e89cd4599bfd"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 35,
-          "quote": "Workers' Compensation Certificate",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "2d0806d48736e89cd4599bfd"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 35,
-          "quote": "Guarantee",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "2d0806d48736e89cd4599bfd"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment Addendum 1.pdf",
-          "page": 2,
-          "quote": "This form must be signed and included with the RFP submittal.",
-          "doc_type": "addendum",
-          "addendum_number": 1,
-          "evidence_id": null
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment Addendum 2.pdf",
-          "page": 2,
-          "quote": "This form must be signed and included with the RFP submittal.",
-          "doc_type": "addendum",
-          "addendum_number": 2,
-          "evidence_id": null
-        }
-      ],
-      "confidence": 0.7,
-      "tier": "C",
+      "value": null,
+      "status": "failed",
+      "sources": [],
+      "confidence": 0.2,
+      "tier": "X",
       "normalized": null,
-      "notes": null
+      "notes": "Extraction failed: the model call failed: LLMError: the response did not match the output schema after a repair attempt."
     },
     "Product": {
       "key": "product",
-      "value": "Dell Chrome 3120 Chromebook* (Latest Model) or functionally equivalent, Quantity: 500; GOOGLE CHROME OS MANAGEMENT CONSOLE LICENSE, EDUCATlON*orfunctionallyequivalent, Quantity: 500; Dell Optical Mouse- MS 116* or Functionally Equivalent, Quantity: 500",
-      "status": "found",
-      "sources": [
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 17,
-          "quote": "Item 1: Quantity: 500\n\nDescription/Model: Dell Chrome 3120 Chromebook* (Latest Model) or functionally equivalent",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "a29058ec45e6e09766d62398"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 17,
-          "quote": "Item 2: Quantity: 500\n\nDeScription/Model: GOOGLE CHROME OS MANAGEMENT CONSOLE LICENSE,\n\nEDUCATlON*orfunctionallyequivalent",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "a29058ec45e6e09766d62398"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 17,
-          "quote": "Item 3: Quantity:500\n\nDescription/Model: Dell Optical Mouse- MS 116* or Functionally Equivalent",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "a29058ec45e6e09766d62398"
-        }
-      ],
-      "confidence": 0.7,
-      "tier": "C",
+      "value": null,
+      "status": "not_found",
+      "sources": [],
+      "confidence": 0.8,
+      "tier": "NF-1",
       "normalized": null,
-      "notes": null
+      "notes": "Not found in documents. No passage provides a verbatim description of the product or quantities. Searched 9 queries (Product; products to be purchased quantity; scope of work devices; price schedule line items; estimated quantity per tier; goods and services list; item categories with quantities; unit volumes per tier; procurement items by category); 0 labelled facts; 6 passages reviewed."
     },
     "Model_no": {
       "key": "model_no",
       "value": [
-        "Dell Chrome 3120 Chromebook",
-        "GOOGLE CHROME OS MANAGEMENT CONSOLE LICENSE",
-        "Dell Optical Mouse- MS 116"
+        "Dell Chrome 3120 Chromebook"
       ],
       "status": "found",
       "sources": [
@@ -311,22 +220,6 @@
           "file": "RFP 2025-003 Computer Equipment.pdf",
           "page": 17,
           "quote": "Description/Model: Dell Chrome 3120 Chromebook* (Latest Model) or functionally equivalent",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "a29058ec45e6e09766d62398"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 17,
-          "quote": "DeScription/Model: GOOGLE CHROME OS MANAGEMENT CONSOLE LICENSE,\n\nEDUCATlON*orfunctionallyequivalent",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "a29058ec45e6e09766d62398"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 17,
-          "quote": "Description/Model: Dell Optical Mouse- MS 116* or Functionally Equivalent",
           "doc_type": "rfp",
           "addendum_number": null,
           "evidence_id": "a29058ec45e6e09766d62398"
@@ -345,11 +238,11 @@
       "confidence": 0.8,
       "tier": "NF-1",
       "normalized": null,
-      "notes": "Not found in documents. No part numbers or SKUs listed in the documents; only configuration specifications such as 64GBEMMC, 8GBLPDDR5, AX203, and 4800MT were found. Searched 9 queries (Part_no; part number SKU; configuration SKU list; item part numbers; product codes section; catalog numbers in quotes; line item identifiers; component code list; Part_no (in specs)); 0 labelled facts; 3 passages reviewed."
+      "notes": "Not found in documents. No part numbers or SKUs appear in the provided passages. Searched 9 queries (Part_no; part number SKU; configuration SKU list; item part numbers; quoted product identifiers; line item identifiers; configuration item IDs; product identifiers list; Part_no (in specs)); 0 labelled facts; 3 passages reviewed."
     },
     "MFG for Registration": {
       "key": "mfg_for_registration",
-      "value": "Dell Chrome 3120 Chromebook* (Latest Model) or functionally equivalent",
+      "value": "Dell",
       "status": "found",
       "sources": [
         {
@@ -374,63 +267,31 @@
         {
           "file": "RFP 2025-003 Computer Equipment.pdf",
           "page": 17,
+          "quote": "*CPU: Intel(R) Processor N100 (6MB cache, 4 cores, 4 threads, up to 3.40 GHz Turbo,4.80W)",
+          "doc_type": "rfp",
+          "addendum_number": null,
+          "evidence_id": "a29058ec45e6e09766d62398"
+        },
+        {
+          "file": "RFP 2025-003 Computer Equipment.pdf",
+          "page": 17,
+          "quote": "8GB\n\nMemory",
+          "doc_type": "rfp",
+          "addendum_number": null,
+          "evidence_id": "a29058ec45e6e09766d62398"
+        },
+        {
+          "file": "RFP 2025-003 Computer Equipment.pdf",
+          "page": 17,
+          "quote": "64GBEMMC",
+          "doc_type": "rfp",
+          "addendum_number": null,
+          "evidence_id": "a29058ec45e6e09766d62398"
+        },
+        {
+          "file": "RFP 2025-003 Computer Equipment.pdf",
+          "page": 17,
           "quote": "*LCD: 11.6\"HD(1366x768) Anti-Glare Touch,Camera& Microphone,WLAN Capable",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "a29058ec45e6e09766d62398"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 17,
-          "quote": "*CPU: Intel(R) Processor N100 (6MB cache, 4 cores, 4 threads, up to 3.40 GHz Turbo,4.80W), 8GB\n\nMemory,64GBEMMC",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "a29058ec45e6e09766d62398"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 17,
-          "quote": "*HHD:64 GB eMMC,on-board",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "a29058ec45e6e09766d62398"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 17,
-          "quote": "*RAM:8GBLPDDR5,4800MT/s(onb0ard)",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "a29058ec45e6e09766d62398"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 17,
-          "quote": "*WLAN: Intel(R) Wi-Fi 6 AX203, 2x2, 802.11ax, MU-MIMO, Bluetooth(R) 5.1 wireless card",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "a29058ec45e6e09766d62398"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 17,
-          "quote": "*OsType:ChromeKB Language:US English",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "a29058ec45e6e09766d62398"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 17,
-          "quote": "*US Power Cord: E4 Power Cord 1M for US",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "a29058ec45e6e09766d62398"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 17,
-          "quote": "*Power Supply: 65W AC adapter, USB Type-C, EcoDesign",
           "doc_type": "rfp",
           "addendum_number": null,
           "evidence_id": "a29058ec45e6e09766d62398"
@@ -473,7 +334,7 @@
         {
           "file": "RFP 2025-003 Computer Equipment.pdf",
           "page": 29,
-          "quote": "Delano Union School District",
+          "quote": "OWNER:Delano Union School District",
           "doc_type": "rfp",
           "addendum_number": null,
           "evidence_id": "ede0a2db1e77eae085c1fb67"
@@ -486,38 +347,13 @@
     },
     "contact_info": {
       "key": "contact_info",
-      "value": "Sandra Rivera, Assistant Superintendent of Business, email: srivera@duesd.org, phone: (661) 721-5000, ext. 00125.",
-      "status": "found",
-      "sources": [
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 1,
-          "quote": "Refer any questions to: Sandra Rivera, email: srivera@duesd.org or 661-721-5000, ext. 00125.",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "a16d9cace07509b69b426aa9"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 1,
-          "quote": "Attention: | SandraRivera,AssistantSuperintendentofBusiness",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "a16d9cace07509b69b426aa9"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 1,
-          "quote": "email: srivera@duesd.org",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "a16d9cace07509b69b426aa9"
-        }
-      ],
-      "confidence": 0.7,
-      "tier": "C",
+      "value": null,
+      "status": "failed",
+      "sources": [],
+      "confidence": 0.2,
+      "tier": "X",
       "normalized": null,
-      "notes": null
+      "notes": "Rejected by the validator: 'Sandra Rivera, Assistant Superintendent of Business, email s' is not supported by the quotes (too few of its words appear). Phone number not present in any provided passage."
     },
     "Installation": {
       "key": "installation",
@@ -527,38 +363,38 @@
       "confidence": 0.8,
       "tier": "NF-1",
       "normalized": null,
-      "notes": "Not found in documents. No installation, deployment, imaging, tagging or other on-site services mentioned in the provided passages. Searched 4 queries (Installation; installation deployment services; white glove imaging asset tagging; setup configuration services); 0 labelled facts; 1 passages reviewed."
+      "notes": "Not found in documents. No installation requirements specified in provided passages. Searched 4 queries (Installation; installation deployment services; white glove imaging asset tagging; setup configuration services); 0 labelled facts; 2 passages reviewed."
     },
     "Delivery Date": {
       "key": "delivery_date",
-      "value": "November30,2024",
+      "value": "October 31, 2024",
       "status": "found",
       "sources": [
         {
           "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 35,
-          "quote": "Goods must be delivered\n\nby November30,2024.",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "8796b91ba393900519abdefb"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
           "page": 7,
-          "quote": "Ability to deliver goods on or before October 31, 2024.",
+          "quote": "4. Ability to deliver goods on or before October 31, 2024.",
           "doc_type": "rfp",
           "addendum_number": null,
           "evidence_id": "0ee9508bd63af45f6f416a28"
+        },
+        {
+          "file": "RFP 2025-003 Computer Equipment.pdf",
+          "page": 17,
+          "quote": "BIDDERMUSTBEABLETODELIVERALLITEMSTO DELANOUNIONSCHOOLDISTRICT ONORBEFORE October 31, 2024",
+          "doc_type": "rfp",
+          "addendum_number": null,
+          "evidence_id": "a29058ec45e6e09766d62398"
         }
       ],
       "confidence": 0.7,
       "tier": "C",
       "normalized": null,
-      "notes": "Later clause at p35-36 supersedes earlier requirement at p17-18"
+      "notes": "Later passage (pages 35-36) states goods must be delivered by November 30, 2024, which conflicts with the earlier requirement of October 31, 2024. Since the earlier requirement is a selection criterion, it is considered controlling over the later clause."
     },
     "Bid Summary": {
       "key": "bid_summary",
-      "value": "Bid number 2025-003 from Delano Union School District seeks to purchase 500 Dell Chrome 3120 Chromebooks, 500 Google Chrome OS Management Console Licenses, and 500 Dell Optical Mice (MS 116 or functionally equivalent). The bid is due on September 6, 2024, 1:00 PM, and the term of the contract will be twelve (12) months as a Purchase Contract. Bidders must provide a bid security of 10% bid security in cash, a certified cashier’s check or a bid bond, and must submit the required documentation, including the Instructions to Bidders, Bid Form, Substitution Listing, Workers' Compensation Certificate, Guarantee, and a signed form. Delivery of the goods is required by November30,2024 and the specification for the Chromebook is the HP Fortis 11 inch G10 model. Contact Sandra Rivera, Assistant Superintendent of Business, at srivera@duesd.org or (661) 721-5000 ext. 00125 for any questions, noting that some details such as pre-bid meeting and bid submission type are not specified.",
+      "value": "The Delano Union School District (bid number 2025-003) seeks to purchase Dell Chrome 3120 Chromebooks and HP Fortis 11 inch G10 Chromebooks with specifications listed in the product specification. Proposals must be received before 1:00 PM on September 6, 2024, submitted in a sealed envelope marked with the RFP number 2025-003 and returned to Delano Union School District, Business Services, 1405 12th Avenue, Delano, California, 93215. The contract term is twelve (12) months, with a 10 % bid security required in cash, a certified cashier’s check, or a bid bond, and delivery is expected by October 31, 2024. Warranty, installation, and payment terms are not specified in the bid, and no additional documentation or contract type is listed. Eligible bidders should note the absence of payment terms, installation details, and additional documentation requirements.",
       "status": "found",
       "sources": [
         {
@@ -571,16 +407,8 @@
         },
         {
           "file": "RFP 2025-003 Computer Equipment.pdf",
-          "page": 17,
-          "quote": "Item 1: Quantity: 500\n\nDescription/Model: Dell Chrome 3120 Chromebook* (Latest Model) or functionally equivalent",
-          "doc_type": "rfp",
-          "addendum_number": null,
-          "evidence_id": "a29058ec45e6e09766d62398"
-        },
-        {
-          "file": "RFP 2025-003 Computer Equipment.pdf",
           "page": 29,
-          "quote": "Delano Union School District",
+          "quote": "OWNER:Delano Union School District",
           "doc_type": "rfp",
           "addendum_number": null,
           "evidence_id": "ede0a2db1e77eae085c1fb67"
@@ -598,7 +426,7 @@
       "operation": "replace",
       "addendum_number": 1,
       "doc_date": "2024-08-23",
-      "old_value": "10% bid security",
+      "old_value": "Bid security not less than 10 percent of the bid; can be cash, cashier’s check or bid bond",
       "new_value": "10% bid security in cash, a certified cashier’s check or furnish a bid bond as its bid security.",
       "source": {
         "file": "RFP 2025-003 Computer Equipment Addendum 1.pdf",
@@ -610,43 +438,11 @@
       }
     },
     {
-      "field": "additional_documentation",
-      "operation": "add_requirement",
-      "addendum_number": 1,
-      "doc_date": "2024-08-23",
-      "old_value": "Instructions to Bidders, Bid Form, Substitution Listing, Workers' Compensation Certificate, Guarantee",
-      "new_value": "Instructions to Bidders, Bid Form, Substitution Listing, Workers' Compensation Certificate, Guarantee, This form must be signed and included with the RFP submittal.",
-      "source": {
-        "file": "RFP 2025-003 Computer Equipment Addendum 1.pdf",
-        "page": 2,
-        "quote": "This form must be signed and included with the RFP submittal.",
-        "doc_type": "addendum",
-        "addendum_number": 1,
-        "evidence_id": null
-      }
-    },
-    {
-      "field": "additional_documentation",
-      "operation": "add_requirement",
-      "addendum_number": 2,
-      "doc_date": "2024-09-03",
-      "old_value": "Instructions to Bidders, Bid Form, Substitution Listing, Workers' Compensation Certificate, Guarantee, This form must be signed and included with the RFP submittal.",
-      "new_value": "Instructions to Bidders, Bid Form, Substitution Listing, Workers' Compensation Certificate, Guarantee, This form must be signed and included with the RFP submittal.",
-      "source": {
-        "file": "RFP 2025-003 Computer Equipment Addendum 2.pdf",
-        "page": 2,
-        "quote": "This form must be signed and included with the RFP submittal.",
-        "doc_type": "addendum",
-        "addendum_number": 2,
-        "evidence_id": null
-      }
-    },
-    {
       "field": "product_specification",
       "operation": "replace",
       "addendum_number": 2,
       "doc_date": "2024-09-03",
-      "old_value": "LCD: 11.6\"HD(1366x768) Anti-Glare Touch,Camera& Microphone,WLAN Capable, CPU: Intel(R) Processor N100 (6MB cache, 4 cores, 4 threads, up to 3.40 GHz Turbo,4.80W), 8GB Memory,64GBEMMC, HHD:64 GB eMMC,on-board, RAM:8GBLPDDR5,4800MT/s(onb0ard), WLAN: Intel(R) Wi-Fi 6 AX203, 2x2, 802.11ax, MU-MIMO, Bluetooth(R) 5.1 wireless card, OsType:ChromeKB Language:US English, US Power Cord: E4 Power Cord 1M for US, Power Supply: 65W AC adapter, USB Type-C, EcoDesign, Accessory: 3 Cell 42Whr Battery, Warranty: Limited 1 Year Hardware Warranty with On-Site or Vendor Payed Mail In Service Repair",
+      "old_value": "CPU: Intel(R) Processor N100 (6MB cache, 4 cores, 4 threads, up to 3.40 GHz Turbo,4.80W), Memory: 8GB, Storage: 64GBEMMC, Display: 11.6\"HD(1366x768) Anti-Glare Touch,Camera& Microphone,WLAN Capable, Battery: 3 Cell 42Whr Battery, Warranty: Limited 1 Year Hardware Warranty with On-Site or Vendor Payed Mail In Service Repair",
       "new_value": "HP Fortis 11 inch G10 Chromebook,11.6 HD LED UWVA 250N TOP Touchscreen Anti-Glare Slim (1366 x 768, 1.78 (16:9)), Intel Processor N100 (3.40 GHz, 4 cores - 13th Generation) with Intel UHD Graphics,64GB 5.1 MLC EMMC,8GB 7500MHz",
       "source": {
         "file": "RFP 2025-003 Computer Equipment Addendum 2.pdf",
@@ -659,25 +455,28 @@
     }
   ],
   "validation": {
-    "passed": 14,
-    "failed": 0,
+    "passed": 11,
+    "failed": 3,
     "not_found": 6,
     "conflicts": 0,
     "fields": 20,
-    "passed_first_time": 13,
-    "passed_after_retry": 6,
-    "retries": 8,
-    "checks_failed": {},
+    "passed_first_time": 11,
+    "passed_after_retry": 5,
+    "retries": 12,
+    "checks_failed": {
+      "value_supported": 2,
+      "model_call": 1
+    },
     "consistency_issues": []
   },
   "usage": {
-    "calls": 24,
-    "input_tokens": 51964,
-    "output_tokens": 23580,
-    "cache_read_tokens": 1280,
+    "calls": 32,
+    "input_tokens": 58881,
+    "output_tokens": 31111,
+    "cache_read_tokens": 5632,
     "cache_write_tokens": 0,
-    "latency_ms": 37855.8,
-    "cost_usd": 0.010981
+    "latency_ms": 48771.8,
+    "cost_usd": 0.013791
   },
   "models": {
     "provider": "groq",
@@ -685,6 +484,7 @@
     "cheap": "openai/gpt-oss-20b"
   },
   "errors": [
-    "extract product_specs/2: LLMError: output truncated at 3500 tokens"
+    "extract retry:additional_documentation: LLMError: the response did not match the output schema after a repair attempt",
+    "additional_documentation: LLMError: the response did not match the output schema after a repair attempt"
   ]
 }
