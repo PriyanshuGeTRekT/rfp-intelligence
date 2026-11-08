@@ -22,7 +22,9 @@ bids:
     term_of_bid: {patterns: ["3|three", "renew|extension|successive"]}
     bid_bond_requirement: {absent: true, or_patterns: ["not specified", "elsewhere", "not stated"]}
     delivery_date: {absent: true, or_patterns: ["September 2024", "coordinat", "ED ?TECH"]}
-    payment_terms: {absent: true, or_patterns: ["firm fixed", "10 days", "not stated"]}
+    # The RFP states no Net term; its "10 days" is what the prime pays M/WBE subcontractors,
+    # so a value quoting it must say so.
+    payment_terms: {absent: true, or_patterns: ["firm fixed", "not stated", "subcontract|M/?WBE"]}
     additional_documentation: {items: ["M/?WBE|minority", "W-?9", "1295", "addend"]}
     installation: {patterns: ["white glove|deploy|etch"]}
     mfg_for_registration: {absent: true, or_patterns: ["OEM", "factory", "manufacturer"]}
@@ -41,11 +43,13 @@ bids:
     due_date: {instant: "2024-06-10T18:00:00Z"}   # date from the PORFP, 2:00 PM EDT from the portal
     pre_bid_meeting: {absent: true, or_patterns: ["no pre-?bid", "none", "not specified"]}
     bid_submission_type: {patterns: ["eMMA|eMaryland"]}
-    term_of_bid: {any_patterns: ["fixed price", "90 days", "purchase order", "3 years"]}
+    # Not a term contract. Quotes must stay valid 90 days (PORFP p2); the 30 days in the Dell
+    # quote (Specs p3) is the vendor's own validity, not the requirement.
+    term_of_bid: {patterns: ["fixed[- ]?price|purchase order", "90 days|ninety"]}
     bid_bond_requirement: {absent: true, or_patterns: ["not specified", "not stated", "not mentioned"]}
     delivery_date: {patterns: ["45 days"]}
     payment_terms: {patterns: ["10 days", "invoice"]}
-    additional_documentation: {items: ["Mercury", "Affidavit"]}
+    additional_documentation: {items: ["Mercury", "Contract Affidavit", "warrant"]}
     installation: {absent: true, or_patterns: ["not required", "no installation", "not mentioned", "not specified"]}
     mfg_for_registration: {patterns: ["Dell"]}
     contract_or_cooperative: {any_patterns: ["060B5400007", "Master Contract"]}

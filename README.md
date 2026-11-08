@@ -233,14 +233,30 @@ matters for reading the numbers:
 | [docs/trace_example.md](docs/trace_example.md), [docs/trace_example.jsonl](docs/trace_example.jsonl) | Bid2's run above | as above |
 
 **Extraction accuracy** against `eval/extraction_gold.yaml` (hand-compiled expected values),
-from [docs/eval/extraction.md](docs/eval/extraction.md): **38 of 40 fields (95%)**, Bid1 90%,
-Bid2 100%. The first live runs, before the changes below, scored 31 of 40 (Bid1 75%, Bid2
-80%). Confidence tiers track accuracy: tier A 8 of 9 correct, B 22 of 23, every not-found tier
-(NF-1, NF-2) 7 of 7. With the unseen Bid3 included, 51 of 60 (85%); the per-tier table in the
-report covers all three. Bid1 costs $0.019 (28 model calls, 75k tokens); Bid2 $0.015 (18 calls,
-57k tokens). Bid1's two misses: Additional Documentation leaves out the M/WBE forms and the W-9,
-which are listed in an attachments table that retrieval does not rank into the field's top
-passages; Product names the student tablets (50,000) but not the Chromebook and laptop tiers.
+from [docs/eval/extraction.md](docs/eval/extraction.md): **35 of 40 fields (87.5%)**, Bid1 85%,
+Bid2 90%. The first live runs, before the changes below, scored 31 of 40 under the earlier,
+looser gold. Not-found tiers are reliable (NF-1 and NF-2: 7 of 7) and tier B is 21 of 23, but
+tier A is only 6 of 9: A means every quote verifies, not that a list is complete or that the
+quoted document is the right one. With the unseen Bid3 included, 48 of 60 (80%); the per-tier
+table in the report covers all three. Bid1 costs $0.019 (28 model calls, 75k tokens); Bid2
+$0.015 (18 calls, 57k tokens). The five misses:
+
+- Bid1 Additional Documentation leaves out the M/WBE forms and the W-9, which are listed in an
+  attachments table that retrieval does not rank into the field's top passages.
+- Bid1 Product names the student tablets (50,000) but not the Chromebook and laptop tiers.
+- Bid1 Payment Terms gives "within 10 days of receiving payment from the district", which is
+  what the prime owes its M/WBE subcontractors; the RFP states no payment term for the district.
+- Bid2 Term of Bid gives "Fixed Price; pricing valid for thirty days". The 30 days is printed in
+  Dell's own quote (Specs p3); the PORFP requires quotes valid for at least 90 days (p2).
+- Bid2 Additional Documentation names headings inside the forms ("MERCURY CONTENT INFORMATION",
+  "Proposal Affidavit") instead of the Mercury Affidavit and the Contract Affidavit, and leaves
+  out the warranty certificate due on award.
+
+An audit against the brief on 2026-11-08 found the last three. The gold had accepted them because
+its rules only checked for words like "10 days" and "Affidavit", so it was tightened to the
+hand-compiled values in BASELINE.md, and the earlier 38 of 40 became 35. The fixes are in the
+code (see "Found in the audit" below). Re-running needs the daily model quota, so the records
+above are still from 2026-11-07.
 
 What the first runs showed, and what was changed because of it. `uv run rfp deliverables`
 regenerates every output: about 60-75k tokens per extraction and 80k for the 16 questions.
@@ -285,6 +301,22 @@ That is more than one model's 200k daily quota on Groq's free tier, so spread it
   per-field rerank pool grew from 20 to 30 candidates, and the Product, Term of Bid and Product
   Specification definitions now say what to do when the documents give tiers, no term, or long
   specification lists.
+
+**Found in the audit** (2026-11-08), fixed in the code, with tests:
+
+- **A field could reach the model with nothing to read.** The prompt budget took passages field
+  by field, so when earlier fields' passages were long a later field got none, and it was
+  reported as not found with "No passages were retrieved" although retrieval had found 10
+  (Bid3's pre-bid meeting). Every field now gets its best passage first, cut short to an equal
+  share of the budget if needed, before any field gets a second (`prompts.fit_passages`).
+- **A form's name could not be cited.** The Maryland Contract Affidavit's title exists only in
+  the PDF's metadata ("Attachment N – Contract Affidavit"), so the model named the form after a
+  phrase inside it. Each passage now shows its document's title, and a quote may come from it.
+  A test run of Bid2 showed gpt-oss-120b copying the header's label with the title
+  (`document title "MERCURY AFFIDAVIT"`), so such quotes now ground as the title alone.
+- **A vendor's terms read as the solicitation's.** Term of Bid now asks for the validity period
+  the solicitation requires, not one printed in a vendor quote in the folder, and the extraction
+  prompt lists this next to the other look-alike traps.
 
 **The unseen bid (Bid3).** Downloaded after the code was finished, run through it unchanged
 except for one capability the run proved missing (OCR):
@@ -686,8 +718,12 @@ with four tools: `list_bids`, `search`, `facts` and `ask` (which runs the agent 
   The Anthropic client is covered by tests with a fake client but has not been run against the
   live API.
 - **Free-tier daily quotas.** Groq allows 200k tokens per day per model on these models; one
-  extraction uses about 60-75k, so three bids and the Q&A log need two models or two days. `qwen/qwen3.8-27b` was tried as a substitute and rejected:
-  it often returned values without the required quotes.
+  extraction uses about 60-75k, so three bids and the Q&A log need two models or two days.
+  `qwen/qwen3.8-27b` was tried as a substitute and rejected: it often returned values without
+  the required quotes.
+- **The committed records predate the audit fixes.** `outputs/` is from the 2026-11-07 runs;
+  the fixes listed under "Found in the audit" change prompts and grounding, so their effect on
+  the scores shows only after `uv run rfp extract BidN` is re-run with quota available.
 - **Q&A checks that each sentence is cited, not that it is entailed.** Every sentence must
   carry a citation that reproduces passage text, or it is removed; whether the sentence says
   exactly what its quote says is left to the prompt's rules.

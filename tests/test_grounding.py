@@ -104,3 +104,26 @@ def test_a_quote_cited_to_the_wrong_passage_is_pointed_at_the_right_one() -> Non
     fixed = ground_draft(draft, store, shown=["e1", "e2"])
     assert fixed.quotes == [Quote(evidence_id="e1", text="Delivery within 45 days of Award.")]
     assert ground_draft(draft, store, shown=["e2"]).quotes == draft.quotes  # e1 was not shown
+
+
+def test_a_form_can_be_cited_by_its_document_title() -> None:
+    # The Maryland Contract Affidavit's name is only in the PDF's metadata title, not in its
+    # text: the title is shown with the passage and a quote of it grounds.
+    store = EvidenceStore()
+    store.add(EvidenceItem(evidence_id="e1", file="Contract_Affidavit.pdf", page_start=1,
+                           page_end=1, doc_type="affidavit", text="A. AUTHORITY I hereby affirm",
+                           title="Attachment N - Contract Affidavit"))  # fmt: skip
+    item = store.get("e1")
+    assert item is not None and '"Attachment N - Contract Affidavit"' in item.header()
+    draft = FieldDraft(field="additional_documentation", status="found",
+                       value=["Contract Affidavit"],
+                       quotes=[Quote(evidence_id="e1", text="Contract Affidavit"),
+                               # copied with the header's label, as gpt-oss-120b did
+                               Quote(evidence_id="e1",
+                                     text='document title "Attachment N - Contract Affidavit"'),
+                               Quote(evidence_id="e1", text="title A. AUTHORITY")])  # fmt: skip
+    assert [q.text for q in ground_draft(draft, store).quotes] == [
+        "Contract Affidavit",
+        "Attachment N - Contract Affidavit",
+        "title A. AUTHORITY",  # only "document title" is a label; this one is rejected
+    ]

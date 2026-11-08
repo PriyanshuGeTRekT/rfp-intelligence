@@ -83,12 +83,14 @@ fields:
     type: text
     reconcile: true
     description: >-
-      Contract term and renewal options. When no term is stated, report what the documents say
-      instead: the procurement type (for example a fixed-price, one-time purchase order) and
-      any quote or price validity period.
+      Contract term and renewal options. When no term is stated, report what the solicitation
+      says instead: the procurement type (for example a fixed-price, one-time purchase order)
+      and how long it requires proposals or quotes to remain valid. Use the solicitation's own
+      requirement, not a validity period printed in a vendor's quote or product sheet that
+      happens to be in the folder.
     fact_types: [term_renewal]
     fact_kinds: [duration]
-    queries: [contract term renewal options, length of contract, quote valid days, procurement type fixed price purchase order]
+    queries: [contract term renewal options, length of contract, proposals quotes must remain valid days after due date, procurement type fixed price purchase order]
 
   - key: bid_bond_requirement
     name: Bid Bond Requirement
@@ -131,9 +133,10 @@ fields:
     reconcile: true
     description: >-
       Forms, affidavits, certifications, references and acknowledgements that must be
-      submitted with the response, including signed addenda. An affidavit or form included
-      in the solicitation for the bidder to complete and sign is required even when no
-      sentence lists it: name it by its own title and quote that title.
+      submitted with the response or on award, including signed addenda. An affidavit or form
+      included in the solicitation for the bidder to complete and sign is required even when
+      no sentence lists it: name it by its document title (shown in the passage header, and
+      quotable) rather than by a section heading or a phrase inside the form.
     queries: [forms required with proposal, affidavits certifications to submit, acknowledge addendum signed, references required, attachments to complete and attach to the submission]
     doc_types: [affidavit, form]
 

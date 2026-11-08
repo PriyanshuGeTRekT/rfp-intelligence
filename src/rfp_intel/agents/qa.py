@@ -200,7 +200,7 @@ def check_answer(out: AnswerOut, items: Sequence[EvidenceItem]) -> Checked:
             candidates = [by_id[c.evidence_id]] if c.evidence_id in by_id else []
             candidates += [i for i in items if i.evidence_id != c.evidence_id]
             found = next(
-                ((i, q) for i in candidates if (q := ground(c.quote, i.text)) is not None), None
+                ((i, q) for i in candidates if (q := ground(c.quote, i.quotable)) is not None), None
             )
             if found is None:
                 checked.dropped_citations += 1

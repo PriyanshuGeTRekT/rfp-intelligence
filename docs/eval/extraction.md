@@ -1,11 +1,11 @@
 # Extraction evaluation
 
-Results from `outputs` scored against `eval/extraction_gold.yaml`: 60 fields, accuracy 85.0%.
+Results from `outputs` scored against `eval/extraction_gold.yaml`: 60 fields, accuracy 80.0%.
 
 | Bid | Accuracy |
 |---|---|
-| Bid1 | 90.0% |
-| Bid2 | 100.0% |
+| Bid1 | 85.0% |
+| Bid2 | 90.0% |
 | Bid3 | 65.0% |
 
 ## Calibration: accuracy per confidence tier
@@ -14,8 +14,8 @@ A well-ordered table has accuracy falling as the tier falls. Tiers with few fiel
 
 | Tier | Fields | Correct | Accuracy |
 |---|---|---|---|
-| A | 9 | 8 | 89% |
-| B | 25 | 24 | 96% |
+| A | 9 | 6 | 67% |
+| B | 25 | 23 | 92% |
 | C | 13 | 10 | 77% |
 | NF-1 | 10 | 8 | 80% |
 | NF-2 | 3 | 1 | 33% |
@@ -32,7 +32,7 @@ A well-ordered table has accuracy falling as the tier falls. Tiers with few fiel
 | Bid1 | term_of_bid | yes | B | found | 3-year initial term with two one-year extensions, not to exc | all patterns present |
 | Bid1 | bid_bond_requirement | yes | NF-1 | not_found | null | absent, as expected |
 | Bid1 | delivery_date | yes | NF-2 | not_found | null | absent, as expected |
-| Bid1 | payment_terms | yes | B | found | within 10 days of receiving payment from the district | found, but states the absence |
+| Bid1 | payment_terms | NO | B | found | within 10 days of receiving payment from the district | expected absent, got a value |
 | Bid1 | additional_documentation | NO | A | found | INTERLOCAL AGREEMENT ("Rider") CONSENT FORM ; FORM 1295 - CE | missing items ['M/?WBE|minority', 'W-?9'] |
 | Bid1 | installation | yes | A | found | White glove deployment services (asset decal, reporting, etc | all patterns present |
 | Bid1 | mfg_for_registration | yes | B | found | OEM | found, but states the absence |
@@ -49,11 +49,11 @@ A well-ordered table has accuracy falling as the tier falls. Tiers with few fiel
 | Bid2 | due_date | yes | C | found | 2024-06-10 14:00 EDT | instant matches |
 | Bid2 | pre_bid_meeting | yes | NF-1 | not_found | null | absent, as expected |
 | Bid2 | bid_submission_type | yes | B | found | Electronic submission through eMMA portal; bids not accepted | all patterns present |
-| Bid2 | term_of_bid | yes | A | found | Fixed Price; pricing valid for thirty days | a pattern matched |
+| Bid2 | term_of_bid | NO | A | found | Fixed Price; pricing valid for thirty days | missing ['90 days|ninety'] |
 | Bid2 | bid_bond_requirement | yes | NF-1 | not_found | null | absent, as expected |
 | Bid2 | delivery_date | yes | B | found | within 45 days of Award | all patterns present |
 | Bid2 | payment_terms | yes | B | found | Invoices must be emailed to STOaccountspayable@treasurer.sta | all patterns present |
-| Bid2 | additional_documentation | yes | A | found | MERCURY CONTENT INFORMATION ; Proposal Affidavit | all items present |
+| Bid2 | additional_documentation | NO | A | found | MERCURY CONTENT INFORMATION ; Proposal Affidavit | missing items ['Contract Affidavit', 'warrant'] |
 | Bid2 | installation | yes | NF-1 | not_found | null | absent, as expected |
 | Bid2 | mfg_for_registration | yes | B | found | Dell | all patterns present |
 | Bid2 | contract_or_cooperative | yes | B | found | Master Contract: Desktop, Laptop and Tablet 2015 Master Cont | a pattern matched |

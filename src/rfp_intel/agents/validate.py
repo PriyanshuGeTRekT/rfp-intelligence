@@ -159,12 +159,22 @@ def ground_in(
     """(evidence id, exact text) for a quote: in the passage it cites, or else in another
     passage the model was shown. Models copy the text faithfully but sometimes attach the id
     of the passage next to it; the quote is still verbatim source text, so the citation is
-    pointed at the passage that holds it."""
+    pointed at the passage that holds it.
+
+    A quote of a document's title often keeps the header's label (`document title "MERCURY
+    AFFIDAVIT"`); it grounds as the title alone when the quote as given does not."""
+    variants = dict.fromkeys([quote, _TITLE_LABEL_RE.sub("", quote, count=1)])
     for evidence_id in dict.fromkeys([cited, *shown]):
         item = store.get(evidence_id)
-        if item is not None and (exact := ground(quote, item.text)) is not None:
-            return evidence_id, exact
+        if item is None:
+            continue
+        for variant in variants:
+            if (exact := ground(variant, item.quotable)) is not None:
+                return evidence_id, exact
     return None
+
+
+_TITLE_LABEL_RE = re.compile(r"^\W*document\s+title\b\W*", re.IGNORECASE)
 
 
 def ground_draft(
@@ -257,7 +267,7 @@ def validate(
     bad_quotes: list[str] = []
     for quote in draft.quotes:
         item = store.get(quote.evidence_id)
-        if item is None or ground(quote.text, item.text) is None:
+        if item is None or ground(quote.text, item.quotable) is None:
             bad_quotes.append(quote.text[:60])
     checks.append(
         Check(

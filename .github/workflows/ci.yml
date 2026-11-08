@@ -14,7 +14,9 @@ jobs:
         with:
           enable-cache: true
       - name: Install
-        run: uv sync --locked
+        # All extras, so the MCP server and the optional backends are type-checked and tested
+        # against their real libraries.
+        run: uv sync --locked --all-extras
       - name: Lint
         run: |
           uv run ruff check .

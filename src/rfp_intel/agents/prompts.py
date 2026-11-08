@@ -19,13 +19,15 @@ purchase-order solicitations, portal pages, quotes, affidavits) for a bid-tracki
 
 Rules:
 1. Use only the passages provided. Each passage starts with an [id] header giving its file, \
-pages and document type. Never use outside knowledge about the agency or the products.
+pages, document type and the document's title; a quote may come from that title. Never use \
+outside knowledge about the agency or the products.
 2. Every found value needs at least one quote: exact text copied from a passage, with that \
 passage's id. Do not paraphrase inside a quote. Short quotes that contain the value are best.
 3. If the passages do not state a field, return status "not_found" with a note. Do not guess \
 and do not infer a value from a similar field (a questions deadline is not the due date; a \
 vendor's credit terms are not the agency's payment terms; a bond-funded program is not a bid \
-bond).
+bond; terms printed in a vendor's own quote or product sheet are not the solicitation's \
+requirements).
 4. Later addenda override earlier documents. Portal pages corroborate documents but do not \
 override them. If sources disagree, give the controlling value and explain the difference in \
 notes.
@@ -141,28 +143,65 @@ def field_block(spec: FieldSpec, hint: str | None = None) -> str:
     return line
 
 
+MIN_PASSAGE_TOKENS = 60  # passage text cut shorter than this is too little to quote from
+
+
+def _overhead(item: EvidenceItem) -> int:
+    """Tokens a passage costs besides its text: the [id] header, section line, separator."""
+    return estimate_tokens(item.header(with_bid=True)) + estimate_tokens(item.section) + 5
+
+
+def passage_tokens(item: EvidenceItem) -> int:
+    """What a passage costs in a prompt (a high estimate)."""
+    return estimate_tokens(item.text) + _overhead(item)
+
+
+def _trim(item: EvidenceItem, tokens: int) -> EvidenceItem:
+    """The start of a passage, cut at a word boundary so it costs at most `tokens`."""
+    chars = int((tokens - _overhead(item) - 3) * 3.5)  # 3 tokens of slack for the marker
+    head = item.text[:chars].rsplit(maxsplit=1)[0]
+    return item.model_copy(update={"text": f"{head} […]"})
+
+
 def fit_passages(
     passages: dict[str, list[EvidenceItem]], budget_tokens: int
 ) -> dict[str, list[EvidenceItem]]:
-    """Keep each field's best passages within a token budget, taking them in turn (best of
-    every field first, then second best, ...) so no field is starved. A passage shared by
-    several fields is paid for once."""
+    """Keep each field's best passages within a token budget.
+
+    First every field gets its best passage, cut short when it would not fit whole, so no
+    field reaches the model with nothing to read: each field is guaranteed an equal share of
+    the budget for it. Then the rest are taken in turn (second best of every field, then third,
+    ...) while the budget lasts. A passage shared by several fields is paid for once."""
     kept: dict[str, list[EvidenceItem]] = {key: [] for key in passages}
-    included: set[str] = set()
+    chosen: dict[str, EvidenceItem] = {}  # evidence id -> the version that goes in the prompt
     used = 0
+
+    fields = [key for key, items in passages.items() if items]
+    share = budget_tokens // max(1, len(fields))
+    for n, key in enumerate(fields, start=1):
+        best = passages[key][0]
+        if best.evidence_id not in chosen:
+            room = budget_tokens - used - (len(fields) - n) * share  # later fields keep a share
+            if passage_tokens(best) > room:
+                if room - _overhead(best) < MIN_PASSAGE_TOKENS:
+                    continue
+                best = _trim(best, room)
+            used += passage_tokens(best)
+            chosen[best.evidence_id] = best
+        kept[key].append(chosen[best.evidence_id])
+
     depth = max((len(items) for items in passages.values()), default=0)
-    for i in range(depth):
+    for i in range(1, depth):
         for key, items in passages.items():
             if i >= len(items):
                 continue
             item = items[i]
-            if item.evidence_id not in included:
-                cost = estimate_tokens(item.text) + 30  # header and separator
-                if used + cost > budget_tokens:
+            if item.evidence_id not in chosen:
+                if used + passage_tokens(item) > budget_tokens:
                     continue
-                used += cost
-                included.add(item.evidence_id)
-            kept[key].append(item)
+                used += passage_tokens(item)
+                chosen[item.evidence_id] = item
+            kept[key].append(chosen[item.evidence_id])
     return kept
 
 

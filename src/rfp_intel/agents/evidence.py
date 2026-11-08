@@ -46,6 +46,9 @@ class EvidenceItem(BaseModel):
     section: str = ""
     text: str
     ocr: bool = False  # from a scanned page read by OCR
+    # The document's title, from its first heading or the PDF's metadata. A form's name is
+    # often only there ("Attachment N - Contract Affidavit"), so it is shown and quotable.
+    title: str = ""
 
     @property
     def pages(self) -> str:
@@ -53,10 +56,16 @@ class EvidenceItem(BaseModel):
             return str(self.page_start)
         return f"{self.page_start}-{self.page_end}"
 
+    @property
+    def quotable(self) -> str:
+        """The text a quote may come from: the passage, then the document's title."""
+        return f"{self.text}\n{self.title}" if self.title else self.text
+
     def header(self, *, with_bid: bool = False) -> str:
         add = f", addendum {self.addendum_number}" if self.addendum_number is not None else ""
         bid = f"bid {self.bid_id}, " if with_bid and self.bid_id else ""
-        return f"[{self.evidence_id}] {bid}{self.file} p{self.pages} ({self.doc_type}{add})"
+        title = f'; document title "{self.title}"' if self.title else ""
+        return f"[{self.evidence_id}] {bid}{self.file} p{self.pages} ({self.doc_type}{add}{title})"
 
 
 class FactCandidate(BaseModel):
@@ -135,6 +144,7 @@ def _item(payload: dict[str, Any]) -> EvidenceItem:
         section=" > ".join(payload.get("section_path", [])),
         text=payload["text"],
         ocr=bool(payload.get("ocr", False)),
+        title=payload.get("title") or "",
     )
 
 

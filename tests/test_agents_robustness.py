@@ -15,7 +15,7 @@ from rfp_intel.agents.guarded import GuardedLLM
 from rfp_intel.agents.llm import LLMError, ScriptedLLM
 from rfp_intel.agents.nodes.orchestrator import extraction_tasks
 from rfp_intel.agents.outputs import GroupDraftOut
-from rfp_intel.agents.prompts import fit_passages
+from rfp_intel.agents.prompts import fit_passages, passage_tokens
 from rfp_intel.agents.schema import DocumentInfo, FieldResult
 from rfp_intel.agents.services import Services
 from rfp_intel.config import Settings
@@ -163,10 +163,22 @@ def _item(i: int, chars: int = 400) -> EvidenceItem:
 def test_passages_fit_the_budget_without_starving_a_field() -> None:
     shared = _item(0)
     passages = {"a": [shared, _item(1), _item(2)], "b": [shared, _item(3), _item(4)]}
-    kept = fit_passages(passages, budget_tokens=450)  # room for three 145-token passages
+    kept = fit_passages(passages, budget_tokens=450)  # room for three 127-token passages
     assert [i.evidence_id for i in kept["a"]] == ["e0", "e1"]
     assert [i.evidence_id for i in kept["b"]] == ["e0", "e3"]  # the shared one is paid once
     assert fit_passages(passages, budget_tokens=10) == {"a": [], "b": []}
+
+
+def test_every_field_gets_its_best_passage_even_when_passages_are_long() -> None:
+    # Three fields whose best passages (about 600 tokens each) cannot all fit whole: each is
+    # cut to an equal share instead of the last field getting nothing.
+    passages = {k: [_item(i, chars=2_100)] for i, k in enumerate("abc")}
+    kept = fit_passages(passages, budget_tokens=1_000)
+    assert all(len(kept[k]) == 1 for k in "abc")
+    for k, (item,) in kept.items():
+        head = item.text.removesuffix(" […]")
+        assert item.text.endswith(" […]") and passages[k][0].text.startswith(head)
+    assert sum(passage_tokens(i) for (i,) in kept.values()) <= 1_000
 
 
 def _fr(key: str, value: str, d: str | None = None) -> FieldResult:

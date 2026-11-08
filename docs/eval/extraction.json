@@ -85,12 +85,12 @@
     {
       "bid_id": "Bid1",
       "field": "payment_terms",
-      "passed": true,
+      "passed": false,
       "tier": "B",
       "confidence": 0.85,
       "status": "found",
       "value": "within 10 days of receiving payment from the district",
-      "reason": "found, but states the absence"
+      "reason": "expected absent, got a value"
     },
     {
       "bid_id": "Bid1",
@@ -255,12 +255,12 @@
     {
       "bid_id": "Bid2",
       "field": "term_of_bid",
-      "passed": true,
+      "passed": false,
       "tier": "A",
       "confidence": 0.95,
       "status": "found",
       "value": "Fixed Price; pricing valid for thirty days",
-      "reason": "a pattern matched"
+      "reason": "missing ['90 days|ninety']"
     },
     {
       "bid_id": "Bid2",
@@ -295,12 +295,12 @@
     {
       "bid_id": "Bid2",
       "field": "additional_documentation",
-      "passed": true,
+      "passed": false,
       "tier": "A",
       "confidence": 0.95,
       "status": "found",
       "value": "MERCURY CONTENT INFORMATION ; Proposal Affidavit",
-      "reason": "all items present"
+      "reason": "missing items ['Contract Affidavit', 'warrant']"
     },
     {
       "bid_id": "Bid2",

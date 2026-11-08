@@ -105,7 +105,9 @@ def _verified_events(
             continue
         # The passage that holds the quote, preferring one on the page the model named.
         ordered = sorted(items, key=lambda i: not i.page_start <= e.page <= i.page_end)
-        found = next(((i, q) for i in ordered if (q := ground(e.quote, i.text)) is not None), None)
+        found = next(
+            ((i, q) for i in ordered if (q := ground(e.quote, i.quotable)) is not None), None
+        )
         if found is None:
             continue
         item, exact = found
