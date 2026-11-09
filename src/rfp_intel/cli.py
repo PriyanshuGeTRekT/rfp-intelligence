@@ -258,6 +258,7 @@ def search(
     s = get_settings()
     setup_tracing(s)
     with open_runtime(s, load_reranker=NAMED_CONFIGS[config].rerank) as rt:
+        rt.indexer().index_new_bids(s.data_dir, [bid] if bid else None)
         if rt.backend.count() == 0:
             typer.echo("the index is empty; run `rfp index` first", err=True)
             raise typer.Exit(code=1)
@@ -781,11 +782,23 @@ def diagram(
 
 
 @app.command()
-def serve(host: str = "127.0.0.1", port: int = 8000) -> None:
-    """Start the REST API."""
+def serve(
+    host: str = "127.0.0.1",
+    port: int = 8000,
+    index: Annotated[
+        bool, typer.Option(help="Index bid folders that are not indexed yet before serving")
+    ] = True,
+) -> None:
+    """Start the REST API and web app."""
     import uvicorn
 
+    from rfp_intel.search.runtime import open_runtime
     from rfp_intel.telemetry import setup_server_tracing
 
-    setup_server_tracing(get_settings())
+    s = get_settings()
+    if index:
+        with open_runtime(s, load_reranker=False) as rt:  # closed before the server opens it
+            for r in rt.indexer().index_new_bids(s.data_dir):
+                typer.echo(f"indexed {r.bid_id}: {len(r.added)} files, {r.chunks_written} chunks")
+    setup_server_tracing(s)
     uvicorn.run("rfp_intel.api.app:create_app", factory=True, host=host, port=port)

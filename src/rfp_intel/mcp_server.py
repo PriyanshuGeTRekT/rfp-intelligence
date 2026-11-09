@@ -50,6 +50,7 @@ def build_server(
     def search(
         query: str, bid_id: str | None = None, doc_type: str | None = None, k: int = 5
     ) -> list[dict[str, Any]]:
+        rt().indexer().index_new_bids(settings.data_dir, [bid_id] if bid_id else None)
         result = (
             rt()
             .engine()

@@ -108,3 +108,17 @@ def test_adding_a_bid_leaves_other_bids_alone(
     report = indexer.index_folder(other)
     assert report.added == ["a.md"]
     assert runtime.backend.count(Filters(bid_id="BidA")) == before
+
+
+def test_index_new_bids_indexes_only_folders_not_yet_indexed(
+    runtime: Runtime, data_dir: Path, folder: Path
+) -> None:
+    other = data_dir / "BidB"
+    other.mkdir()
+    (other / "notes.md").write_text("# Warranty\n\nThree years.\n", encoding="utf-8")
+    indexer = runtime.indexer()
+
+    assert [r.bid_id for r in indexer.index_new_bids(data_dir, ["BidB"])] == ["BidB"]
+    assert [r.bid_id for r in indexer.index_new_bids(data_dir)] == ["BidA"]
+    assert indexer.index_new_bids(data_dir) == []  # both are indexed now
+    assert indexer.index_new_bids(data_dir / "missing") == []

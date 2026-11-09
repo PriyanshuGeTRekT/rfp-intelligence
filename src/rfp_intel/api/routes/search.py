@@ -31,6 +31,7 @@ def search(
     runtime = ctx.runtime()
     if NAMED_CONFIGS[config].rerank and runtime.reranker is None:
         raise HTTPException(status_code=422, detail="this server was started without a reranker")
+    runtime.indexer().index_new_bids(ctx.settings.data_dir, [bid_id] if bid_id else None)
     return runtime.engine().search(
         q,
         bid_id=bid_id,

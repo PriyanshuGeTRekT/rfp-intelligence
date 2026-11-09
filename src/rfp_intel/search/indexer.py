@@ -7,6 +7,7 @@ index. A file that fails to parse keeps its previous index entry and is reported
 """
 
 import hashlib
+import threading
 from pathlib import Path
 
 from opentelemetry import trace
@@ -151,3 +152,23 @@ class Indexer:
             failed=len(report.failed),
         )
         return report
+
+    def index_new_bids(self, data_dir: Path, bid_ids: list[str] | None = None) -> list[IndexReport]:
+        """Index the bid folders under `data_dir` that are not in the index yet (only those in
+        `bid_ids`, when given), so a question or search on a fresh setup does not come back
+        empty. Bids already indexed are left as they are: re-indexing changed files is the
+        job of `rfp index` and of an extraction run."""
+        if not data_dir.is_dir():
+            return []
+        with _first_index_lock:  # two requests on a fresh server must not index a bid twice
+            with Manifest(self.db_path) as manifest:
+                known = set(manifest.bids())
+            new = [
+                p
+                for p in sorted(data_dir.iterdir())
+                if p.is_dir() and p.name not in known and (bid_ids is None or p.name in bid_ids)
+            ]
+            return [self.index_folder(p) for p in new]
+
+
+_first_index_lock = threading.Lock()

@@ -224,7 +224,7 @@ Compare.
 - "Any new folder works with no code change: `python main.py --bid data/bids/Bid3`."
 - "The provider is one setting: Groq, OpenAI, Ollama, Claude or any OpenAI-compatible API, with
   free-tier pacing built in."
-- "418 Python tests and 24 web tests. CI runs them, type checks, lint, the web build, and the
+- "420 Python tests and 24 web tests. CI runs them, type checks, lint, the web build, and the
   retrieval evaluation."
 - "`docker compose up` runs everything in one container."
 - "The README lists the assumptions and limitations: the free-tier quotas, one run per record,

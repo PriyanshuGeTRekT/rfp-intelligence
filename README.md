@@ -26,10 +26,13 @@ cd web && npm ci && npm run build && cd ..
 uv run python main.py --serve        # http://localhost:8000: web app, API under /api, docs at /docs
 ```
 
-Or everything in one container: `docker compose up` (builds the web app, serves both on :8000).
+Or everything in one container: `docker compose up` (builds the web app, indexes the bids in
+`data/bids`, then serves both on :8000).
 
 `python main.py --bid PATH` accepts any folder of bid documents: a new, unseen bid needs no
-code change. The folder name becomes the bid id; it is indexed incrementally on first use.
+code change. The folder name becomes the bid id. A folder is indexed the first time anything
+needs it: extraction, a question, a search, or `serve` at startup. `rfp index` re-indexes
+changed files.
 
 ## What you can run
 
@@ -39,7 +42,7 @@ code change. The folder name becomes the bid id; it is indexed incrementally on 
 | `python main.py --question "..." [--bid-id Bid1]` / `rfp ask "..." [--bid]` | Cited answer or "Not found in documents."; appends to `outputs/qa_log.jsonl` |
 | `rfp deliverables` | Regenerate every submitted output: a record per bid, the Q&A log and report, the extraction evaluation, the example trace |
 | `rfp ask-batch eval/qa_questions.txt` | Answer a file of questions into the Q&A log (how `outputs/qa_log.jsonl` was made) |
-| `python main.py --serve` / `rfp serve` | REST API and web app |
+| `python main.py --serve` / `rfp serve [--no-index]` | REST API and web app; first indexes any bid folder not indexed yet |
 | `rfp index [bid ...] [--force]` | Index bid folders incrementally; unchanged files are skipped |
 | `rfp search "<query>" [--bid] [--doc-type] [--addendum] [--config] [--json]` | Hybrid search; file, pages, chunk text and per-list ranks per hit |
 | `rfp eval retrieval [--config] [--check]` | Recall@k, MRR and latency per configuration; writes docs/eval/retrieval.md |
@@ -816,7 +819,7 @@ per run too. To browse traces in Arize Phoenix or Langfuse, install the `obs` ex
 ## Docker
 
 ```bash
-docker compose up                          # web app and API on :8000
+docker compose up                          # indexes data/bids on first start; web app and API on :8000
 docker compose run --rm app extract Bid1   # any CLI command runs in the same image
 docker compose --profile qdrant up         # plus a Qdrant server; set RFP_QDRANT_URL=http://qdrant:6333
 ```

@@ -77,6 +77,20 @@ def test_ask_endpoint(settings: Settings, data_dir: Path) -> None:
     assert client.post("/ask", json={"question": "x"}).status_code == 422  # too short
 
 
+def test_a_fresh_setup_indexes_its_bids_on_the_first_question(
+    settings: Settings, data_dir: Path
+) -> None:
+    """Nothing has been indexed (a new clone, or `docker compose up` on an empty volume): the
+    first question and the first search index the bid folders instead of finding nothing."""
+    build_sample_pdf(data_dir / "BidA" / "RFQ_2024-117.pdf")
+    client = TestClient(
+        create_app(settings, runtime_factory=fake_runtime, llm=answering(verbatim=True))
+    )
+    r = client.post("/ask", json={"question": "How soon must equipment be delivered?"})
+    assert r.status_code == 200 and r.json()["found"], r.text
+    assert client.get("/search", params={"q": "delivery"}).json()["hits"]
+
+
 def test_a_failed_model_call_is_an_answer_not_a_crash(runtime: Runtime) -> None:
     from rfp_intel.agents.llm import ScriptedLLM
 

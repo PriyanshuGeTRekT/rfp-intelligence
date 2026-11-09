@@ -168,6 +168,7 @@ def run_question(
     attributes = {"rfp.run_id": run_id, "agent.mode": "ask", "qa.question": question}
     with tracer.start_as_current_span("agent.run", attributes=attributes) as root:
         s.root_span = root
+        s.indexer.index_new_bids(s.settings.data_dir, [bid_id] if bid_id else None)
         cache, scope, fp = _qa_cache(s, bid_id)
         if cache is not None:
             with tracer.start_as_current_span("qa.cache") as span:
