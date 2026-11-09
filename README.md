@@ -1,5 +1,10 @@
 # RFP Intelligence Platform
 
+> [!IMPORTANT]
+> ### ▶ [Watch the demo video](https://drive.google.com/file/d/1nyLxj-MpKjiBCDUUGqnahlTjLtZc3d3z/view?usp=sharing)
+> A walkthrough of the system: search, a cited extraction record, the agent trace, Q&A and
+> go/no-go. Hosted on Google Drive.
+
 Hybrid search and multi-agent extraction over public bid documents. Given a bid folder
 (portal HTML page, RFP PDF, addenda, spec sheets, affidavits), it produces one JSON record of
 20 fields, every value cited to a file, page and verbatim quote, with addendum changes
