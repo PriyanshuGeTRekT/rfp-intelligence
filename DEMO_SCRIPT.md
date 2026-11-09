@@ -61,251 +61,360 @@ checked against the repo on 2026-11-09.
 
 ## Part 2. The script
 
-Times are targets. **Show** is what's on screen; **Say** is what to say (loosely; use your own
-words).
+Times are targets. The quoted paragraphs are what you say; the lines in *[italic brackets]* are
+what you do on screen. Read it naturally and pause after each click, so the viewer sees what
+changed.
 
 ### 0. Opening (0:00-0:25)
 
-**Show:** the Bids page.
+*[The Bids page is on screen.]*
 
-**Say:** "This is RFP Intelligence. It takes a folder of public bid documents (portal pages,
-RFPs, addenda, spec sheets, affidavits), indexes them in a hybrid search engine, and runs a
-multi-agent system that extracts 20 fields per bid. Every value is cited to a file, a page and
-a verbatim quote, with the addenda applied. It also answers questions with checked citations.
-It runs on Groq's free tier."
+> Hi, I'm Priyanshu, and this is RFP Intelligence.
+>
+> You give it a folder of public bid documents: the portal page, the RFP, its addenda, spec
+> sheets and affidavits. It indexes everything in a hybrid search engine, and then a team of
+> agents extracts twenty fields for each bid. Every value comes with the file, the page and the
+> exact quote it came from, with the addenda already applied. You can also ask it questions,
+> and it answers with citations that are checked against the documents. The whole thing runs on
+> Groq's free tier.
 
 ### 1. The problem (0:25-1:00)
 
-**Show:** `data/bids/Bid1` in the file explorer, then back to the app.
+*[Open `data/bids/Bid1` in the file explorer, then come back to the app.]*
 
-**Say:**
-- "Bid1 is Dallas ISD's student and staff computing devices RFP, JA-207652: a BidNet portal
-  page, a 62-page RFP and two addenda."
-- "The hard part isn't reading one PDF. It's that Addendum 2 moves the due date from June 27 to
-  July 9, the bond requirement is only referenced 'elsewhere', and the portal shows times in a
-  different zone."
-- "A system that answers from the RFP alone gets the deadline wrong."
+> Let me start with why this is harder than it looks. Bid1 is the Dallas ISD request for
+> student and staff computing devices, RFP JA-207652. The folder has the BidNet portal page, a
+> sixty-two-page RFP and two addenda.
+>
+> Reading one PDF isn't the hard part. The hard part is that Addendum 2 moves the due date from
+> June 27 to July 9, the bond requirement is only said to be covered "elsewhere," and the portal
+> shows its times in a different time zone. So a system that only reads the RFP gets the
+> deadline wrong.
 
 ### 2. Architecture (1:00-1:45)
 
-**Show:** `docs/architecture.md` on GitHub, the System diagram, then the Agent graph.
+*[Show `docs/architecture.md` on GitHub: the System diagram first, then the Agent graph.]*
 
-**Say:**
-- "Two layers run with no model at all."
-  - "Ingestion: PyMuPDF, BeautifulSoup for the portal HTML, and RapidOCR for scanned pages.
-    It detects the document type and addendum number, and extracts typed facts (dates with
-    time zones, durations, money, identifiers, contacts) into SQLite."
-  - "Structure-aware chunks go into Qdrant with a dense vector and a BM25 vector."
-- "On top, a LangGraph state graph."
-  - "The planner routes a bid to extraction or a question to Q&A."
-  - "The reconciliation agent reads each addendum into change events."
-  - "The fields are split into four batches that run in parallel. Each has a retrieval agent
-    and an extraction agent."
-  - "A validator checks every value in code. A rejected field goes back to retrieval with the
-    reason, at most twice, and then the report agent writes the JSON."
-- "The agents communicate through the graph's shared state and LangGraph's Send and Command.
-  Every step is traced."
+> Here's how it's put together. There are two layers that don't use a language model at all.
+>
+> The first is ingestion. PyMuPDF reads the PDFs, BeautifulSoup reads the portal HTML, and
+> RapidOCR handles scanned pages. It works out each document's type and addendum number, and it
+> pulls out typed facts, such as dates with their time zones, durations, amounts of money,
+> identifiers and contacts, and stores them in SQLite.
+>
+> The second is search. Each document is split into chunks that follow its structure, and every
+> chunk goes into Qdrant with two vectors: a dense embedding, and a BM25 vector for keywords.
+>
+> On top of that sits a LangGraph state graph. A planner decides whether we're extracting a bid
+> or answering a question. For an extraction, a reconciliation agent first reads each addendum
+> and turns it into a list of changes. Then the fields are split into four batches that run in
+> parallel, and each batch has its own retrieval agent and extraction agent. A validator checks
+> every value in code. If it rejects a field, that field goes back to retrieval with the reason,
+> at most twice, and at the end a report agent writes the JSON.
+>
+> The agents communicate through the graph's shared state, using LangGraph's Send and Command,
+> and every step is traced.
 
 ### 3. The search engine (1:45-3:00)
 
-**Show:** the Search page. Type `bid bond requirement`.
+*[Open the Search page and type `bid bond requirement`.]*
 
-**Say / point at:**
-- "How it searched": "The query is routed to the bond-and-insurance facts and expanded with
-  synonyms like bid security and surety."
-- Each hit: "file, page, the passage, and its rank in every retrieval list: dense, BM25 and the
-  fact lists, fused with reciprocal rank fusion."
-- Search `JA-207652`: "Identifiers are matched exactly; embeddings are bad at those."
-- Switch the configuration dropdown to dense-only, then back: "This is what fusion buys."
+> Let's look at the search engine on its own. I'll search for "bid bond requirement."
 
-**Show:** `docs/eval/retrieval.md` on GitHub, the "All questions" table.
+*[Point at "How it searched".]*
 
-**Say:**
-- "42 questions with hand-labelled passages, including 6 held out and 10 on an unseen bid."
-- "MRR@10 goes from 0.496 dense-only, to 0.559 hybrid, 0.681 with fact routing, and 0.788
-  with the bge-reranker. Recall@5 goes from 0.651 to 0.897."
-- "On the unseen Bid3 alone, MRR goes from 0.233 to 0.683."
-- "CI re-runs this evaluation on every push."
+> You can see that it routed the query to the bond and insurance facts, and expanded it with
+> synonyms like "bid security" and "surety."
+
+*[Point at one of the hits.]*
+
+> Each result shows the file, the page and the passage, and where it ranked in each retrieval
+> list: dense, BM25 and the fact lists. Those lists are merged with reciprocal rank fusion.
+
+*[Search `JA-207652`.]*
+
+> Identifiers like this RFP number are matched exactly, because embeddings are bad at that kind
+> of string.
+
+*[Switch the configuration dropdown to dense-only, then back.]*
+
+> And if I switch to dense-only search, you can see what the fusion adds.
+
+*[Show `docs/eval/retrieval.md` on GitHub, the "All questions" table.]*
+
+> To measure all this, I built a set of forty-two questions with hand-labelled passages. Six of
+> them are held out, and ten are on a bid the system had never seen.
+>
+> MRR at ten goes from 0.496 with dense search alone, to 0.559 with hybrid search, 0.681 with
+> fact routing, and 0.788 with the bge reranker. Recall at five goes from 0.651 to 0.897. On the
+> unseen Bid3 by itself, MRR goes from 0.233 to 0.683. CI re-runs this evaluation on every push.
 
 ### 4. The extraction record (3:00-5:00)
 
-**Show:** Bids page, then open Bid1.
+*[Go to the Bids page and open Bid1.]*
 
-**Say / do:**
-- Header: "No-go: as of today the deadline has passed. I'll show the go/no-go properly
-  later."
-- Click **Due Date**. The evidence pane opens.
-  - "2024-07-09 14:00 CDT, tier A."
-  - "The change mark shows Addendum 2 replaced June 27 with July 9."
-  - "The serif text is always a verbatim quote from a document."
-  - Click a citation chip, such as `Add. 2 · p. 1`: "The PDF opens at that page."
-  - Or click "Preview page 1 of Add. 2 here" to show the page inline.
-  - The portal's "Closing Date: 07/09/2024 03:00 PM EDT" is the same instant as 2:00 PM CDT,
-    and the record notes it.
-- Press `j` a few times: "The keyboard moves through the fields."
-- Click **Bid Bond Requirement**.
-  - "Not found, tier NF-1. Not a guess: the notes say which queries were searched."
-  - "The RFP only says bond requirements are 'elsewhere', and unstated isn't 'not required'."
-- Explain the tiers briefly:
-  - "A: two documents agree, or an addendum sets it."
-  - "B: one verified source."
-  - "C: OCR or a loose match."
-  - "D and E: the sources conflict."
-  - "NF-1: not found after a thorough search; NF-2: not found, but the search wasn't thorough
-    enough."
-  - "X: the validator rejected every attempt."
-- Click **Product Specification** (tier X).
-  - "This one failed, and the record says so."
-  - "Bid1's spec list has ten device tiers. On the free tier a call may output 3,500 tokens
-    including reasoning, and it got cut off. That limit is in the README."
-- Click a document in the left rail: "Filter to the fields one document supports."
-- **Changes** tab: "Every addendum change, old value to new, with its quote."
-- **Validation** tab: "14 passed, 5 not found, 1 failed; 9 retries."
-- Open **Bid2**, then **Product Specification**.
-  - "Bid2's specs, including the 3-year extended warranty."
-  - "That warranty was lost in an earlier run because the validator rejected numbers in product
-    labels. I traced it to the code and fixed it."
+> Now for the extraction record. I'll open Bid1.
+>
+> The header says no-go, because as of today the deadline has passed. I'll come back to go/no-go
+> properly in a minute.
 
-**Say:**
-- "On the provided bids, 37 of 40 fields match a hand-built answer key: Bid1 90%, Bid2 95%."
-- "With the unseen Bid3, 50 of 60. Bid3 was never used for tuning."
-- "Bid1 cost about 2 cents."
+*[Click **Due Date**. The evidence pane opens.]*
+
+> When I click Due Date, the evidence pane opens. The value is July 9, 2024, at 2:00 PM Central
+> time, and it's tier A, the highest confidence. This change mark shows that Addendum 2 replaced
+> June 27 with July 9. Any text in this serif font is always a word-for-word quote from a
+> document.
+
+*[Click the citation chip `Add. 2 · p. 1`. Or click "Preview page 1 of Add. 2 here".]*
+
+> If I click a citation, the PDF opens right at that page. I can also preview the page here,
+> without leaving the record.
+>
+> Notice that the portal says "Closing Date: 07/09/2024 03:00 PM EDT." That's actually the same
+> moment as 2:00 PM Central, and the record notes it.
+
+*[Press `j` a few times.]*
+
+> You can also move through the fields with the keyboard.
+
+*[Click **Bid Bond Requirement**.]*
+
+> Here's a field it didn't find: the bid bond requirement. It's tier NF-1, and that isn't a
+> guess. The notes list exactly which searches it ran. The RFP only says that bond requirements
+> are covered "elsewhere," and a requirement that isn't stated is not the same as one that isn't
+> required.
+>
+> Let me quickly explain the tiers. A means two documents agree, or an addendum sets the value.
+> B means one verified source. C means the value came from OCR or a looser match. D and E mean
+> the sources conflict. NF-1 means not found after a thorough search, and NF-2 means not found,
+> but the search wasn't thorough enough to be sure. Finally, X means the validator rejected
+> every attempt.
+
+*[Click **Product Specification** (tier X).]*
+
+> This one is an X, and the record is upfront about it. Bid1's spec list has ten device tiers.
+> On the free tier, a single call can output at most 3,500 tokens, including the model's
+> reasoning, so this answer was cut off. That limit is documented in the README.
+
+*[Click a document in the left rail.]*
+
+> If I click a document on the left, the list shows only the fields that document supports.
+
+*[Open the **Changes** tab.]*
+
+> The Changes tab lists every change the addenda made, from the old value to the new one, each
+> with its quote.
+
+*[Open the **Validation** tab.]*
+
+> And the Validation tab shows that 14 fields passed, 5 were not found and 1 failed, with 9
+> retries along the way.
+
+*[Open **Bid2**, then **Product Specification**.]*
+
+> Here's Bid2's product specification, including the three-year extended warranty. In an earlier
+> run, that warranty went missing, because the validator was rejecting numbers inside product
+> names. I traced the problem to the code and fixed it.
+>
+> So, how accurate is it? On the two provided bids, 37 of 40 fields match an answer key I built
+> by hand: 90 percent for Bid1 and 95 percent for Bid2. With the unseen Bid3 included, it's 50
+> out of 60, and I never used Bid3 for tuning. The whole Bid1 run cost about two cents.
 
 ### 5. The agents, in the trace (5:00-6:15)
 
-**Show:** Runs, then open the Bid2 run `…2c640f`. Switch the theme to dark here.
+*[Go to Runs and open the Bid2 run ending in `2c640f`. Switch the theme to dark here.]*
 
-**Say / point at:**
-- Summary line: "193 spans, 15 model calls, about 46 thousand tokens, roughly a cent."
-- Timeline: "plan, ingest, reconcile, then the four retrieve-and-extract batches in parallel:
-  blue is extraction, grey retrieval, green validation."
-- The red bar, `extract · product_specs`: "This call was cut off at the output limit. The
-  validator rejected it, and you can see the retry, `product_specs/2`, which succeeded."
-- Click an extract span: "The full prompt, with id-headed passages and candidate facts, the
-  model's JSON answer, tokens and cost."
-- **Optional:** VS Code, `agents/graph.py` (about 200 lines): "The whole graph is wired here.
-  The nodes are plain functions over a typed state, in `agents/nodes/`."
+> Now let me show you what the agents actually did, using the trace of this Bid2 run. I'll
+> switch to the dark theme for this part.
+>
+> The summary line says the run had 193 spans and 15 model calls, used about 46 thousand
+> tokens, and cost roughly a cent.
+>
+> On the timeline, you can see the plan, ingest and reconcile steps, and then the four
+> retrieve-and-extract batches running side by side. Blue is extraction, grey is retrieval and
+> green is validation.
+
+*[Point at the red bar, `extract · product_specs`.]*
+
+> This red bar is the product specs extraction. The call was cut off at the output limit, so
+> the validator rejected it. Right after it, you can see the retry, `product_specs/2`, which
+> succeeded.
+
+*[Click an extract span.]*
+
+> When I open a step, I can see the full prompt, with the passages labelled by ID and the
+> candidate facts, followed by the model's JSON answer, its tokens and its cost.
+
+*[Optional: switch to VS Code with `agents/graph.py` open.]*
+
+> The whole graph is wired up in this one file, which is about two hundred lines. The nodes
+> themselves are plain functions over a typed state, and they live in `agents/nodes`.
 
 ### 6. Q&A, with the cache (6:15-7:20)
 
-**Show:** Ask page, scope "All bids".
+*[Open the Ask page with the scope set to "All bids". Click "What is the submission deadline
+for Bid1 after all addendums?"]*
 
-**Do / say:**
-1. Click "What is the submission deadline for Bid1 after all addendums?"
-   - "Each sentence carries numbered citations. Every citation is checked to be a verbatim
-     quote from a retrieved passage; a sentence without one is removed."
-   - "It knows Addendum 2 moved the date."
-2. Ask the **exact same question again**: "Answered from the semantic cache: no model call.
-   The cache key includes the indexed files and the records, so re-indexing invalidates it."
-3. Ask "What price did the incumbent vendor charge last year?": "Not found in documents. It
-   doesn't invent an answer."
+> Now for questions. I'll ask: "What is the submission deadline for Bid1 after all addendums?"
+>
+> Each sentence in the answer has numbered citations, and every citation is checked to make
+> sure it's a word-for-word quote from a passage the system actually retrieved. If a sentence
+> has no valid citation, it's removed. And you can see that it knows Addendum 2 moved the date.
 
-**Say:** "The Q&A log in the repo has 16 questions with their cited answers."
+*[Ask the **exact same question** again.]*
+
+> If I ask the exact same question again, the answer comes straight from the semantic cache,
+> without a model call. The cache key includes the indexed files and the extraction records, so
+> re-indexing a bid automatically invalidates it.
+
+*[Ask "What price did the incumbent vendor charge last year?"]*
+
+> Finally, let me ask something the documents don't cover: "What price did the incumbent vendor
+> charge last year?" It says "Not found in documents." It doesn't make up an answer.
+>
+> The repo also includes a Q&A log with sixteen questions and their cited answers.
 
 ### 7. Compare and go / no-go (7:20-8:15)
 
-**Show:** Compare. Select Bid1, Bid2 and Bid3, set "Deadlines as of" to **2024-05-20**, then
-Compare.
+*[Open Compare. Select Bid1, Bid2 and Bid3, set "Deadlines as of" to **2024-05-20**, then
+click Compare.]*
 
-**Say:**
-- "Go/no-go is rules, not a model: repeatable and explainable. Each check is against a company
-  profile in `config/company.yaml`."
-- "As of May 20, 2024:"
-  - "Bid1 is review: no manufacturer is named, and the bid bond isn't stated."
-  - "Bid2 is review: the Maryland master contract isn't one we hold, and no bond is stated."
-  - "Bid3 is no-go: it requires a 10% bid security, and our profile can post 5%."
-- "Each verdict cites the value it read."
-- Scroll to the side-by-side table: "All 20 fields per bid; a dot marks rows where the bids
-  differ."
-- "Ticking 'key differences' adds one cheap model call that writes a summary."
+> Next, comparison and go/no-go. I'll select all three bids and set the date to May 20, 2024, so
+> that none of the deadlines have passed yet.
+>
+> Go/no-go is based on rules, not a model, so it's repeatable and easy to explain. Each check
+> compares the bid against a company profile in `config/company.yaml`.
+>
+> As of May 20, Bid1 comes out as "review," because no manufacturer is named and the bid bond
+> isn't stated. Bid2 is also "review": its Maryland master contract isn't one we hold, and it
+> doesn't state a bond either. Bid3 is a no-go, because it requires a 10 percent bid security
+> and our profile can only post 5 percent.
+>
+> Every verdict also cites the value it was based on.
+
+*[Scroll down to the side-by-side table.]*
+
+> Below that is a side-by-side table of all twenty fields for each bid, with a dot on every row
+> where the bids differ. If I tick "key differences," it adds one cheap model call that writes a
+> short summary.
 
 ### 8. Running it, and engineering (8:15-9:00)
 
-**Show:** the README's Quick start on GitHub, then its Docker section, then the terminal, then
-the GitHub Actions tab.
+*[Show the README's Docker section on GitHub.]*
 
-**Say:**
-- "Everything runs with one command after setup, as the brief asks."
-  - "With Docker: `docker compose up`. It builds the web app and the API into one image,
-    indexes the bid folders on first start, and serves both on port 8000. The index and models
-    are kept in a volume, so later starts are quick."
-  - "Without Docker, `main.py` has three modes: `--bid` extracts a bid to JSON, `--question`
-    answers with citations, and `--serve` starts the API and web app."
-  - "What you've seen is that local quick start, `python main.py --serve`. It starts instantly
-    because the bids were already indexed."
-- "Any new folder works with no code change: `python main.py --bid data/bids/Bid3`. Each mode
-  indexes a bid folder it hasn't seen before."
-- "The provider is one setting: Groq, OpenAI, Ollama, Claude or any OpenAI-compatible API, with
-  free-tier pacing built in."
-- "420 Python tests and 24 web tests. CI runs them, type checks, lint, the web build, and the
-  retrieval evaluation."
-- "The README lists the assumptions and limitations: the free-tier quotas, one run per record,
-  and the output limit."
+> Finally, a word on how you run it. After setup, everything runs with a single command, as the
+> brief asks.
+>
+> With Docker, that command is `docker compose up`. It builds the web app and the API into one
+> image, indexes the bid folders the first time it starts, and serves both on port 8000. The
+> index and the models are kept in a volume, so later starts are quick.
+
+*[Show the README's Quick start.]*
+
+> Without Docker, `main.py` has three modes: `--bid` extracts a bid to JSON, `--question`
+> answers a question with citations, and `--serve` starts the API and the web app. What you've
+> been watching is that local quick start, `python main.py --serve`. It started instantly
+> because the bids were already indexed.
+
+*[Switch to the terminal.]*
+
+> Any new bid folder works without a code change, for example `python main.py --bid
+> data/bids/Bid3`. Whichever mode you use, it first indexes any bid folder it hasn't seen
+> before.
+>
+> The model provider is a single setting. It works with Groq, OpenAI, Ollama, Claude or any
+> OpenAI-compatible API, and it paces its calls to stay within free-tier limits.
+
+*[Show the GitHub Actions tab.]*
+
+> There are 420 Python tests and 24 web tests. CI runs them along with type checks, linting,
+> the web build and the retrieval evaluation.
+>
+> The README also lists my assumptions and the known limitations, such as the free-tier quotas,
+> the fact that each record comes from a single run, and the output limit.
 
 ### 9. Close (9:00-9:15)
 
-**Say:** "So: a hybrid search engine measured on 42 labelled questions, a LangGraph agent system
-whose every value is checked and cited, and a UI built so you can verify any value in two
-clicks. Thanks for watching."
+> So, to sum up: a hybrid search engine measured on forty-two labelled questions, a LangGraph
+> agent system that checks and cites every value, and a UI designed so that you can verify any
+> value in two clicks. Thanks for watching.
 
 ---
 
 ## Part 3. Questions to be ready for in the review
 
-The brief says you must be able to explain every part. Short answers, all true of this repo:
+The brief says you must be able to explain every part. Each answer below is short enough to say
+out loud, and all of them are true of this repo.
 
-- **How does someone run it?**
-  - Setup: `uv sync`, then copy `.env.example` to `.env` and set a provider key.
-  - One command: `docker compose up`, or `uv run python main.py --serve` / `--bid PATH` /
-    `--question "..."`.
-  - A fresh setup needs no separate index step: `serve` indexes new bid folders before it
-    starts, and a question, search or extraction indexes the folder it needs.
-  - This was tested on a fresh clone with an empty Docker volume: all three bids indexed, then a
-    question answered with Addendum 2's date.
+**How does someone run it?**
 
-- **Why LangGraph?** The flow needs:
-  - a loop (validator back to retrieval);
-  - a fan-out (field batches in parallel, with `Send`);
-  - a router (extract vs ask).
+> After cloning, you run `uv sync`, copy `.env.example` to `.env` and add a provider key. From
+> there it's one command: either `docker compose up`, or `python main.py` with `--serve`,
+> `--bid` or `--question`. There's no separate indexing step. `serve` indexes any new bid folder
+> before it starts, and a question, a search or an extraction indexes whichever folder it needs.
+> I tested this on a fresh clone with an empty Docker volume: it indexed all three bids and then
+> answered a question with the date from Addendum 2.
 
-  LangGraph has these natively, plus checkpoints (`--resume RUN_ID`) and tracing.
-- **Chunking.**
-  - Structure-aware: sections, tables and headers are kept together.
-  - At most 480 tokens, about 60 tokens of overlap; bge-small reads 512 word pieces.
-  - Each chunk carries file, pages, doc type, addendum number and section.
-- **Embedding model.**
-  - `BAAI/bge-small-en-v1.5`: small, fast on CPU, strong for its size.
-  - Dense and BM25 cover each other's misses: dense misses exact strings, BM25 misses
-    paraphrases.
-- **Retrieval strategy.**
-  - Dense + BM25 + exact identifiers, fused with RRF.
-  - Plus fact routing: the query's intent picks typed-fact lists (deadline, bond, warranty).
-  - Optional cross-encoder rerank (bge-reranker-v2-m3 int8).
-  - The small MiniLM reranker made results worse, and that is measured in the README.
-- **What does the validator check?**
-  - Each quote is a verbatim substring of its passage.
-  - The value parses as its type and follows from the quotes.
-  - Numbers in the value appear in the quotes.
-  - Then cross-field consistency.
-- **Confidence.**
-  - A decision table, not a formula: tiers A-E, NF-1, NF-2 and X, each a sentence you can say
-    out loud.
-  - The tiers are checked against the answer key: accuracy per tier.
-- **Addenda.**
-  - The reconciliation agent turns each addendum into change events (replace, amend,
-    add_requirement, confirm, clarify) with quotes.
-  - Later addenda override earlier ones; the change log is in the JSON.
-- **Prompts.**
-  - Constant system prompts (cacheable), with variable evidence in the user turn.
-  - Passages carry `[id]` headers so citations can be checked by code.
-  - The prompts name known traps ("a questions deadline is not the due date").
-  - Evidence is fitted to a 3,800-token budget.
-- **What would you do with more budget?**
-  - A higher output limit (fixes the Bid1 spec cut-off).
-  - Voting across 3 runs per field.
-  - The paid 120b model for Bid3.
-- **Where did it fail, honestly?**
-  - Bid1 Product quantities: fixed after the run, untested live.
-  - Bid1 product spec: the output limit.
-  - Bid2 warranty certificate: a retrieval miss between near-duplicate chunks.
-  - Bid1's signed-addenda requirement never reaches the prompt.
+**Why LangGraph?**
+
+> The flow needed three things: a loop, because the validator sends fields back to retrieval; a
+> fan-out, because the field batches run in parallel; and a router, to choose between extraction
+> and Q&A. LangGraph has all three built in, with Send for the fan-out. It also gives me
+> checkpoints, so a run can be resumed with `--resume`, and it works well with tracing.
+
+**How did you chunk the documents?**
+
+> The chunking is structure-aware, so sections, tables and headers stay together. Each chunk is
+> at most 480 tokens, with about 60 tokens of overlap, because bge-small reads at most 512 word
+> pieces. Every chunk also carries its file, pages, document type, addendum number and section.
+
+**Why that embedding model?**
+
+> I used BAAI's bge-small-en-v1.5. It's small, fast on a CPU, and strong for its size. I paired
+> it with BM25 because each one covers the other's blind spot: dense search misses exact
+> strings, and BM25 misses paraphrases.
+
+**What's the retrieval strategy?**
+
+> Dense search, BM25 and exact identifier matching, merged with reciprocal rank fusion. On top
+> of that there's fact routing, where the intent of the query decides which typed-fact lists to
+> include, such as deadlines, bonds or warranties. There's also an optional cross-encoder
+> reranker, bge-reranker-v2-m3 in int8. I tried the smaller MiniLM reranker as well, but it made
+> the results worse, and that measurement is in the README.
+
+**What does the validator check?**
+
+> It checks that every quote is an exact substring of its passage, that the value parses as the
+> right type and actually follows from the quotes, and that any numbers in the value appear in
+> the quotes. After that, it runs consistency checks across fields.
+
+**How is confidence decided?**
+
+> With a decision table, not a formula. There are tiers A to E, NF-1, NF-2 and X, and each one
+> is a rule you can say in one sentence. I also checked the tiers against the answer key, so
+> there's an accuracy figure for each tier.
+
+**How are addenda handled?**
+
+> A reconciliation agent turns each addendum into change events, such as replace, amend, add a
+> requirement, confirm or clarify, each with its quote. Later addenda override earlier ones, and
+> the full change log is in the JSON.
+
+**How did you design the prompts?**
+
+> The system prompts are constant, so they can be cached, and the evidence goes in the user
+> turn. Every passage has an ID header, which lets the code check the citations. The prompts
+> also name known traps, for example that a deadline for questions isn't the due date. And the
+> evidence is fitted to a budget of 3,800 tokens.
+
+**What would you do with more budget?**
+
+> First, a higher output limit, which would fix the cut-off on Bid1's product specification.
+> After that, voting across three runs for each field, and the paid 120b model for Bid3.
+
+**Where did it fail?**
+
+> There are four places. For Bid1's product quantities, I fixed the cause after the run, but I
+> haven't re-run it live. Bid1's product specification hit the output limit. Bid2's warranty
+> certificate was a retrieval miss between two nearly identical chunks. And Bid1's requirement
+> for signed addenda never makes it into the prompt.
