@@ -1,8 +1,8 @@
 # Demo video: workflow and script (local only)
 
-This file is git-ignored through `.git/info/exclude`, so it never reaches GitHub. Target length:
-about 9 minutes (the brief asks for 5-10). Every number below was checked against the repo on
-2026-11-09.
+This file is on GitHub only temporarily, so it can be read from another laptop. Delete it before
+submitting. Target length: about 9 minutes (the brief asks for 5-10). Every number below was
+checked against the repo on 2026-11-09.
 
 ---
 
@@ -14,11 +14,14 @@ about 9 minutes (the brief asks for 5-10). Every number below was checked agains
    - `uv run rfp llm-check` should print OK.
    - If the Groq key is out of quota, swap in another key in `.env`.
    - Q&A uses `openai/gpt-oss-20b`, which costs very little.
-2. **Build and start.**
-   - `cd web && npm ci && npm run build && cd ..`
-   - `uv run python main.py --serve`
-   - Open http://localhost:8000. The index already exists; if not, run `uv run rfp index` once
-     (a few minutes).
+2. **Start with the local quick start, not Docker.**
+   - Only if `web/dist` is missing or the web code changed: `cd web && npm ci && npm run build && cd ..`
+   - `uv run python main.py --serve`. It starts in a few seconds: the index, records and traces
+     already exist, so there is nothing to index (it only indexes bid folders that are new).
+   - Open http://localhost:8000.
+   - Don't use `docker compose up` for the recording. The first run builds the image, downloads
+     the models and indexes all three bids: about 5 minutes before the page loads. Section 8
+     explains it in words instead.
 3. **Do not run a full extraction on camera.**
    - A Bid1 run takes about 11 minutes and around 70k tokens of the 120b daily quota.
    - Show the existing runs and their traces instead; the Re-run button is enough to point at.
@@ -216,21 +219,30 @@ Compare.
   differ."
 - "Ticking 'key differences' adds one cheap model call that writes a summary."
 
-### 8. Engineering (8:15-8:50)
+### 8. Running it, and engineering (8:15-9:00)
 
-**Show:** the terminal, then the GitHub Actions tab.
+**Show:** the README's Quick start on GitHub, then its Docker section, then the terminal, then
+the GitHub Actions tab.
 
 **Say:**
-- "Any new folder works with no code change: `python main.py --bid data/bids/Bid3`."
+- "Everything runs with one command after setup, as the brief asks."
+  - "With Docker: `docker compose up`. It builds the web app and the API into one image,
+    indexes the bid folders on first start, and serves both on port 8000. The index and models
+    are kept in a volume, so later starts are quick."
+  - "Without Docker, `main.py` has three modes: `--bid` extracts a bid to JSON, `--question`
+    answers with citations, and `--serve` starts the API and web app."
+  - "What you've seen is that local quick start, `python main.py --serve`. It starts instantly
+    because the bids were already indexed."
+- "Any new folder works with no code change: `python main.py --bid data/bids/Bid3`. Each mode
+  indexes a bid folder it hasn't seen before."
 - "The provider is one setting: Groq, OpenAI, Ollama, Claude or any OpenAI-compatible API, with
   free-tier pacing built in."
 - "420 Python tests and 24 web tests. CI runs them, type checks, lint, the web build, and the
   retrieval evaluation."
-- "`docker compose up` runs everything in one container."
 - "The README lists the assumptions and limitations: the free-tier quotas, one run per record,
   and the output limit."
 
-### 9. Close (8:50-9:05)
+### 9. Close (9:00-9:15)
 
 **Say:** "So: a hybrid search engine measured on 42 labelled questions, a LangGraph agent system
 whose every value is checked and cited, and a UI built so you can verify any value in two
@@ -241,6 +253,15 @@ clicks. Thanks for watching."
 ## Part 3. Questions to be ready for in the review
 
 The brief says you must be able to explain every part. Short answers, all true of this repo:
+
+- **How does someone run it?**
+  - Setup: `uv sync`, then copy `.env.example` to `.env` and set a provider key.
+  - One command: `docker compose up`, or `uv run python main.py --serve` / `--bid PATH` /
+    `--question "..."`.
+  - A fresh setup needs no separate index step: `serve` indexes new bid folders before it
+    starts, and a question, search or extraction indexes the folder it needs.
+  - This was tested on a fresh clone with an empty Docker volume: all three bids indexed, then a
+    question answered with Addendum 2's date.
 
 - **Why LangGraph?** The flow needs:
   - a loop (validator back to retrieval);
