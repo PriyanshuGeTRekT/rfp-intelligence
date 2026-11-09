@@ -103,10 +103,14 @@ export const api = {
   },
 };
 
-function fileUrl(bidId: string, file: string): string {
+/** The URL a bid's source document is served from. */
+export function fileUrl(bidId: string, file: string): string {
   const path = file.split("/").map(encodeURIComponent).join("/");
   return `/api/bids/${encodeURIComponent(bidId)}/files/${path}`;
 }
+
+/** Whether a plain link (or iframe) can fetch files: a plain request cannot send the API key. */
+export const canLinkFiles = () => !readStored<string | null>(KEYS.apiKey, null);
 
 /** Open a cited source document at its page. With an API key set, the file is fetched with the
  * key and opened from a blob URL, since a plain link cannot send the header. */

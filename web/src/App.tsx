@@ -29,7 +29,7 @@ function NotFound() {
       title="Page not found"
       description="The address may be mistyped, or the page has moved."
       action={
-        <Link to="/" className="text-[13px] font-medium text-accent hover:underline">
+        <Link to="/" className="text-sm font-medium text-accent hover:underline">
           Go to bids
         </Link>
       }
@@ -96,7 +96,13 @@ export function App() {
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
           <RouterProvider router={router} />
-          <Toaster position="bottom-right" toastOptions={{ className: "!text-[13px] !border-line !bg-surface !text-ink" }} />
+          <Toaster
+            position="bottom-right"
+            toastOptions={{
+              className: "!rounded-sm !border-line !bg-surface !text-sm !text-ink !shadow-pop",
+              descriptionClassName: "!text-xs !text-muted",
+            }}
+          />
         </TooltipProvider>
       </QueryClientProvider>
     </RootBoundary>

@@ -75,3 +75,39 @@ describe("trace tree", () => {
     });
   });
 });
+
+describe("field groups", () => {
+  it("orders fields by agent batch and sends unknown keys to a trailing group", async () => {
+    const { groupFields } = await import("../lib/fieldGroups");
+    const field = (key: string) => ({ key, value: null, status: "not_found" as const, sources: [], confidence: 0.8, tier: "NF-1" as const, normalized: null, notes: null });
+    const groups = groupFields({ Product: field("product"), "Bid Number": field("bid_number"), Extra: field("warranty") });
+    expect(groups.map((g) => [g.group.name, g.entries.map(([name]) => name)])).toEqual([
+      ["Identity & dates", ["Bid Number"]],
+      ["Product & specs", ["Product"]],
+      ["Other", ["Extra"]],
+    ]);
+  });
+});
+
+describe("trace lanes and sentences", () => {
+  it("picks a lane by the kind of step, errors first", async () => {
+    const { laneFor } = await import("../features/traceTree");
+    expect(laneFor("agent.extract.product_specs", true)).toBe("error");
+    expect(laneFor("agent.retrieve.rewrite", false)).toBe("extract");
+    expect(laneFor("search", false)).toBe("retrieve");
+    expect(laneFor("agent.validate", false)).toBe("validate");
+    expect(laneFor("agent.report", false)).toBe("plain");
+    expect(laneFor("extract", false)).toBe("extract");
+    expect(laneFor("retrieve", false)).toBe("retrieve");
+    expect(laneFor("validate", false)).toBe("validate");
+    expect(laneFor("agent.retrieve.retry:product", false)).toBe("retrieve");
+    expect(laneFor("plan", false)).toBe("plain");
+  });
+
+  it("takes the first sentence of a summary", async () => {
+    const { firstSentence } = await import("../lib/format");
+    expect(firstSentence("Dallas ISD is buying devices. The due date is July 9.")).toBe("Dallas ISD is buying devices.");
+    expect(firstSentence("No full stop here")).toBe("No full stop here");
+    expect(firstSentence("Qty 1.5 each. Next.")).toBe("Qty 1.5 each.");
+  });
+});

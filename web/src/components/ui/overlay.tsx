@@ -11,11 +11,7 @@ export function Tooltip({ content, children, side = "top" }: { content: ReactNod
     <TooltipPrimitive.Root delayDuration={250}>
       <TooltipPrimitive.Trigger asChild>{children}</TooltipPrimitive.Trigger>
       <TooltipPrimitive.Portal>
-        <TooltipPrimitive.Content
-          side={side}
-          sideOffset={6}
-          className="z-50 max-w-xs rounded-md border border-line bg-surface px-2.5 py-1.5 text-xs text-ink shadow-pop"
-        >
+        <TooltipPrimitive.Content side={side} sideOffset={6} className="z-50 max-w-[280px] rounded-sm bg-ink px-2.5 py-1.5 text-xs text-canvas shadow-pop">
           {content}
         </TooltipPrimitive.Content>
       </TooltipPrimitive.Portal>
@@ -35,20 +31,18 @@ export function Tabs({ value, onValueChange, children }: { value: string; onValu
 
 export function TabList({ items, className }: { items: { value: string; label: string; count?: number }[]; className?: string }) {
   return (
-    <TabsPrimitive.List className={cn("flex gap-5 border-b border-line", className)}>
+    <TabsPrimitive.List className={cn("scrollbar-thin flex gap-5 overflow-x-auto whitespace-nowrap border-b border-line", className)}>
       {items.map((item) => (
         <TabsPrimitive.Trigger
           key={item.value}
           value={item.value}
           className={cn(
-            "-mb-px flex h-9 items-center gap-1.5 border-b-2 border-transparent text-[13px] font-medium text-muted transition-colors",
-            "hover:text-ink data-[state=active]:border-accent data-[state=active]:text-ink",
+            "-mb-px flex h-9 shrink-0 items-center gap-1.5 border-b-2 border-transparent text-sm font-medium text-muted transition-colors",
+            "hover:text-ink data-[state=active]:border-ink data-[state=active]:text-ink",
           )}
         >
           {item.label}
-          {item.count !== undefined && (
-            <span className="num rounded bg-subtle px-1.5 text-2xs font-medium text-muted">{item.count}</span>
-          )}
+          {item.count !== undefined && <span className="num font-mono text-2xs text-muted">{item.count}</span>}
         </TabsPrimitive.Trigger>
       ))}
     </TabsPrimitive.List>
@@ -79,16 +73,14 @@ export function Dialog({
   return (
     <DialogPrimitive.Root open={open} onOpenChange={onOpenChange}>
       <DialogPrimitive.Portal>
-        <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[1px]" />
-        <DialogPrimitive.Content className="fixed left-1/2 top-[12vh] z-50 w-[min(92vw,460px)] -translate-x-1/2 rounded-lg border border-line bg-surface shadow-pop">
+        <DialogPrimitive.Overlay className="fixed inset-0 z-40 bg-black/30" />
+        <DialogPrimitive.Content className="fixed left-1/2 top-[12vh] z-50 w-[min(92vw,460px)] -translate-x-1/2 rounded-md border border-line bg-surface shadow-dialog">
           <div className="flex items-start justify-between border-b border-line px-4 py-3">
             <div>
-              <DialogPrimitive.Title className="text-sm font-semibold">{title}</DialogPrimitive.Title>
-              {description && (
-                <DialogPrimitive.Description className="mt-0.5 text-xs text-muted">{description}</DialogPrimitive.Description>
-              )}
+              <DialogPrimitive.Title className="text-base font-semibold">{title}</DialogPrimitive.Title>
+              {description && <DialogPrimitive.Description className="mt-0.5 text-xs text-muted">{description}</DialogPrimitive.Description>}
             </div>
-            <DialogPrimitive.Close className="rounded p-1 text-muted hover:bg-subtle hover:text-ink" aria-label="Close">
+            <DialogPrimitive.Close className="rounded-sm p-1 text-muted hover:bg-subtle hover:text-ink" aria-label="Close">
               <X className="size-4" />
             </DialogPrimitive.Close>
           </div>

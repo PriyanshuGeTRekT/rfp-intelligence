@@ -1,21 +1,21 @@
 import { Loader2 } from "lucide-react";
+import { forwardRef, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from "react";
 
 import { cn } from "../../lib/cn";
-import { forwardRef, type ButtonHTMLAttributes, type HTMLAttributes, type InputHTMLAttributes, type ReactNode, type SelectHTMLAttributes } from "react";
 
 type Variant = "primary" | "secondary" | "ghost" | "danger";
 type Size = "sm" | "md";
 
 const VARIANTS: Record<Variant, string> = {
-  primary: "bg-accent text-white hover:bg-accent-ink dark:text-canvas dark:hover:bg-accent/90 border border-transparent",
-  secondary: "bg-surface text-ink border border-line hover:bg-subtle hover:border-line-strong",
+  primary: "bg-accent text-white hover:bg-accent-ink dark:text-canvas dark:hover:bg-accent-ink border border-transparent",
+  secondary: "bg-surface text-ink border border-control hover:border-ink",
   ghost: "text-muted hover:text-ink hover:bg-subtle border border-transparent",
   danger: "bg-bad text-white hover:bg-bad/90 border border-transparent",
 };
 
 const SIZES: Record<Size, string> = {
   sm: "h-7 px-2.5 text-xs gap-1.5",
-  md: "h-8 px-3 text-[13px] gap-2",
+  md: "h-8 px-3 text-sm gap-2",
 };
 
 interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -35,7 +35,7 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
       type="button"
       disabled={disabled || loading}
       className={cn(
-        "inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded-md font-medium transition-colors",
+        "inline-flex shrink-0 items-center justify-center whitespace-nowrap rounded font-medium transition-colors",
         "disabled:pointer-events-none disabled:opacity-50",
         VARIANTS[variant],
         SIZES[size],
@@ -49,21 +49,10 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button
   );
 });
 
-export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input(
-  { className, ...rest },
-  ref,
-) {
-  return (
-    <input
-      ref={ref}
-      className={cn(
-        "h-8 w-full rounded-md border border-line bg-surface px-2.5 text-[13px] text-ink placeholder:text-faint",
-        "hover:border-line-strong focus:border-accent",
-        className,
-      )}
-      {...rest}
-    />
-  );
+const FIELD = "rounded border border-control bg-surface text-sm text-ink placeholder:text-faint hover:border-ink focus:border-accent";
+
+export const Input = forwardRef<HTMLInputElement, InputHTMLAttributes<HTMLInputElement>>(function Input({ className, ...rest }, ref) {
+  return <input ref={ref} className={cn("h-8 w-full px-2.5", FIELD, className)} {...rest} />;
 });
 
 export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSelectElement>>(function Select(
@@ -71,54 +60,41 @@ export const Select = forwardRef<HTMLSelectElement, SelectHTMLAttributes<HTMLSel
   ref,
 ) {
   return (
-    <select
-      ref={ref}
-      className={cn(
-        "h-8 rounded-md border border-line bg-surface pl-2.5 pr-7 text-[13px] text-ink hover:border-line-strong focus:border-accent",
-        className,
-      )}
-      {...rest}
-    >
+    <select ref={ref} className={cn("h-8 pl-2.5 pr-7", FIELD, className)} {...rest}>
       {children}
     </select>
   );
 });
 
-export function Card({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("rounded-lg border border-line bg-surface shadow-card", className)} {...rest} />;
+/** A bordered surface. Layout uses hairlines, not shadows; only overlays float. */
+export function Panel({ className, ...rest }: HTMLAttributes<HTMLDivElement>) {
+  return <div className={cn("border border-line bg-surface", className)} {...rest} />;
 }
 
-export function CardHeader({ title, description, actions }: { title: ReactNode; description?: ReactNode; actions?: ReactNode }) {
+/** Small-caps label that opens a section of a page or pane. */
+export function SectionLabel({ children, count, className, ...rest }: HTMLAttributes<HTMLParagraphElement> & { count?: ReactNode }) {
   return (
-    <div className="flex items-start justify-between gap-4 border-b border-line px-4 py-3">
-      <div className="min-w-0">
-        <h2 className="text-[13px] font-semibold text-ink">{title}</h2>
-        {description && <p className="mt-0.5 text-xs text-muted">{description}</p>}
-      </div>
-      {actions && <div className="flex shrink-0 items-center gap-2">{actions}</div>}
-    </div>
+    <p className={cn("caps", className)} {...rest}>
+      {children}
+      {count !== undefined && <span className="num ml-1.5 font-mono normal-case tracking-normal text-faint">{count}</span>}
+    </p>
   );
 }
 
-type Tone = "neutral" | "accent" | "ok" | "warn" | "bad" | "info";
+type Tone = "neutral" | "accent" | "ok" | "warn" | "bad";
 
 const TONES: Record<Tone, string> = {
-  neutral: "bg-subtle text-muted border-line",
-  accent: "bg-accent-soft text-accent-ink border-accent/20",
-  ok: "bg-ok-soft text-ok border-ok/20",
-  warn: "bg-warn-soft text-warn border-warn/25",
-  bad: "bg-bad-soft text-bad border-bad/20",
-  info: "bg-info-soft text-info border-info/20",
+  neutral: "bg-subtle text-ink border-line",
+  accent: "bg-accent-soft text-accent-ink border-line",
+  ok: "bg-ok-soft text-ok border-line",
+  warn: "bg-warn-soft text-warn border-line",
+  bad: "bg-bad-soft text-bad border-line",
 };
 
-export function Badge({ tone = "neutral", className, children, ...rest }: HTMLAttributes<HTMLSpanElement> & { tone?: Tone }) {
+export function Tag({ tone = "neutral", className, children, ...rest }: HTMLAttributes<HTMLSpanElement> & { tone?: Tone }) {
   return (
     <span
-      className={cn(
-        "inline-flex h-5 shrink-0 items-center gap-1 whitespace-nowrap rounded border px-1.5 text-2xs font-medium",
-        TONES[tone],
-        className,
-      )}
+      className={cn("inline-flex h-5 shrink-0 items-center gap-1 whitespace-nowrap rounded-sm border px-1.5 text-2xs font-medium", TONES[tone], className)}
       {...rest}
     >
       {children}
@@ -126,25 +102,67 @@ export function Badge({ tone = "neutral", className, children, ...rest }: HTMLAt
   );
 }
 
-export function Dot({ tone }: { tone: Tone }) {
-  const color = { neutral: "bg-faint", accent: "bg-accent", ok: "bg-ok", warn: "bg-warn", bad: "bg-bad", info: "bg-info" }[tone];
-  return <span className={cn("inline-block size-1.5 shrink-0 rounded-full", color)} aria-hidden />;
+export interface SegmentedItem<T extends string> {
+  value: T;
+  label: ReactNode;
+  count?: number;
+}
+
+/** A row of exclusive options in one hairline frame; the pressed one is ink on paper. */
+export function Segmented<T extends string>({
+  items,
+  value,
+  onChange,
+  size = "md",
+  ...rest
+}: { items: SegmentedItem<T>[]; value: T; onChange: (v: T) => void; size?: Size } & Omit<HTMLAttributes<HTMLDivElement>, "onChange">) {
+  return (
+    <div role="group" className="inline-flex overflow-hidden rounded border border-control text-xs font-medium" {...rest}>
+      {items.map((item, i) => {
+        const pressed = item.value === value;
+        return (
+          <button
+            key={item.value}
+            type="button"
+            aria-pressed={pressed}
+            onClick={() => onChange(item.value)}
+            className={cn(
+              "flex items-center gap-1.5 px-2.5",
+              size === "sm" ? "h-6" : "h-7",
+              i > 0 && "border-l border-control",
+              pressed ? "bg-ink text-canvas" : "bg-surface text-muted hover:text-ink",
+            )}
+          >
+            {item.label}
+            {item.count !== undefined && <span className={cn("num font-mono", pressed ? "opacity-80" : "text-faint")}>{item.count}</span>}
+          </button>
+        );
+      })}
+    </div>
+  );
+}
+
+export function Dot({ tone, hollow }: { tone: Tone; hollow?: boolean }) {
+  const color = { neutral: "bg-faint", accent: "bg-accent", ok: "bg-ok", warn: "bg-warn", bad: "bg-bad" }[tone];
+  return (
+    <span
+      className={cn("inline-block size-1.5 shrink-0 rounded-full", hollow ? "border border-faint bg-transparent" : color)}
+      aria-hidden
+    />
+  );
 }
 
 export function Kbd({ children }: { children: ReactNode }) {
   return (
-    <kbd className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded border border-line bg-subtle px-1 font-sans text-2xs text-muted">
+    <kbd className="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-sm border border-line bg-subtle px-1 font-mono text-[10.5px] text-muted">
       {children}
     </kbd>
   );
 }
 
+/** A static two-tone placeholder in the shape of the content it stands in for. */
 export function Skeleton({ className }: { className?: string }) {
-  return (
-    <div className={cn("relative overflow-hidden rounded bg-subtle", className)} aria-hidden>
-      <div className="absolute inset-0 -translate-x-full animate-shimmer bg-gradient-to-r from-transparent via-surface/60 to-transparent" />
-    </div>
-  );
+  return <div className={cn("rounded-sm bg-subtle", className)} aria-hidden />;
 }
 
 export function Spinner({ className }: { className?: string }) {

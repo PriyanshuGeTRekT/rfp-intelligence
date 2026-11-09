@@ -13,9 +13,9 @@ const DOC_TYPE_LABELS: Record<string, string> = {
 export const docTypeLabel = (t: string) => DOC_TYPE_LABELS[t] ?? t.replace(/_/g, " ");
 
 export const TIER_INFO: Record<Tier, { label: string; description: string }> = {
-  A: { label: "High", description: "Grounded, and two documents agree or an addendum sets it." },
-  B: { label: "Good", description: "Grounded in one source." },
-  C: { label: "Fair", description: "Loosely grounded, from OCR, or assembled from two sources." },
+  A: { label: "Corroborated", description: "Grounded, and two documents agree or an addendum sets it." },
+  B: { label: "Grounded", description: "Grounded in one source." },
+  C: { label: "Fair", description: "Loosely grounded, from OCR (OCR text is capped at C), or assembled from two sources." },
   D: { label: "Reconciled", description: "Sources differ; an addendum explains the difference." },
   E: { label: "Conflict", description: "Sources differ and nothing explains it, or a cross-field check failed." },
   "NF-1": { label: "Absent", description: "Not found after a thorough search." },
@@ -88,6 +88,24 @@ export const pagesLabel = (start: number, end: number) => (start === end ? `p. $
 export function valueText(value: string | string[] | null): string {
   if (value === null) return "";
   return Array.isArray(value) ? value.join(", ") : value;
+}
+
+/** What the model wrote about its search, without the "Not found" or "Extraction failed" prefix. */
+export function searchEffort(notes: string | null): string | null {
+  if (!notes) return null;
+  return notes.replace(/^Not found in documents\.\s*/i, "").replace(/^Extraction failed:\s*/i, "") || null;
+}
+
+/** A comparison cell's source arrives as "file, p. N"; split it so it can be a cite. */
+export function parseSourceRef(source: string): { file: string; page: string } | null {
+  const match = /^(.+), p\. (\S+)$/.exec(source);
+  return match ? { file: match[1] ?? "", page: match[2] ?? "" } : null;
+}
+
+/** The first sentence of a paragraph, for a one-line lead. */
+export function firstSentence(text: string): string {
+  const match = /^.*?[.!?](?=\s|$)/.exec(text.trim());
+  return match ? match[0] : text.trim();
 }
 
 /** Split text into plain and highlighted parts for the given terms (case-insensitive). */

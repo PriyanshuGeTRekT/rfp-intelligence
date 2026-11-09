@@ -1,5 +1,7 @@
-import "@fontsource-variable/inter";
-import "@fontsource/jetbrains-mono/400.css";
+import "@fontsource-variable/ibm-plex-sans";
+import "@fontsource/ibm-plex-mono/400.css";
+import "@fontsource/ibm-plex-mono/500.css";
+import "@fontsource-variable/source-serif-4/opsz.css";
 import "./styles/index.css";
 
 import { StrictMode } from "react";

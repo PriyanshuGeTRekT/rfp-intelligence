@@ -59,3 +59,16 @@ export function spanLabel(name: string): string {
   const parts = name.replace(/^agent\./, "").split(".");
   return parts.join(" · ");
 }
+
+export type Lane = "error" | "extract" | "retrieve" | "validate" | "plain";
+
+/** The timeline lane a step draws in, by the kind of agent work it is. */
+export function laneFor(name: string, error: boolean): Lane {
+  if (error) return "error";
+  // Graph nodes are named "extract"; the agents' own spans "agent.extract.<batch>".
+  const kind = name.replace(/^agent\./, "").split(".")[0];
+  if (kind === "extract" || kind === "summary" || name.includes("rewrite")) return "extract";
+  if (kind === "retrieve" || kind === "search" || kind === "rerank") return "retrieve";
+  if (kind === "validate") return "validate";
+  return "plain";
+}
