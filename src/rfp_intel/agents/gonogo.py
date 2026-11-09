@@ -138,9 +138,10 @@ def _installation(r: BidResult, c: Company) -> Check:
 def _bid_bond(r: BidResult, c: Company) -> Check:
     f = r.by_key("bid_bond_requirement")
     text = _text(f)
-    if f.status != "found" or re.search(
-        r"\bnot (required|specified|stated)\b|\bnone\b", text, re.I
-    ):
+    # Unstated is not "not required": a missed bond requirement disqualifies the bid.
+    if f.status != "found":
+        return _check("Bid bond", "review", "The documents do not state whether one is needed.", f)
+    if re.search(r"\bnot (required|specified|stated)\b|\bnone\b", text, re.I):
         return _check("Bid bond", "pass", "No bid bond is required.", f)
     pct = re.search(r"(\d+(?:\.\d+)?)\s*%", text)
     if pct is None or c.max_bid_bond_percent is None:

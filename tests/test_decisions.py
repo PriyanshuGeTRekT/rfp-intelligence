@@ -105,6 +105,13 @@ def test_each_capability_gap_is_a_no_go(change: dict[str, Any], check: str, deta
     assert failed.verdict == "fail" and detail in failed.detail
 
 
+def test_an_unstated_bid_bond_is_reviewed_not_passed() -> None:
+    fields = {k: v for k, v in GOOD.items() if k != "bid_bond_requirement"}
+    rec = recommend(record("A", **fields), COMPANY, as_of=date(2024, 6, 1))
+    bond = next(c for c in rec.checks if c.name == "Bid bond")
+    assert bond.verdict == "review" and "do not state" in bond.detail
+
+
 def test_a_passed_deadline_and_an_unknown_vehicle() -> None:
     rec = recommend(
         record("A", **GOOD, contract_or_cooperative="Texas DIR contract"), COMPANY, date(2024, 8, 1)

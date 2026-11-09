@@ -1,35 +1,35 @@
 # Bid comparison: Bid1, Bid2, Bid3
 
-Bids differ significantly across all key procurement criteria. Bid1 is tailored to Dallas ISD with multiple device tiers, flexible delivery options, and white glove installation. Bid2 offers Dell laptops under a fixed‑price contract with strict electronic submission and a 90‑day validity period. Bid3 requires a bid security, a 12‑month term, and a specified delivery date but lacks many details, making the bids incomparable without further clarification.
+Bids differ markedly in deadlines, submission methods, term length, and contractual details, making Bid2 the most time‑constrained and Bid3 the most stringent in terms of bid security. Bid1 offers a comprehensive white‑glove delivery and extensive product mix but lacks a specified contract term beyond 5 years. Bid2 provides a fixed‑price 90‑day validity and requires strict electronic submission, while Bid3 imposes a 12‑month fixed term and a 10% bid bond. These differences suggest Bid2 may be best suited for quick, tight‑budget procurement, Bid1 for a broader equipment package, and Bid3 for a short‑term, secured arrangement.
 
 ## Key differences
 
-- **Bid Number**: Bid numbers differ: Bid1 JA-207652, Bid2 #E20P4600040, Bid3 2025-003.
-- **Title**: Titles differ: Bid1 "Student and Staff Computing Devices", Bid2 "Dell Laptops w/Extended Warranty", Bid3 has no title.
-- **Due Date**: Due dates vary: Bid1 July 9 2024, Bid2 June 10 2024, Bid3 September 6 2024.
-- **Pre Bid Meeting**: Bid1 requires a pre‑bid meeting on June 10 2024; Bid2 and Bid3 have no pre‑bid meeting specified.
-- **Bid Submission Type**: Submission methods differ: Bid1 allows electronic and manual sealed hard copy; Bid2 only electronic via eMMA; Bid3 requires sealed envelope.
-- **Term of Bid**: Contract terms differ: Bid1 is a 3‑year term with renewals up to 5; Bid2 is fixed‑price with 90‑day validity; Bid3 is a 12‑month term.
-- **Bid Bond Requirement**: Bid3 requires 10% bid security; Bid1 and Bid2 have no bond requirement stated.
-- **Payment Terms**: Bid2 specifies payment within 10 days after delivery; Bid1 and Bid3 have no payment terms stated.
-- **Contract or Cooperative to use**: Bid1 uses EPCNT and CTPA cooperative; Bid2 uses 2015 Master Contract; Bid3 has no cooperative noted.
-- **Any Additional Documentation Required**: Bid1 requires MWBE, W9, etc.; Bid2 requires Mercury Affidavit; Bid3 has no additional documentation listed.
-- **Product**: Bid1 offers multiple Chromebook and Windows laptop tiers; Bid2 offers Dell Latitude 5550 laptops and docks; Bid3 has no product listed.
-- **Model_no**: Model numbers differ: Bid1 none, Bid2 Dell Latitude 5550 & dock, Bid3 Dell Chrome 3120.
-- **Part_no**: Bid2 lists specific part numbers; Bid1 and Bid3 none.
-- **MFG for Registration**: Manufacturers: Bid1 OEM, Bid2 Dell, Bid3 Dell.
-- **Product Specification**: Bid2 specifies Intel Core Ultra 5 processor; Bid3 specifies HP Fortis 11 inch G10 Chromebook; Bid1 has no specifications listed.
-- **company_name**: Bid companies differ: Bid1 Dallas ISD, Bid2 Maryland Treasurer's Office, Bid3 Delano Union SD.
-- **contact_info**: Bid1 contact is Procurement Services; Bid2 contact is Tamaira Hawkins; Bid3 no contact info listed.
-- **Installation**: Bid1 specifies white glove installation; Bid2 and Bid3 have no installation details.
-- **Delivery Date**: Delivery timelines differ: Bid2 within 45 days; Bid3 by Oct 31 2024; Bid1 none specified.
+- **Bid Number**: Bid numbers are unique: JA-207652 for Bid1, #E20P4600040 for Bid2, and 2025-003 for Bid3.
+- **Title**: Bid titles differ: Bid1 'Student and Staff Computing Devices', Bid2 'Dell Laptops w/Extended Warranty', Bid3 not found.
+- **Due Date**: Due dates vary: 2024-07-09 14:00 CDT for Bid1, 2024-06-10 14:00 EDT for Bid2, and 2024-09-06 13:00 for Bid3.
+- **Pre Bid Meeting**: Bid1 requires a pre‑bid meeting via TEAMS at 2024-06-10 14:00 CST; Bid2 and Bid3 do not specify a pre‑bid meeting.
+- **Bid Submission Type**: Bid1 accepts electronic submission via iSupplier portal and a manual sealed hard copy; Bid2 allows only electronic submission via eMMA; Bid3 requires sealed envelope proposals before 1:00 PM on September 6, 2024.
+- **Term of Bid**: Bid1 term is 3 years with two one‑year renewals up to 5 years; Bid2 term is fixed price with validity of at least 90 days post‑due; Bid3 term is 12 months.
+- **Bid Bond Requirement**: Bid3 requires a 10% bid security; Bid1 and Bid2 do not specify a bid bond.
+- **Payment Terms**: Bid2 mandates invoices within 10 days of delivery; Bid1 and Bid3 do not specify payment terms.
+- **Contract or Cooperative to use**: Bid1 uses Educational Purchasing Cooperative of North Texas and Central Texas Purchasing Alliance; Bid2 is under Desktop, Laptop and Tablet 2015 Master Contract, 060B5400007; Bid3 does not specify.
+- **Any Additional Documentation Required**: Bid1 requires MWBE, W9, Punch Out Process optional, 1295 form, etc.; Bid2 requires Mercury Affidavit, Attachment N – Contract Affidavit; Bid3 has no additional documentation listed.
+- **Product**: Bid1 lists multiple Chromebook and Windows laptop tiers; Bid2 specifies Dell Latitude 5550 laptops and Thunderbolt 4 docks; Bid3 product not specified.
+- **Model_no**: Bid1 no model numbers listed; Bid2 lists Dell Latitude 5550 and Thunderbolt 4 Dock – WD22TB4; Bid3 lists Dell Chrome 3120 Chromebook.
+- **Part_no**: Bid1 no part numbers; Bid2 lists many Dell part numbers; Bid3 no part numbers.
+- **MFG for Registration**: Bid1 OEM, Bid2 Dell, Bid3 Dell.
+- **Product Specification**: Bid1 product specifications not provided; Bid2 lists Intel Core Ultra 5 processor, 16 GB DDR5, etc.; Bid3 lists HP Fortis 11 inch G10 Chromebook with Intel N100 processor.
+- **company_name**: Bid1 company Dallas Independent School District; Bid2 State of Maryland Treasurer's Office; Bid3 Delano Union School District.
+- **contact_info**: Bid1 contact Procurement Services 972-925-3700; Bid2 contact Tamaira Hawkins; Bid3 no contact info.
+- **Installation**: Bid1 includes white glove services and asset management; Bid2 and Bid3 provide no installation details.
+- **Delivery Date**: Bid1 no delivery date specified; Bid2 delivery within 45 days of award; Bid3 delivery on October 31, 2024.
 
 ## Go / no-go
 
 | Bid | Decision | Failed checks | To review |
 |---|---|---|---|
-| Bid1 | **review** | - | Manufacturer |
-| Bid2 | **review** | - | Contract vehicle |
+| Bid1 | **review** | - | Manufacturer, Bid bond |
+| Bid2 | **review** | - | Bid bond, Contract vehicle |
 | Bid3 | **no-go** | Bid bond | Delivery, Documents |
 
 _Checked against Example Technology Reseller as of 2024-05-20._

@@ -59,25 +59,32 @@ code change. The folder name becomes the bid id; it is indexed incrementally on 
 A React single-page app (`web/`: React 18, TypeScript, Vite, TanStack Query, Tailwind, Radix
 primitives), served by the API at `/` once built.
 
-- **Bids**: every bid folder with its due date, documents by type, validation tally and last
-  run; start an extraction (runs in the background, one at a time, with a notification when done).
-- **Bid record**: the 20 fields with status, confidence tier (hover for what the tier means),
-  and source chips that open the PDF at the cited page; expand a row for the verbatim quotes,
-  notes and normalized values. Tabs for addendum changes (a timeline of replaced, added and
-  clarified values), documents, and the validation report. Download the JSON.
+- **Bids**: every bid folder with its due date, documents, validation tally, go / no-go and
+  last run; start an extraction (runs in the background, one at a time, with a notification
+  when done).
+- **Bid record**: three columns. A documents rail (click one to show only the fields it
+  supports), the 20 fields grouped by agent batch with status, confidence tier and pinpoint
+  citations (`Add. 2 · p. 1`), and an evidence pane for the selected field: its value, what
+  each addendum changed (old → new), the verbatim quotes (each citation opens the PDF at its
+  page, or previews the page inline), notes, normalized values and validation. `?field=` links straight to a field; `j`/`k`/Enter select
+  from the keyboard. Below 1280 px the evidence opens under the row, and on a phone each field
+  stacks. Tabs for addendum changes, documents, validation and go / no-go. Download the JSON.
 - **Search**: the retrieval engine on its own, with bid, document-type and configuration
-  filters held in the URL (shareable), query analysis (identifiers found, fact labels routed
-  to, synonym expansions), highlighted passages and each hit's rank in every retrieval list.
-- **Ask**: cited Q&A, scoped to one bid or all; each citation shows the quote and opens its
-  source. The five questions from the brief are one click away.
-- **Runs**: extraction jobs, and a trace viewer per run: a waterfall of every agent step with
-  its prompt, output, tokens, cost and errors.
-- **Compare**: pick two or more extracted bids for the side-by-side table, each bid's go / no-go,
-  and (one model call, opt-in) the key differences. Each bid also has a **Go / no-go** tab
-  listing every check with the value it read and its source.
+  filters held in the URL (shareable), how the query was searched (identifiers found, fact
+  labels routed to, synonym expansions), highlighted passages and each hit's rank in every
+  retrieval list.
+- **Ask**: cited Q&A, scoped to one bid or all; each statement is numbered to its quotes, which
+  open their source. The five questions from the brief are one click away.
+- **Runs**: extraction jobs, and a trace viewer per run: a timeline of every agent step,
+  coloured by kind (retrieval, extraction, validation, errors), with its prompt, output,
+  tokens, cost and errors.
+- **Compare**: pick two or more extracted bids for the side-by-side table, each bid's go / no-go
+  checks with their citations, and (one model call, opt-in) the key differences.
 
-Light and dark themes, keyboard search (Ctrl/Cmd+K), loading, empty and error states on every
-view, responsive down to phone width. An API key, if the server requires one, is entered in
+Confidence tiers are drawn as a fill meter plus the tier letter, so they read without colour.
+The app's own text is set in IBM Plex Sans and quotes from the documents in Source Serif 4, so
+serif text is always evidence. Light and dark themes (contrast checked), keyboard search
+(Ctrl/Cmd+K), loading, empty and error states on every view, responsive down to phone width. An API key, if the server requires one, is entered in
 Settings. Development: `uv run rfp serve` in one terminal, `cd web && npm run dev` in another
 (Vite proxies `/api` to port 8000). `npm test`, `npm run lint` and `npm run typecheck` run in CI.
 
@@ -232,7 +239,7 @@ tuning described below. Exact provenance, because it matters for reading the num
 | [outputs/Bid2.json](outputs/Bid2.json) | `20261108T115449Z-2c640f` | same |
 | [outputs/Bid3.json](outputs/Bid3.json) | `20261108T063550Z-932750` | `openai/gpt-oss-20b` throughout (the 120b daily quota went to Bid1 and Bid2) |
 | [outputs/qa_log.jsonl](outputs/qa_log.jsonl), [docs/qa_log.md](docs/qa_log.md) | with Bid3's record and the earlier Bid1 and Bid2 records of the same day (`20261108T061841Z-b06a6b`, `20261108T061044Z-144948`) | `openai/gpt-oss-20b` (`RFP_QA_MODEL`) |
-| [docs/comparison.md](docs/comparison.md), [docs/trace_example.md](docs/trace_example.md) | the records above; the trace is Bid2's run | as above |
+| [docs/comparison.md](docs/comparison.md), [docs/trace_example.md](docs/trace_example.md) | the records above; the trace is Bid2's run. The comparison was regenerated on 2026-11-09 after the bid bond go / no-go fix (`rfp compare Bid1 Bid2 Bid3 --as-of 2024-05-20`) | as above; key differences by `openai/gpt-oss-20b` |
 
 Bid1 and Bid2 ran with the code at commit `eb3d0cb`, plus the product-label and Product
 reranking fixes under "Found in the re-runs". The fixes listed there after those two came after
@@ -607,6 +614,10 @@ re-chunking, and a unit test fails if any locator matches no chunk. Each questio
 within its own bid. `uv run rfp eval retrieval` writes [docs/eval/retrieval.md](docs/eval/retrieval.md)
 with per-question ranks and misses.
 
+The table below is the 32 questions over the provided bids. The report's first table covers all
+42 (MRR@10 from 0.496 dense-only to 0.788 with the reranker), and it also breaks out the
+held-out and unseen-bid questions (on Bid3 alone, 0.233 to 0.683).
+
 | Config | Recall@1 | Recall@5 | Recall@10 | MRR@10 | Median latency |
 |---|---|---|---|---|---|
 | `dense` | 0.438 | 0.760 | 0.854 | 0.579 | 4 ms |
@@ -776,9 +787,12 @@ estimated cost are recorded per call, on the spans and in the record's `usage`.
   vs preparation time, manufacturer authorization, products we sell, installation services,
   bid bond vs the bond we can post, delivery lead time, contract vehicles we hold, documents we
   cannot supply. Each returns pass, fail or review with the value it read and that value's
-  citation. Any fail is a no-go; otherwise anything undecidable (a field not found, wording a
-  rule cannot read) is a review. These are rules, not a model call: a bid decision should be
-  repeatable and explainable, and it costs nothing. `--as-of` judges deadlines on another date.
+  citation. Any fail is a no-go; otherwise anything undecidable (wording a rule cannot read, or
+  a deadline, bid bond or document list that was not found) is a review. A bid bond the
+  documents do not mention is a review, not a pass: unstated is not "not required", and a
+  missed bond disqualifies a bid. Installation, a delivery date or a contract vehicle that is
+  not stated is no constraint, so it passes. These are rules, not a model call: a bid decision
+  should be repeatable and explainable, and it costs nothing. `--as-of` judges deadlines on another date.
 - **Semantic cache for questions** (`agents/qa_cache.py`). A question whose embedding (the
   search engine's bge-small) has cosine similarity of at least `RFP_QA_CACHE_THRESHOLD` (0.95)
   with an earlier one in the same scope gets the earlier answer without a model call. Numbers
@@ -827,7 +841,6 @@ with four tools: `list_bids`, `search`, `facts` and `ask` (which runs the agent 
 - [docs/trace_example.md](docs/trace_example.md): one full extraction run's trace, rendered,
   with complete prompts and responses for one call of each kind; the raw span file is
   [docs/trace_example.jsonl](docs/trace_example.jsonl).
-- [docs/demo.md](docs/demo.md): the demo script.
 
 ## Assumptions and limitations
 

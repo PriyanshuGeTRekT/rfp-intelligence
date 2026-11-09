@@ -18,7 +18,7 @@ flowchart LR
     API[FastAPI<br/>/index /search /ask<br/>/api/bids /api/jobs /api/runs]
 
     subgraph Ingestion["Ingestion (no model)"]
-        P[Parsers<br/>PyMuPDF, BeautifulSoup]
+        P[Parsers<br/>PyMuPDF, BeautifulSoup,<br/>RapidOCR for scanned pages]
         C[Cleaning, headers,<br/>tables, sections]
         T[Doc type, addendum no.,<br/>document date]
         X[Typed facts<br/>dates+zones, durations,<br/>money, ids, contacts]
