@@ -258,8 +258,9 @@ change that the previous run exposed. Each record is the last run, not the best 
 **Extraction accuracy** against `eval/extraction_gold.yaml` (hand-compiled expected values),
 from [docs/eval/extraction.md](docs/eval/extraction.md): **37 of 40 fields (92.5%)**, Bid1 90%,
 Bid2 95%. Under this gold the 2026-11-07 records scored 35 of 40. The first live runs scored
-31 of 40, under an earlier and looser gold. Tier B is 21 of 22, tier A 7 of 8, the not-found
-tiers 8 of 8, and the one failed field (tier X) is a miss, as its tier says it may be. With the
+31 of 40, under an earlier and looser gold. Tier B is 21 of 22, tier A 7 of 8, tier C 1 of 1,
+the not-found tiers 8 of 8, and the one failed field (tier X) is a miss, as its tier says it may
+be. With the
 unseen Bid3 included, 50 of 60 (83%). Bid1 costs $0.020 (26 model calls, 71k tokens); Bid2
 $0.012 (14 calls, 46k tokens). The three misses, each traced to its cause:
 
@@ -298,7 +299,8 @@ words like "10 days" and "Affidavit"; it was tightened to the hand-compiled valu
 BASELINE.md.
 
 What the first runs showed, and what was changed because of it. `uv run rfp deliverables`
-regenerates every output: about 60-75k tokens per extraction and 80k for the 16 questions.
+regenerates every output. The submitted runs used 46k tokens (Bid2), 71k (Bid1) and 90k (Bid3)
+per extraction, and 59k for the 16 questions.
 That is more than one model's 200k daily quota on Groq's free tier, so spread it:
 `RFP_QA_MODEL=openai/gpt-oss-20b` draws the questions from that model's quota.
 
@@ -387,9 +389,12 @@ stricter one it is **50 of 54**:
   costs one cross-encoder run per query, about 18 seconds per field on a CPU, so it is set per
   field (`rerank_queries: true`) and used only for these two.
 
-Still missing from the prompt: Bid1's requirement to return the signed addenda (the stricter
-check found it), Bid2's warranty certificate (see the misses above), and three Bid3 fields, left
-untuned so that Bid3 stays an unseen test.
+The four fields the report lists as missing from the prompt: Bid1's requirement to return the
+signed addenda (the stricter check found it), and three Bid3 fields, left untuned so that Bid3
+stays an unseen test: the non-collusion declaration, the cooperative contracts and the
+substitute's SKU. The report counts Bid2's Additional Documentation as reached, because its
+pattern (`warrant`) matches other warranty text in the prompt; the passage about the warranty
+certificate itself is not there (see the misses above).
 Retrieval metrics are unchanged.
 
 **Found in the re-runs** (2026-11-08), fixed with tests. Bid1's and Bid2's current records ran
@@ -414,8 +419,9 @@ with all of these except the last three; Bid3's ran with none of them:
   its own terms of sale, financing clause ("within 120 days after shipment") and factory-install
   codes. These were taken for Bid2's payment terms and installation. Spec sheets now join
   affidavits and forms as document types that a field demotes in the rerank unless it asks for
-  them. Product fields ask for specs, so they are unaffected. The PORFP's invoicing rule now
-  ranks first for payment terms.
+  them. Model_no, Part_no and Product Specification ask for specs, so spec sheets are not
+  demoted for them (Product and MFG for Registration do not, so for those two they are). The
+  PORFP's invoicing rule now ranks first for payment terms.
 - **Item codes offered as model numbers.** Model_no drew its candidate facts from identifiers
   (SKUs, "SI#" item codes), so in three runs the model chose the item code "CC7802" over the
   model name next to it. Model names are not identifier facts, so Model_no no longer takes
@@ -463,8 +469,8 @@ except for one capability the run proved missing (OCR):
   - Right: the number, due date, submission method, term (12 months), the 10% bid security from
     Addendum 1, delivery by October 31 (the first run read November 30), the substitute HP
     Chromebook from Addendum 2, model, manufacturer and agency.
-  - Never reach the prompt: payment terms, the cooperative contracts and the substitute's SKU
-    (see "Tuned with evidence reach").
+  - Never reach the prompt: the non-collusion declaration, the cooperative contracts and the
+    substitute's SKU (see "Tuned with evidence reach").
   - Reported as not found: Product.
   - Rejected by the validator: three fields. Two of them were correct values it should have
     accepted: the title "Computer Equipment", quoted from OCR text that runs the words together
@@ -631,7 +637,7 @@ held-out and unseen-bid questions (on Bid3 alone, 0.233 to 0.683).
 | `dense` | 0.438 | 0.760 | 0.854 | 0.579 | 4 ms |
 | `sparse` (BM25) | 0.438 | 0.729 | 0.875 | 0.564 | 7 ms |
 | `hybrid` (dense + BM25 + identifiers, RRF) | 0.500 | 0.792 | 0.906 | 0.645 | 11 ms |
-| `hybrid_facts` (default) | 0.635 | 0.854 | 0.896 | 0.755 | 26 ms |
+| `hybrid_facts` (default) | 0.635 | 0.854 | 0.896 | 0.755 | 20 ms |
 | `hybrid_facts_rerank`, bge-reranker-v2-m3-int8 | 0.698 | 0.927 | 0.958 | 0.821 | 5.0 s |
 | `hybrid_facts_rerank`, ms-marco-MiniLM-L-12-v2 | 0.542 | 0.802 | 0.906 | 0.690 | 1.4 s |
 
@@ -644,10 +650,11 @@ What the rows show:
   chunks holding deadline, bond or warranty facts lifts the right chunk above the boilerplate
   that mentions the same words. Bid2's warranty table goes from rank 8 to 1.
 - **The small reranker hurts.** MiniLM, trained on short web passages, drops below no reranking
-  on every metric; it buried the Bid2 warranty table again (rank 9). It was the planned
-  default and was replaced because of this table.
-- **The large reranker is the best on quality and on the held-out questions** (MRR 0.750 vs
-  0.617), but costs about 6 s per query on CPU. Interactive search uses `hybrid_facts`; the
+  on Recall@1, Recall@5 and MRR (its Recall@10 is 0.906 against 0.896); it buried the Bid2
+  warranty table again (rank 9). It was the planned default and was replaced because of this
+  table.
+- **The large reranker is the best on quality and on the held-out questions** (MRR 0.739 vs
+  0.617), but costs about 5 s per query on CPU. Interactive search uses `hybrid_facts`; the
   extraction agents can pay for the reranker where a field's evidence matters most.
 - **Known misses.** "Minority and women-owned business participation goal" is missed by every
   configuration: the goal sentence sits in a long chunk among a dozen other M/WBE form
@@ -710,7 +717,7 @@ START -> plan --(ask)-----> answer -> END
 |---|---|---|
 | Orchestrator / Planner | `nodes/orchestrator.py` | Writes the execution plan (`PlanStep`s), routes extract vs ask, splits fields into batches and fans them out in parallel, sends rejected fields back with the reason, decides when to report |
 | Ingestion | `nodes/ingest.py` + `ingestion/` | Indexes the folder incrementally (new or changed files only) and lists documents with type, addendum number, date and pages |
-| Retrieval / Search | `nodes/retrieve.py` + `evidence.py` | Plans queries per field (name, configured queries, and on a retry new queries a cheap model writes from the validator's reason), searches with the hybrid engine, adds a search filtered to the field's preferred document types, pulls every chunk holding a labelled fact, reranks the pool with the cross-encoder; returns ranked evidence with citations |
+| Retrieval / Search | `nodes/retrieve.py` + `evidence.py` | Plans queries per field (name, configured queries, and on a retry new queries a cheap model writes from the validator's reason), searches with the hybrid engine, adds a search filtered to the field's preferred document types, adds up to four chunks holding a labelled fact, reranks the pool with the cross-encoder; returns ranked evidence with citations |
 | Extraction (specialists) | `nodes/extract.py` | One structured call per batch of fields (the four groups are the specialists: identity and dates, commercial and legal, product and specs, parties and logistics); each value comes with verbatim quotes and passage ids |
 | Addendum Reconciliation | `nodes/reconcile.py` + `addenda.py`, `reconcile.py` | Date changes from facts with no model; other changes by one model call per addendum over passages found by searching inside that addendum; folds the events in addendum order; resolves the date fields; produces the change log |
 | Validator / Critic | `nodes/validate.py` + `validate.py`, `consistency.py` | Per field: cited, quotes verbatim, value supported by its quotes and well-formed for its type, "not found" justified by the search, model call succeeded. Across fields: dates in a consistent order. Failures go back for re-extraction with the reason |
@@ -856,8 +863,9 @@ with four tools: `list_bids`, `search`, `facts` and `ask` (which runs the agent 
   `openai/gpt-oss-20b` (see "Results of the live runs" for which output came from which run).
   The Anthropic client is covered by tests with a fake client but has not been run against the
   live API.
-- **Free-tier daily quotas.** Groq allows 200k tokens per day per model on these models; one
-  extraction uses about 60-75k, so three bids and the Q&A log need two models or two days.
+- **Free-tier daily quotas.** Groq allows 200k tokens per day per model on these models; the
+  submitted extractions used 46k to 90k each, so three bids and the Q&A log need two models or
+  two days.
   `qwen/qwen3.8-27b` was tried as a substitute and rejected: it often returned values without
   the required quotes.
 - **One run per bid.** Each record comes from a single run, and model output varies between
